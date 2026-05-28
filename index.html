@@ -342,9 +342,25 @@ function confirmField(){
 async function loadIntel(lat,lng){
   const scroll=document.getElementById('intel-scroll');
   try{
+    // Pass selected parcel properties to avoid re-querying wrong parcel
+    const parcelProps = selectedParcel?.properties || {};
     const r=await fetch('https://cube-earth.onrender.com/field_profile',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({lat,lng,year:2026})
+      body:JSON.stringify({
+        lat,lng,year:2026,
+        parcel_override:{
+          crop:        parcelProps.CROP,
+          claim_area:  parseFloat(parcelProps.CLAIM_AREA||0),
+          grassland:   parcelProps.GRASSLND==='Y',
+          tillage:     parcelProps.TILLAGE==='Y',
+          arable:      parcelProps.ARABL_IND==='Y',
+          permanent:   parcelProps.PERM_IND==='Y',
+          biss:        parcelProps.BISS==='Y',
+          eco:         parcelProps.ECO==='Y',
+          olr:         parcelProps.OLR,
+          par_lab:     parcelProps.PAR_LAB,
+        }
+      })
     });
     const d=await r.json();
     if(!d.success){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${d.detail||'Failed'}</div>`;return;}
