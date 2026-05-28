@@ -294,7 +294,7 @@ async function fetchParcel(lat,lng){
 
   try{
     const tol=0.005;
-    const url=`https://geoapi.opendata.agriculture.gov.ie/shps/collections/anonymous-lpis-data-for-2024_2024-lpis-data/items?bbox=${lng-tol},${lat-tol},${lng+tol},${lat+tol}&f=json&limit=10`;
+    const url=`https://cube-earth.onrender.com/parcel_at_point?lat=${lat}&lng=${lng}`;
     const r=await fetch(url);
     const data=await r.json();
     const features=data.features||[];
