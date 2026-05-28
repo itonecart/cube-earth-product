@@ -66,7 +66,7 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
 .match-badge{font-size:11px;padding:3px 8px;border-radius:100px;font-weight:600;white-space:nowrap;}
 .match-exact{background:var(--green-pale);color:var(--green);}
 .match-near{background:#fef3c7;color:#92400e;}
-#intel-map{height:170px;flex-shrink:0;}
+#intel-map{height:120px;flex-shrink:0;}
 .intel-scroll{flex:1;overflow-y:auto;padding-bottom:110px;}
 
 /* CARDS */
@@ -400,14 +400,17 @@ function renderIntel(d){
   </div>
 
   <div class="card" id="sec-decisions">
-    <div class="card-label">What to do today</div>
+    <div class="card-label">Field Overview</div>
     <div class="card-body">
       <div class="dec-grid">
         <div class="dec-item"><div class="dec-emoji">🌾</div><div class="dec-label">Crop Canopy</div><div class="dec-val">${ndviLabel(ndvi)}</div><div class="dec-sub">NDVI ${ndvi?.toFixed(3)||'—'}</div></div>
         <div class="dec-item"><div class="dec-emoji">💧</div><div class="dec-label">Soil Moisture</div><div class="dec-val">${smLabel(smapVal)}</div><div class="dec-sub">${smapVal?.toFixed(3)||'—'} m³/m³</div></div>
-        ${machinery?`<div class="dec-item full"><div class="dec-emoji">🚜</div><div class="dec-label">Machinery</div><div class="dec-val">${machinery.label||machinery.interpretation||'—'}</div></div>`:''}
-        ${grazing?`<div class="dec-item full"><div class="dec-emoji">🐄</div><div class="dec-label">Grazing</div><div class="dec-val">${grazing.label||grazing.suitability||'—'} · ${grazing.score||grazing.suitability_score||'—'}/8</div></div>`:''}
-        ${stage?`<div class="dec-item full highlight"><div class="dec-emoji">📅</div><div class="dec-label">Stage Advice</div><div class="dec-val">${stage.label}</div><div class="dec-sub">${stage.advice}</div></div>`:''}
+        ${stage?`<div class="dec-item full highlight"><div class="dec-emoji">📅</div><div class="dec-label">Crop Stage</div><div class="dec-val">${stage.label}</div><div class="dec-sub">${stage.advice}</div></div>`:''}
+      </div>
+      <div style="margin-top:10px;padding:12px;background:#f0fdf4;border:1.5px dashed #86efac;border-radius:10px;text-align:center">
+        <div style="font-size:13px;font-weight:700;color:var(--green)">🔒 Full Field Decisions</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Machinery · Grazing · Slurry timing · Stage advice</div>
+        <div style="font-size:11px;font-weight:600;color:var(--green);margin-top:6px">Unlock with Sensor Report — €2.99</div>
       </div>
     </div>
   </div>
@@ -416,10 +419,21 @@ function renderIntel(d){
     <div class="card-label">🛰 Live Sensors</div>
     <div class="card-body">
       <div class="sensor-row"><div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div><div class="s-name">Sentinel-2 NDVI</div><div class="s-val">${ndvi?.toFixed(3)||'—'}</div><div class="s-age">${fresh.sentinel2?.age_days||'—'}d · 10m</div></div>
-      <div class="sensor-row"><div class="s-dot ${dot(fresh.smap?.age_days)}"></div><div class="s-name">SMAP Moisture</div><div class="s-val">${smapVal?.toFixed(3)||'—'}</div><div class="s-age">${fresh.smap?.age_days||'—'}d · 9km</div></div>
-      <div class="sensor-row"><div class="s-dot ${dot(fresh.sentinel1?.age_days)}"></div><div class="s-name">SAR RVI</div><div class="s-val">${sar.rvi?.toFixed(3)||'—'}</div><div class="s-age">${fresh.sentinel1?.age_days||'—'}d · 10m</div></div>
-      <div class="sensor-row"><div class="s-dot ${dot(thermal.age_days)}"></div><div class="s-name">${thermal.fallback==='landsat'?'Landsat LST':'ECOSTRESS'}</div><div class="s-val">${thermal.lst_celsius!=null?thermal.lst_celsius+'°C':'—'}</div><div class="s-age">${thermal.age_days||'—'}d</div></div>
-      ${modis.available?`<div class="sensor-row"><div class="s-dot ${dot(modis.lst_age_days)}"></div><div class="s-name">MODIS LST</div><div class="s-val">${modis.lst_celsius}°C</div><div class="s-age">${modis.lst_age_days}d · 1km</div></div>`:''}
+      <div style="margin-top:8px;padding:12px;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:10px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SMAP Moisture</div><div style="font-size:12px;color:#94a3b8">🔒 locked</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SAR Radar RVI</div><div style="font-size:12px;color:#94a3b8">🔒 locked</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">Thermal LST</div><div style="font-size:12px;color:#94a3b8">🔒 locked</div>
+        </div>
+        <div style="text-align:center;padding-top:8px;border-top:1px solid var(--border)">
+          <div style="font-size:12px;font-weight:700;color:var(--green)">Unlock all 5 sensors — €2.99</div>
+          <button onclick="alert('Coming soon — Sensor Report')" style="margin-top:8px;padding:8px 20px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">Get Sensor Report →</button>
+        </div>
+      </div>
     </div>
   </div>
 
