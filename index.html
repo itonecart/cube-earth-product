@@ -251,7 +251,11 @@ function doDemo(){startSelect();showPage('select');}
 function startSelect(){
   if(selectMap) return;
   selectMap=L.map('select-map').setView([53.4,-7.9],7);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'}).addTo(selectMap);
+  // Satellite layer
+  const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'});
+  const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM'});
+  satellite.addTo(selectMap);
+  L.control.layers({'Satellite':satellite,'Map':osm},{},{position:'topright'}).addTo(selectMap);
   selectMap.on('click',e=>fetchParcel(e.latlng.lat,e.latlng.lng));
   document.getElementById('search-input').addEventListener('keypress',e=>{
     if(e.key==='Enter') searchPlace(e.target.value);
@@ -326,7 +330,7 @@ function confirmField(){
   showPage('intel');
   if(intelMap){intelMap.remove();intelMap=null;}
   intelMap=L.map('intel-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false}).setView([53.4,-7.9],14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(intelMap);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'}).addTo(intelMap);
   if(selectedParcel?.geometry){
     const l=L.geoJSON(selectedParcel,{style:{color:'#1a5c38',weight:2.5,fillColor:'#2d7a50',fillOpacity:0.3}}).addTo(intelMap);
     intelMap.fitBounds(l.getBounds(),{padding:[20,20]});
