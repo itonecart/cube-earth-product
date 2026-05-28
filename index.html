@@ -385,7 +385,7 @@ function renderIntel(d){
   const tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable';
   const aPct=vt.seasonal?.anomaly_pct;
   const aClass=aPct>20?'a-pos':aPct<-20?'a-neg':'a-neu';
-  const aLabel=aPct!==undefined?(aPct>0?'+':'')+aPct+'% vs seasonal baseline':'';
+  const aLabel=aPct!==null&&aPct!==undefined?(aPct>0?'+':'')+aPct+'% vs seasonal baseline':'';
   const score=conf.score||0;
   const C=2*Math.PI*28;
   const DO=C-(score/10)*C;
