@@ -326,6 +326,15 @@ async function fetchParcel(lat,lng){
   }catch(e){cropEl.textContent='Error: '+e.message;}
 }
 
+function getCentroid(geometry){
+  if(!geometry||geometry.type!=='Polygon') return null;
+  const coords=geometry.coordinates[0];
+  if(!coords||!coords.length) return null;
+  const lng=coords.reduce((s,c)=>s+c[0],0)/coords.length;
+  const lat=coords.reduce((s,c)=>s+c[1],0)/coords.length;
+  return {lat,lng};
+}
+
 function confirmField(){
   if(!selectedLatLng) return;
   showPage('intel');
@@ -336,7 +345,9 @@ function confirmField(){
     const l=L.geoJSON(selectedParcel,{style:{color:'#1a5c38',weight:2.5,fillColor:'#2d7a50',fillOpacity:0.3}}).addTo(intelMap);
     intelMap.fitBounds(l.getBounds(),{padding:[20,20]});
   }
-  loadIntel(selectedLatLng.lat,selectedLatLng.lng);
+  // Use parcel centroid for accurate backend query
+  const centroid=getCentroid(selectedParcel?.geometry)||selectedLatLng;
+  loadIntel(centroid.lat, centroid.lng);
 }
 
 async function loadIntel(lat,lng){
