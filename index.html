@@ -319,7 +319,7 @@ async function loadFields(lat,lng,name){
   el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">Loading fields near '+name+'...</div>';
   try{
     const tol=0.025;
-    const url=`https://geoapi.opendata.agriculture.gov.ie/shps/collections/anonymous-lpis-data-for-2024_2024-lpis-data/items?bbox=${lng-tol},${lat-tol},${lng+tol},${lat+tol}&f=json&limit=50`;
+    const url=`https://cube-earth.onrender.com/parcels_in_bbox?minlng=${lng-tol}&minlat=${lat-tol}&maxlng=${lng+tol}&maxlat=${lat+tol}`;
     const r=await fetch(url);
     const data=await r.json();
     villageParcels=(data.features||[]).filter(f=>{
