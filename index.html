@@ -344,9 +344,13 @@ async function loadFields(lat,lng,name){
     el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:600">${villageParcels.length} fields found near ${name}</div>`+
     villageParcels.map((f,i)=>{
       const p=f.properties;
-      return `<button class="field-btn" onclick="pickField(${i})">
+      const badges=(p.ECO==='Y'?'<span style="font-size:9px;background:#d1fae5;color:#065f46;padding:2px 5px;border-radius:4px;font-weight:700">ECO</span> ':'')+(p.BISS==='Y'?'<span style="font-size:9px;background:#dbeafe;color:#1e40af;padding:2px 5px;border-radius:4px;font-weight:700">BISS</span>':'');
+      return `<button class="field-btn" onclick="pickField(${i})" style="flex-wrap:wrap">
         <span class="field-num">Field ${i+1}</span>
-        <span class="field-crop">${icon(p.CROP)} ${p.CROP||'Unknown'}</span>
+        <div style="flex:1">
+          <div class="field-crop">${icon(p.CROP)} ${p.CROP||'Unknown'}</div>
+          ${badges?`<div style="margin-top:3px">${badges}</div>`:''}
+        </div>
         <span class="field-area">${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha</span>
       </button>`;
     }).join('');
