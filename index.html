@@ -172,7 +172,32 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
   <div class="step-body" id="step1">
     <div class="step-label">Step 1 of 3 · Select your county</div>
     <div class="county-grid">
-      ${['Carlow','Cavan','Clare','Cork','Donegal','Dublin','Galway','Kerry','Kildare','Kilkenny','Laois','Leitrim','Limerick','Longford','Louth','Mayo','Meath','Monaghan','Offaly','Roscommon','Sligo','Tipperary','Waterford','Westmeath','Wexford','Wicklow'].map(c=>`<button class="county-btn" onclick="pickCounty('${c}')">${c}</button>`).join('')}
+      <button class="county-btn" onclick="pickCounty('Carlow')">Carlow</button>
+      <button class="county-btn" onclick="pickCounty('Cavan')">Cavan</button>
+      <button class="county-btn" onclick="pickCounty('Clare')">Clare</button>
+      <button class="county-btn" onclick="pickCounty('Cork')">Cork</button>
+      <button class="county-btn" onclick="pickCounty('Donegal')">Donegal</button>
+      <button class="county-btn" onclick="pickCounty('Dublin')">Dublin</button>
+      <button class="county-btn" onclick="pickCounty('Galway')">Galway</button>
+      <button class="county-btn" onclick="pickCounty('Kerry')">Kerry</button>
+      <button class="county-btn" onclick="pickCounty('Kildare')">Kildare</button>
+      <button class="county-btn" onclick="pickCounty('Kilkenny')">Kilkenny</button>
+      <button class="county-btn" onclick="pickCounty('Laois')">Laois</button>
+      <button class="county-btn" onclick="pickCounty('Leitrim')">Leitrim</button>
+      <button class="county-btn" onclick="pickCounty('Limerick')">Limerick</button>
+      <button class="county-btn" onclick="pickCounty('Longford')">Longford</button>
+      <button class="county-btn" onclick="pickCounty('Louth')">Louth</button>
+      <button class="county-btn" onclick="pickCounty('Mayo')">Mayo</button>
+      <button class="county-btn" onclick="pickCounty('Meath')">Meath</button>
+      <button class="county-btn" onclick="pickCounty('Monaghan')">Monaghan</button>
+      <button class="county-btn" onclick="pickCounty('Offaly')">Offaly</button>
+      <button class="county-btn" onclick="pickCounty('Roscommon')">Roscommon</button>
+      <button class="county-btn" onclick="pickCounty('Sligo')">Sligo</button>
+      <button class="county-btn" onclick="pickCounty('Tipperary')">Tipperary</button>
+      <button class="county-btn" onclick="pickCounty('Waterford')">Waterford</button>
+      <button class="county-btn" onclick="pickCounty('Westmeath')">Westmeath</button>
+      <button class="county-btn" onclick="pickCounty('Wexford')">Wexford</button>
+      <button class="county-btn" onclick="pickCounty('Wicklow')">Wicklow</button>
     </div>
   </div>
 
