@@ -443,10 +443,23 @@ function renderIntel(d){
   const machinery=ag.machinery_trafficability||ag.machinery;
   const trend=vt.long_trend||'stable';
   const tIcon=trend==='strong_increase'?'📈':trend==='increasing'?'↗️':trend==='stable'?'➡️':trend==='declining'?'↘️':'📉';
-  const tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable';
   const aPct=vt.seasonal?.anomaly_pct;
   const aClass=aPct>20?'a-pos':aPct<-20?'a-neg':'a-neu';
-  const aLabel=aPct!==null&&aPct!==undefined?(aPct>0?'+':'')+aPct+'% vs seasonal baseline':'';
+  // Anomaly-aware trend label
+  let tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable';
+  if(aPct!==null&&aPct!==undefined){
+    const gl2=p.grassland;
+    if((trend==='declining'||trend==='strong_decline')&&aPct>10){
+      tLabel=gl2?'Pasture growth softening from above-average levels':'Canopy easing from above-average levels';
+    } else if((trend==='declining'||trend==='strong_decline')&&aPct>0){
+      tLabel=gl2?'Pasture slightly below recent peak — still near seasonal average':'Canopy below recent peak';
+    }
+  }
+  // Anomaly label with context
+  const aLabel=aPct!==null&&aPct!==undefined?
+    ((trend==='declining'||trend==='strong_decline')&&aPct>0?
+      `Remains ${aPct>0?'+':''}${aPct}% above seasonal baseline despite recent softening`:
+      `${aPct>0?'+':''}${aPct}% vs seasonal baseline`):'';
   const score=conf.score||0;
   const C=2*Math.PI*28;
   const DO=C-(score/10)*C;
