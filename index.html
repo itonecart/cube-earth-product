@@ -6,6 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Cube Earth v2</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -72,6 +74,7 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
 .match-exact{font-size:11px;padding:3px 8px;border-radius:100px;font-weight:600;background:var(--green-pale);color:var(--green);}
 .match-near{font-size:11px;padding:3px 8px;border-radius:100px;font-weight:600;background:#fef3c7;color:#92400e;}
 .intel-scroll{flex:1;overflow-y:auto;padding-bottom:110px;}
+#field-map{height:160px;width:100%;flex-shrink:0;}
 
 /* CARDS */
 .card{background:var(--white);border-radius:14px;margin:12px 14px 0;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
@@ -244,6 +247,7 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
     <h2 id="intel-title">Field Intelligence</h2>
     <span id="match-badge"></span>
   </div>
+  <div id="field-map"></div>
   <div class="intel-scroll" id="intel-scroll">
     <div style="text-align:center;padding:60px 20px;color:var(--muted)">
       <div style="font-size:48px;margin-bottom:12px">🛰</div>
@@ -371,9 +375,21 @@ function pickField(i){
   });
 }
 
+let fieldMap=null;
 function confirmField(){
   if(!selectedLatLng) return;
   showPage('intel');
+  setTimeout(()=>{
+    if(fieldMap){fieldMap.remove();fieldMap=null;}
+    fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'}).addTo(fieldMap);
+    if(selectedParcel?.geometry){
+      const l=L.geoJSON(selectedParcel,{style:{color:'#1a5c38',weight:2.5,fillColor:'#2d7a50',fillOpacity:0.3}}).addTo(fieldMap);
+      fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
+    } else {
+      fieldMap.setView([selectedLatLng.lat,selectedLatLng.lng],15);
+    }
+  },300);
   loadIntel(selectedLatLng.lat,selectedLatLng.lng);
 }
 
