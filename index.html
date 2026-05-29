@@ -341,7 +341,14 @@ async function loadFields(lat,lng,name){
              cl.includes('barley')||cl.includes('wheat')||cl.includes('oat')||cl.includes('rape')?'🌾':
              cl.includes('potato')||cl.includes('beet')||cl.includes('maize')||cl.includes('bean')?'🥕':'🌿';
     };
-    el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:600">${villageParcels.length} fields found near ${name}</div>`+
+    el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:600">${villageParcels.length} fields found near ${name}</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--muted)">Filter:</span>
+      <button onclick="filterFields('all')" style="font-size:11px;padding:3px 8px;border-radius:100px;border:1px solid var(--border);background:var(--green);color:#fff;cursor:pointer">All</button>
+      <button onclick="filterFields('grass')" style="font-size:11px;padding:3px 8px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer">🌱 Grass</button>
+      <button onclick="filterFields('tillage')" style="font-size:11px;padding:3px 8px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer">🌾 Tillage</button>
+      <button onclick="filterFields('arable')" style="font-size:11px;padding:3px 8px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer">🥕 Arable</button>
+    </div>`+
     villageParcels.map((f,i)=>{
       const p=f.properties;
       const badges=(p.ECO==='Y'?'<span style="font-size:9px;background:#d1fae5;color:#065f46;padding:2px 5px;border-radius:4px;font-weight:700">ECO</span> ':'')+(p.BISS==='Y'?'<span style="font-size:9px;background:#dbeafe;color:#1e40af;padding:2px 5px;border-radius:4px;font-weight:700">BISS</span>':'');
@@ -565,6 +572,22 @@ function renderIntel(d){
 }
 
 document.getElementById('townland-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchTownland();});
+
+function filterFields(type){
+  const btns=document.querySelectorAll('#field-list button[onclick^="filterFields"]');
+  btns.forEach(b=>b.style.background='var(--white)');
+  event.target.style.background='var(--green)';
+  event.target.style.color='#fff';
+  const all=document.querySelectorAll('.field-btn');
+  all.forEach(b=>{
+    if(type==='all'){b.style.display='flex';return;}
+    const crop=b.querySelector('.field-crop')?.textContent||'';
+    const show=type==='grass'?(crop.includes('🌱')):
+               type==='tillage'?(crop.includes('🌾')):
+               type==='arable'?(crop.includes('🥕')):true;
+    b.style.display=show?'flex':'none';
+  });
+}
 </script>
 </body>
 </html>
