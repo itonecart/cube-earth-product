@@ -497,7 +497,7 @@ function renderIntel(d){
         <div class="dec-item"><div class="dec-emoji">💧</div><div class="dec-label">Soil Moisture</div><div class="dec-val">${smLabel(smapVal)}</div><div class="dec-sub">${smapVal?.toFixed(3)||'—'} m³/m³</div></div>
         <div class="dec-item full locked" style="text-align:center;padding:14px">
           <div style="font-size:13px;font-weight:700;color:var(--green)">🔒 Full Field Decisions</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">Machinery · Grazing · Slurry · Stage advice</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">${gl?'Grazing · Slurry timing · Machinery · Pasture advice':ti||ar?'Machinery · Harvest readiness · Moisture monitoring · Crop advice':'Machinery · Field management · Crop advice'}</div>
           <div style="font-size:12px;font-weight:600;color:var(--green);margin-top:6px">Unlock — €2.99</div>
         </div>
       </div>
