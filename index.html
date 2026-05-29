@@ -328,8 +328,12 @@ async function loadFields(lat,lng,name){
     const data=await r.json();
     villageParcels=(data.features||[]).filter(f=>{
       const c=(f.properties?.CROP||'').toLowerCase();
-      return !['building','road','water','farmyard'].includes(c)&&c!=='';
+      const area=parseFloat(f.properties?.CLAIM_AREA||0);
+      const skip=['building','road','water','farmyard','forestry ineligible','habitat','winter bird food plot'];
+      return !skip.some(s=>c.includes(s))&&c!==''&&area>0.2;
     });
+    // Sort by area descending
+    villageParcels.sort((a,b)=>parseFloat(b.properties?.CLAIM_AREA||0)-parseFloat(a.properties?.CLAIM_AREA||0));
     if(!villageParcels.length){el.innerHTML='<div style="color:var(--red);font-size:13px">No fields found. Try a nearby town.</div>';return;}
     const icon=c=>{
       const cl=(c||'').toLowerCase();
