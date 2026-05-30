@@ -480,7 +480,11 @@ function renderIntel(d){
   const DO=C-(score/10)*C;
   const contribs=conf.contributions||{};
   const events=vt.events||[];
-
+  const today=new Date();
+  const month=today.getMonth()+1;
+  const restrictedPeriod=month>=3&&month<=8;
+  const hasViolation=events.some(e=>(e.type==='harvest_or_cut'||e.type==='bare_soil')&&restrictedPeriod);
+  const isACRES=p.eco||p.acres||(p.crop||'').toLowerCase().includes('riparian')||(p.crop||'').toLowerCase().includes('extensive');
   scroll.innerHTML=`
   <div class="summary-card" id="sec-overview">
     <div class="summary-type">${cropIcon} ${cropType}</div>
@@ -503,6 +507,27 @@ function renderIntel(d){
       </div>
     </div>
   </div>
+  
+<div class="card" id="sec-acres">
+  <div class="card-label">📋 ACRES Compliance</div>
+  <div class="card-body" id="acres-body">
+  ${isACRES || gl ? `
+  <div style="padding:10px;background:${hasViolation?'#fee2e2':restrictedPeriod?'#fef3c7':'#d1fae5'};border-radius:8px;margin-bottom:10px">
+    <div style="font-size:15px;font-weight:700;color:${hasViolation?'#991b1b':restrictedPeriod?'#92400e':'#065f46'}">
+      ${hasViolation?'🔴 At Risk':'🟢 No violations detected'}
+    </div>
+    <div style="font-size:11px;margin-top:4px;color:var(--muted)">
+      ${hasViolation?'Mowing event detected during restricted period':'Satellite monitoring active'}
+    </div>
+  </div>
+  <div style="font-size:11px;color:var(--muted)">
+    Restricted period: Mar 1 — Aug 31 2026<br>
+    DAFM using Sentinel satellite monitoring
+  </div>` : `
+  <div style="font-size:12px;color:var(--muted)">
+    No ACRES actions detected for this field
+  </div>`}
+</div>
 
   <div class="card" id="sec-sensors">
     <div class="card-label">🛰 Live Sensors</div>
@@ -569,6 +594,7 @@ function renderIntel(d){
       <button class="report-opt report-full" onclick="alert('Coming soon')">Full PDF Field Report<span class="price">€7.99</span></button>
     </div>
   </div>`;
+  renderACRES(p, events, p.crop);
 }
 
 document.getElementById('townland-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchTownland();});
@@ -588,6 +614,39 @@ function filterFields(type){
     b.style.display=show?'flex':'none';
   });
 }
+
+ function renderACRES(parcel, events, crop){
+  const body = document.getElementById('acres-body');
+  if(!body) return;
+  
+  const gl = parcel?.grassland;
+  const riparian = (crop||'').toLowerCase().includes('riparian');
+  const extensive = (crop||'').toLowerCase().includes('extensive');
+  
+  const hasEvent = events?.some(e=>
+    e.type==='harvest_or_cut'||e.type==='bare_soil'
+  );
+  
+  const status = hasEvent ? '🔴' : '🟢';
+  const label = hasEvent ? 
+    'At Risk — mowing event detected' : 
+    'Compliant — no violations detected';
+  const color = hasEvent ? 'var(--red)' : '#065f46';
+  const bg = hasEvent ? '#fee2e2' : '#d1fae5';
+  
+  body.innerHTML = `
+    <div style="padding:10px;background:${bg};
+      border-radius:8px;margin-bottom:10px">
+      <div style="font-size:16px;font-weight:700;
+        color:${color}">${status} ${label}</div>
+      <div style="font-size:11px;color:var(--muted);
+        margin-top:4px">Based on satellite event detection</div>
+    </div>
+    <div style="font-size:11px;color:var(--muted)">
+      Restricted period: Mar 1 — Aug 31 2026<br>
+      DAFM monitoring: Sentinel-2 satellite
+    </div>`;
+} 
 </script>
 </body>
 </html>
