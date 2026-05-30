@@ -488,7 +488,7 @@ function confirmField(){
     L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20}).addTo(fieldMap);
     L.control.attribution({prefix:false}).addAttribution('© Google').addTo(fieldMap);
     if(selectedParcel?.geometry){
-      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fillColor:'#00ff88',fillOpacity:0.15}}).addTo(fieldMap);
+    const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
       fieldMap.fitBounds(l.getBounds(),{padding:[24,24]});
     } else {
       fieldMap.setView([selectedLatLng.lat,selectedLatLng.lng],15);
