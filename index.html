@@ -587,6 +587,9 @@ function renderIntel(d){
   const aPct=vt.seasonal?.anomaly_pct;
   const aClass=aPct>20?'a-pos':aPct<-20?'a-neg':'a-neu';
   let tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable vegetation';
+  
+  if(aPct && aPct > 40) tLabel = gl ? 'Exceptional pasture growth — high biomass accumulation' : 'Exceptional canopy development';
+else if(aPct && aPct > 20) tLabel = gl ? 'Strong pasture growth — above seasonal average' : 'Strong canopy growth';
   if(aPct!=null){
     if((trend==='declining'||trend==='strong_decline')&&aPct>10)
       tLabel=gl?'Pasture growth softening from above-average levels':'Canopy easing from above-average levels';
@@ -603,7 +606,12 @@ function renderIntel(d){
   const month=today.getMonth()+1;
   const restrictedPeriod=month>=3&&month<=8;
   const events=vt.events||[];
-  const hasViolation=events.some(e=>(e.type==='harvest_or_cut'||e.type==='bare_soil')&&restrictedPeriod);
+  // Only flag violation if NDVI confirms disturbance
+const hasViolation=events.some(e=>
+  (e.type==='harvest_or_cut'||e.type==='bare_soil')&&
+  restrictedPeriod &&
+  ndvi && ndvi < 0.50  // Cannot be mowing if NDVI > 0.50
+);
   const isACRESField=p.eco||p.acres||
     (p.crop||'').toLowerCase().includes('riparian')||
     (p.crop||'').toLowerCase().includes('extensive')||gl;
