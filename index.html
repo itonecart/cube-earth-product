@@ -503,6 +503,7 @@ async function loadIntel(lat,lng){
   const scroll=document.getElementById('intel-scroll');
   try{
     const p=selectedParcel?.properties||{};
+    console.log('Sending parcel override:', p.CROP, p.CLAIM_AREA);
     const r=await fetch('https://cube-earth.onrender.com/field_profile',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
