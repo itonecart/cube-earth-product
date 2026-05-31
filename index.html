@@ -507,14 +507,14 @@ async function loadIntel(lat,lng){
     const r=await fetch('https://cube-earth.onrender.com/field_profile',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        lat,lng,year:2026,
-        parcel_override:{
-          crop:p.CROP,claim_area:parseFloat(p.CLAIM_AREA||0),
-          grassland:p.GRASSLND==='Y',tillage:p.TILLAGE==='Y',
-          arable:p.ARABL_IND==='Y',biss:p.BISS==='Y',
-          eco:p.ECO==='Y',olr:p.OLR,
-        }
-      })
+  lat,lng,year:2026,
+  parcel_override:{
+    crop:p.CROP,claim_area:parseFloat(p.CLAIM_AREA||0),
+    grassland:p.GRASSLND==='Y',tillage:p.TILLAGE==='Y',
+    arable:p.ARABL_IND==='Y',biss:p.BISS==='Y',
+    eco:p.ECO==='Y',olr:p.OLR,
+  }
+})
     });
     const d=await r.json();
     if(!d.success){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${d.detail||'Failed to load'}</div>`;return;}
