@@ -484,32 +484,41 @@ function confirmField(){
   showPage('intel');
   setTimeout(()=>{
     if(fieldMap){fieldMap.remove();fieldMap=null;}
-    
     const mapEl=document.getElementById('field-map');
-    
+    mapEl.style.background='#1a1a1a';
+    document.getElementById('map-overlay').textContent='⏳ Loading...';
+
     if(selectedParcel?.geometry){
       const coords=selectedParcel.geometry.coordinates[0];
       const lngs=coords.map(c=>c[0]);
       const lats=coords.map(c=>c[1]);
-      const minlng=Math.min(...lngs)-0.005;
-      const maxlng=Math.max(...lngs)+0.005;
-      const minlat=Math.min(...lats)-0.005;
-      const maxlat=Math.max(...lats)+0.005;
-      
+      // Wide bbox for context
+      const minlng=Math.min(...lngs)-0.02;
+      const maxlng=Math.max(...lngs)+0.02;
+      const minlat=Math.min(...lats)-0.02;
+      const maxlat=Math.max(...lats)+0.02;
+
       const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
+
+      // Set background image
       mapEl.style.backgroundImage=`url(${imgUrl})`;
       mapEl.style.backgroundSize='cover';
       mapEl.style.backgroundPosition='center';
       mapEl.style.backgroundRepeat='no-repeat';
       document.getElementById('map-overlay').textContent='🛰 Sentinel-2 · May 2026';
+
+      // Add Leaflet on top for parcel boundary only
+      fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{opacity:0}).addTo(fieldMap);
+      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
+      fieldMap.fitBounds(l.getBounds(),{padding:[30,30]});
     } else {
       mapEl.style.background='#111';
-      document.getElementById('map-overlay').textContent='🛰 No imagery';
+      document.getElementById('map-overlay').textContent='🛰 Sentinel-2';
     }
   },300);
   loadIntel(selectedLatLng.lat,selectedLatLng.lng);
 }
-
 // ── LOAD INTEL ──
 async function loadIntel(lat,lng){
   const scroll=document.getElementById('intel-scroll');
