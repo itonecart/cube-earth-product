@@ -485,7 +485,26 @@ function confirmField(){
     if(fieldMap){fieldMap.remove();fieldMap=null;}
     fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
     // Google Maps satellite — fresher imagery
+  // Load Sentinel-2 real imagery
+fetch('https://cube-earth.onrender.com/wms_token')
+  .then(r=>r.json())
+  .then(data=>{
+    const token = data.token;
+    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/cdse-public', {
+      layers: 'TRUE-COLOR-S2L2A',
+      format: 'image/jpeg',
+      transparent: false,
+      version: '1.3.0',
+      time: '2026-05-01/2026-05-31',
+      maxcc: 80,
+      access_token: token,
+      attribution: '© Copernicus/ESA Sentinel-2'
+    }).addTo(fieldMap);
+  })
+  .catch(()=>{
+    // Fallback to Google Maps
     L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20}).addTo(fieldMap);
+  });
     L.control.attribution({prefix:false}).addAttribution('© Google').addTo(fieldMap);
     if(selectedParcel?.geometry){
     const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
