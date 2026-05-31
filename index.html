@@ -494,7 +494,7 @@ function pickField(i){
       fieldMap.fitBounds(b,{padding:[24,24]});
       // Load real Sentinel-2 imagery
      // Expand bbox for context around parcel
-const pad=0.003;
+const pad=0.001;
 const imgBounds=L.latLngBounds(
   [b.getSouth()-pad, b.getWest()-pad],
   [b.getNorth()+pad, b.getEast()+pad]
