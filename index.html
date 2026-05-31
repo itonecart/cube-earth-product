@@ -479,43 +479,37 @@ function pickField(i){
 }
 
 // ── CONFIRM FIELD ──
-
-  
- function confirmField(){
+function confirmField(){
   if(!selectedLatLng)return;
   showPage('intel');
   setTimeout(()=>{
     if(fieldMap){fieldMap.remove();fieldMap=null;}
-    fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
-
+    
+    const mapEl=document.getElementById('field-map');
+    
     if(selectedParcel?.geometry){
-      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
-      const b=l.getBounds();
-      fieldMap.fitBounds(b,{padding:[24,24]});
-      // Load real Sentinel-2 imagery
-     // Expand bbox for context around parcel
-const pad=0.01;
-const imgBounds=L.latLngBounds(
-  [b.getSouth()-pad, b.getWest()-pad],
-  [b.getNorth()+pad, b.getEast()+pad]
-);
- const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${imgBounds.getWest()}&minlat=${imgBounds.getSouth()}&maxlng=${imgBounds.getEast()}&maxlat=${imgBounds.getNorth()}&time=2026-05-01/2026-05-31`;
-
-// Set as background image to fill container
-// Load high resolution Sentinel-2 image
-L.imageOverlay(imgUrl, imgBounds, {
-  opacity: 1,
-  className: 'sentinel-overlay'
-}).addTo(fieldMap);
-fieldMap.fitBounds(b, {padding:[10,10]});
-document.getElementById('map-overlay').innerHTML='🛰 Sentinel-2 · 29 May 2026';
+      const coords=selectedParcel.geometry.coordinates[0];
+      const lngs=coords.map(c=>c[0]);
+      const lats=coords.map(c=>c[1]);
+      const minlng=Math.min(...lngs)-0.005;
+      const maxlng=Math.max(...lngs)+0.005;
+      const minlat=Math.min(...lats)-0.005;
+      const maxlat=Math.max(...lats)+0.005;
+      
+      const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
+      mapEl.style.backgroundImage=`url(${imgUrl})`;
+      mapEl.style.backgroundSize='cover';
+      mapEl.style.backgroundPosition='center';
+      mapEl.style.backgroundRepeat='no-repeat';
+      document.getElementById('map-overlay').textContent='🛰 Sentinel-2 · May 2026';
     } else {
-      fieldMap.setView([selectedLatLng.lat,selectedLatLng.lng],15);
-      document.getElementById('map-overlay').textContent='🛰 Sentinel-2';
+      mapEl.style.background='#111';
+      document.getElementById('map-overlay').textContent='🛰 No imagery';
     }
   },300);
   loadIntel(selectedLatLng.lat,selectedLatLng.lng);
 }
+
 // ── LOAD INTEL ──
 async function loadIntel(lat,lng){
   const scroll=document.getElementById('intel-scroll');
