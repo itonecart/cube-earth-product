@@ -478,45 +478,30 @@ function pickField(i){
 }
 
 // ── CONFIRM FIELD ──
-function confirmField(){
+
+  
+ function confirmField(){
   if(!selectedLatLng)return;
   showPage('intel');
   setTimeout(()=>{
     if(fieldMap){fieldMap.remove();fieldMap=null;}
     fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
-    // Google Maps satellite — fresher imagery
-  // Load Sentinel-2 real imagery
-fetch('https://cube-earth.onrender.com/wms_token')
-  .then(r=>r.json())
-  .then(data=>{
-    const token = data.token;
-    L.tileLayer.wms('https://cube-earth.onrender.com/wms_tile', {
-      layers: 'TRUE-COLOR-S2L2A',
-      format: 'image/jpeg',
-      transparent: false,
-      version: '1.3.0',
-      time: '2026-05-01/2026-05-31',
-      maxcc: 80,
-  
-     attribution: '© Sentinel-2 Copernicus''
-    }).addTo(fieldMap);
-  })
-  .catch(()=>{
-    // Fallback to Google Maps
-    L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20}).addTo(fieldMap);
-  });
-    L.control.attribution({prefix:false}).addAttribution('© Google').addTo(fieldMap);
+
     if(selectedParcel?.geometry){
-    const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
-      fieldMap.fitBounds(l.getBounds(),{padding:[24,24]});
+      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
+      const b=l.getBounds();
+      fieldMap.fitBounds(b,{padding:[24,24]});
+      // Load real Sentinel-2 imagery
+      const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${b.getWest()}&minlat=${b.getSouth()}&maxlng=${b.getEast()}&maxlat=${b.getNorth()}&time=2026-05-01/2026-05-31`;
+      L.imageOverlay(imgUrl,b).addTo(fieldMap);
+      document.getElementById('map-overlay').textContent='🛰 Sentinel-2 · May 2026';
     } else {
       fieldMap.setView([selectedLatLng.lat,selectedLatLng.lng],15);
+      document.getElementById('map-overlay').textContent='🛰 Sentinel-2';
     }
-    document.getElementById('map-overlay').textContent='🛰 Google Satellite';
   },300);
   loadIntel(selectedLatLng.lat,selectedLatLng.lng);
 }
-
 // ── LOAD INTEL ──
 async function loadIntel(lat,lng){
   const scroll=document.getElementById('intel-scroll');
