@@ -885,9 +885,96 @@ function goField(id){
   imgEl.style.backgroundImage=`url(${imgUrl})`;
   imgEl.style.backgroundSize='cover';
   imgEl.style.backgroundPosition='center';
-  imgEl.innerHTML=`<div class="sat-caption"><div class="sat-date">🛰 Sentinel-2 · 29 May 2026</div><div class="sat-src">© Copernicus/ESA</div></div>`;
+  imgEl.innerHTML=`<div class="sat-caption"><div class="sat-date" id="fd-img-date-cap">🛰 Sentinel-2 · Loading...</div><div class="sat-src">© Copernicus/ESA</div></div>`;
 
   document.getElementById('fd-scroll').scrollTop=0;
+
+  // Load real API data if live field
+  if(liveFields.length && f.lat && f.lng){
+    loadRealFieldData(f);
+  }
+}
+
+async function loadRealFieldData(f){
+  try{
+    const r=await fetch(`${API}/field_profile`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        lat:f.lat, lng:f.lng, year:2026,
+        parcel_override:{
+          crop:f.crop,
+          claim_area:f.area,
+          grassland:f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass'),
+          eco:f.properties?.ECO==='Y',
+          biss:f.properties?.BISS==='Y',
+          olr:f.properties?.OLR||'Owned'
+        }
+      })
+    });
+    const d=await r.json();
+    if(!d.success) return;
+
+    const v=d.vegetation;
+    const sm=d.soil_moisture;
+    const fr=d.freshness;
+    const ag=d.agronomic;
+
+    // Update NDVI
+    if(v?.ndvi){
+      document.getElementById('fd-ndvi').textContent=v.ndvi.toFixed(2);
+      document.getElementById('fd-ndvi-note').textContent=v.ndvi>0.7?'Excellent':v.ndvi>0.55?'Good':v.ndvi>0.4?'Moderate':'Low';
+
+      // Teagasc calibrated cover estimate
+      const h=Math.max(0,(v.ndvi-0.15)*18);
+      const cover=Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+      if(cover>0){
+        document.getElementById('fd-cover').textContent=cover.toLocaleString();
+        document.getElementById('fd-grass-cover').textContent=cover.toLocaleString()+' kg DM/ha';
+        const note=cover>3000?'Consider topping':cover>1800?'Ready to graze':cover>1400?'Approaching threshold':'Below threshold';
+        document.getElementById('fd-cover-note').textContent=note;
+        const nc=cover>1800?'note-g':cover>1400?'note-a':'note-r';
+        document.getElementById('fd-cover-note').className='mc-note '+nc;
+
+        // Update decision
+        const dec=document.getElementById('fd-decision');
+        if(cover>1800){
+          dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
+          document.getElementById('fd-dec-action').textContent='✓ Graze Now';
+          document.getElementById('fd-dec-reason').textContent=`Cover estimated at ${cover.toLocaleString()} kg DM/ha. Conditions suitable for grazing.`;
+        } else if(cover>1200){
+          dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
+          document.getElementById('fd-dec-action').textContent='👁 Monitor — Not Ready Yet';
+          document.getElementById('fd-dec-reason').textContent=`Cover estimated at ${cover.toLocaleString()} kg DM/ha. Below grazing threshold. Check again in 3-5 days.`;
+        } else {
+          dec.style.background='linear-gradient(135deg,#7f1d1d,#dc2626)';
+          document.getElementById('fd-dec-action').textContent='⚠ Low Cover — Rest Field';
+          document.getElementById('fd-dec-reason').textContent=`Cover estimated at ${cover.toLocaleString()} kg DM/ha. Field needs rest. Do not graze.`;
+        }
+      }
+    }
+
+    // Update moisture
+    if(sm?.smap?.sm_surface_m3){
+      document.getElementById('fd-smap').textContent=sm.smap.sm_surface_m3.toFixed(2);
+      const smv=sm.smap.sm_surface_m3;
+      document.getElementById('fd-sm-note').textContent=smv>0.35?'Wet — poor trafficability':smv>0.25?'Adequate':smv>0.15?'Dry':'Very dry';
+    }
+
+    // Update image date
+    const imgDate=fr?.sentinel2?.date;
+    if(imgDate){
+      const el=document.getElementById('fd-img-date-cap');
+      if(el) el.textContent=`🛰 Sentinel-2 · ${imgDate} · ${fr.sentinel2.age_label}`;
+    }
+
+    // Update compliance from parcel
+    if(f.properties){
+      const p=f.properties;
+      document.getElementById('fd-scroll').querySelector('.irow-val.g').textContent=p.ACRES==='Y'?'✅ Active':'—';
+    }
+
+  }catch(e){console.log('Field data error:',e);}
 }
 
 function toggleDetails(hd){
