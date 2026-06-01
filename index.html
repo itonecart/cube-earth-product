@@ -280,52 +280,10 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 
     <!-- Today's Priorities -->
     <div class="section-hd">Today's Priorities</div>
-
-    <div class="priority-card" onclick="goField('home')">
-      <div class="pc-bar" style="background:#16a34a"></div>
-      <div class="pc-body">
-        <div class="pc-icon">🐄</div>
-        <div class="pc-text">
-          <div class="pc-title">Graze Home Field</div>
-          <div class="pc-sub">Cover 2,939 kg DM/ha · Ready now · 16.1 ha</div>
-        </div>
-        <div class="pc-action" style="background:var(--g-pale);color:var(--g3)">Graze →</div>
-      </div>
-    </div>
-
-    <div class="priority-card" onclick="goField('silage')">
-      <div class="pc-bar" style="background:#dc2626"></div>
-      <div class="pc-body">
-        <div class="pc-icon">✂️</div>
-        <div class="pc-text">
-          <div class="pc-title">Cut Silage Block</div>
-          <div class="pc-sub">Cover 3,820 kg DM/ha · Ready to cut · 8.5 ha</div>
-        </div>
-        <div class="pc-action" style="background:var(--red-lt);color:var(--red)">Cut →</div>
-      </div>
-    </div>
-
-    <div class="priority-card" onclick="navTo('pg-actions')">
-      <div class="pc-bar" style="background:#d97706"></div>
-      <div class="pc-body">
-        <div class="pc-icon">📋</div>
-        <div class="pc-text">
-          <div class="pc-title">ACRES Inspection Window</div>
-          <div class="pc-sub">Riparian buffer · No mow until 31 Aug · Check evidence</div>
-        </div>
-        <div class="pc-action" style="background:var(--amber-lt);color:var(--amber)">Check →</div>
-      </div>
-    </div>
-
-    <div class="priority-card" onclick="goField('north')">
-      <div class="pc-bar" style="background:#d97706"></div>
-      <div class="pc-body">
-        <div class="pc-icon">👁</div>
-        <div class="pc-text">
-          <div class="pc-title">North Meadow — Monitor</div>
-          <div class="pc-sub">Growth slowing · Check in 3 days · 12.7 ha</div>
-        </div>
-        <div class="pc-action" style="background:var(--amber-lt);color:var(--amber)">View →</div>
+    <div id="home-priorities">
+      <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">
+        <div style="font-size:28px;margin-bottom:8px">🔍</div>
+        Search your farm location to load field priorities
       </div>
     </div>
 
@@ -639,19 +597,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 <script>
 const API = 'https://cube-earth.onrender.com';
 
-// ── DEMO FIELDS ──
-const FIELDS = [
-  {id:'home',   name:'Home Field',     crop:'Permanent Pasture',         area:16.09, status:'green', action:'Graze Now',    cover:2939, growth:60,  ndvi:0.69, lat:52.05,  lng:-9.350},
-  {id:'north',  name:'North Meadow',   crop:'Permanent Pasture',         area:12.7,  status:'amber', action:'Monitor',      cover:1820, growth:45,  ndvi:0.58, lat:52.062, lng:-9.362},
-  {id:'silage', name:'Silage Block',   crop:'Grass Silage',              area:8.5,   status:'red',   action:'Cut Now',      cover:3820, growth:55,  ndvi:0.78, lat:52.042, lng:-9.338},
-  {id:'river',  name:'River Field',    crop:'Permanent Pasture',         area:9.2,   status:'green', action:'Graze Now',    cover:2150, growth:50,  ndvi:0.65, lat:52.048, lng:-9.372},
-  {id:'back',   name:'Back Field',     crop:'Permanent Pasture',         area:11.3,  status:'green', action:'Graze Now',    cover:2780, growth:58,  ndvi:0.71, lat:52.071, lng:-9.351},
-  {id:'east',   name:'East Block',     crop:'Barley - Spring',           area:14.2,  status:'amber', action:'Monitor',      cover:null, growth:null,ndvi:0.45, lat:52.033, lng:-9.328},
-  {id:'west',   name:'West Pasture',   crop:'Permanent Pasture',         area:7.8,   status:'green', action:'Graze Now',    cover:2340, growth:52,  ndvi:0.67, lat:52.061, lng:-9.382},
-  {id:'hill',   name:'Hill Field',     crop:'Extensively Grazed Pasture',area:18.5,  status:'amber', action:'Monitor',      cover:1650, growth:38,  ndvi:0.52, lat:52.081, lng:-9.361},
-  {id:'top',    name:'Top Field',      crop:'Permanent Pasture',         area:6.3,   status:'green', action:'Graze Now',    cover:2560, growth:54,  ndvi:0.68, lat:52.055, lng:-9.340},
-  {id:'low',    name:'Low Meadow',     crop:'Permanent Pasture',         area:5.8,   status:'amber', action:'Monitor',      cover:1200, growth:35,  ndvi:0.48, lat:52.038, lng:-9.358},
-];
+// ── FIELDS — loaded from DAFM ──
+const FIELDS = []; // populated from live search
 
 // ── NAVIGATION ──
 function showPage(id){
