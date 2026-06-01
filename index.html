@@ -831,14 +831,16 @@ function filterFields(q){
 
 function filterAndNav(status){
   navTo('pg-fields', document.getElementById('ni-fields'));
-  const f = FIELDS.filter(x=>x.status===status);
+  const fields = liveFields.length ? liveFields : FIELDS;
+  const f = fields.filter(x=>x.status===status);
   renderFields(f);
   document.getElementById('field-search').value = '';
 }
 
 // ── FIELD DETAIL ──
 function goField(id){
-  const f = FIELDS.find(x=>x.id===id)||FIELDS[0];
+  const fields = liveFields.length ? liveFields : FIELDS;
+  const f = fields.find(x=>x.id===id)||fields[0];
   showPage('pg-field');
 
   document.getElementById('fd-title').textContent = f.name;
@@ -952,7 +954,8 @@ function mapLayer(type,btn){
 // ── FARM PERFORMANCE ──
 function renderPerf(){
   const el=document.getElementById('field-perf-list');
-  const sorted=[...FIELDS].sort((a,b)=>(b.cover||0)-(a.cover||0));
+  const fields = liveFields.length ? liveFields : FIELDS;
+  const sorted=[...fields].sort((a,b)=>(b.cover||0)-(a.cover||0));
   const max=Math.max(...sorted.map(f=>f.cover||0));
   el.innerHTML=sorted.map(f=>`
     <div class="fp-row">
