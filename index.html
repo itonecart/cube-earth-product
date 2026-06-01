@@ -696,15 +696,73 @@ async function loadFarmFromLocation(lat,lng,name){
 }
 
 function startLiveFarm(name){
-  // Use live fields if available, else demo
-  const fields = liveFields.length ? liveFields : FIELDS;
   showPage('pg-home');
   document.getElementById('bnav').classList.add('show');
-  // Update farm name
-  document.querySelector('.farm-name').textContent = name || 'My Farm';
-  renderFields(fields);
+
+  // Update farm name everywhere
+  document.querySelectorAll('.farm-name, #home-farm-name').forEach(el=>{
+    el.textContent = name || 'My Farm';
+  });
+
+  // Update status pill counts
+  updateStatusCounts();
+
+  // Render fields list
+  renderFields(liveFields);
+
+  // Update priorities
+  renderPriorities();
+
+  // Reset map so it reloads with live parcels
+  if(farmMap){farmMap.remove();farmMap=null;}
+
   // Load NDVI for each field in background
-  loadFieldNDVI(fields);
+  loadFieldNDVI(liveFields);
+}
+
+function updateStatusCounts(){
+  const g=liveFields.filter(f=>f.status==='green').length;
+  const a=liveFields.filter(f=>f.status==='amber').length;
+  const r=liveFields.filter(f=>f.status==='red').length;
+  document.getElementById('cnt-green').textContent=g;
+  document.getElementById('cnt-amber').textContent=a;
+  document.getElementById('cnt-red').textContent=r;
+}
+
+function renderPriorities(){
+  const el=document.getElementById('home-priorities');
+  if(!el) return;
+  if(!liveFields.length){
+    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px"><div style="font-size:28px;margin-bottom:8px">🔍</div>Search your farm location to load field priorities</div>';
+    return;
+  }
+  // Show top 4 fields by priority
+  const priority=[
+    ...liveFields.filter(f=>f.status==='red'),
+    ...liveFields.filter(f=>f.status==='green').slice(0,2),
+    ...liveFields.filter(f=>f.status==='amber').slice(0,1)
+  ].slice(0,4);
+
+  const barColor={green:'#16a34a',amber:'#d97706',red:'#dc2626'};
+  const icons={green:'🐄',amber:'👁',red:'✂️'};
+  const actionBg={
+    green:'background:var(--g-pale);color:var(--g3)',
+    amber:'background:var(--amber-lt);color:var(--amber)',
+    red:'background:var(--red-lt);color:var(--red)'
+  };
+
+  el.innerHTML=priority.map(f=>`
+    <div class="priority-card" onclick="goField('${f.id}')">
+      <div class="pc-bar" style="background:${barColor[f.status]}"></div>
+      <div class="pc-body">
+        <div class="pc-icon">${icons[f.status]}</div>
+        <div class="pc-text">
+          <div class="pc-title">${f.name}</div>
+          <div class="pc-sub">${f.crop} · ${f.area} ha${f.cover?' · '+f.cover.toLocaleString()+' kg DM/ha':''}</div>
+        </div>
+        <div class="pc-action" style="${actionBg[f.status]}">${f.action||'View'} →</div>
+      </div>
+    </div>`).join('');
 }
 
 async function loadFieldNDVI(fields){
@@ -737,7 +795,9 @@ async function loadFieldNDVI(fields){
         }
       }
     }catch(e){}
-    renderFields(liveFields.length?liveFields:FIELDS);
+    renderFields(liveFields);
+    updateStatusCounts();
+    renderPriorities();
   }
 }
 
