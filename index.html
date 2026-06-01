@@ -840,7 +840,9 @@ function filterAndNav(status){
 // ── FIELD DETAIL ──
 function goField(id){
   const fields = liveFields.length ? liveFields : FIELDS;
+  console.log('goField called:',id,'liveFields:',liveFields.length,'fields:',fields.length);
   const f = fields.find(x=>x.id===id)||fields[0];
+  console.log('Field found:',f?.name, 'lat:',f?.lat);
   showPage('pg-field');
 
   document.getElementById('fd-title').textContent = f.name;
