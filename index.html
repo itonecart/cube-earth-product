@@ -249,7 +249,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="setup-opt" onclick="startApp()">
         <div class="setup-opt-icon">🏡</div>
         <div class="setup-opt-text">
-          <h3>Brookfield Farm — Demo</h3>
+          <h3>Demo Farm — Tipperary</h3>
           <p>Tipperary · 185 ha · Mixed grassland</p>
         </div>
       </div>
@@ -270,7 +270,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 
     <!-- Command Bar -->
     <div class="command-bar">
-      <div class="farm-name">Brookfield Farm</div>
+      <div class="farm-name" id="home-farm-name">My Farm</div>
       <div class="status-pills">
         <div class="pill pill-green" onclick="filterAndNav('green')">🟢 8 Graze</div>
         <div class="pill pill-amber" onclick="filterAndNav('amber')">🟡 4 Monitor</div>
@@ -363,14 +363,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     <div class="decision" id="fd-decision" style="background:linear-gradient(135deg,#0a1f0f,#1a5c38)">
       <div class="dec-label">Today's Decision</div>
       <div class="dec-action" id="fd-dec-action">✓ Graze Now</div>
-      <div class="dec-reason" id="fd-dec-reason">Cover at 2,939 kg DM/ha — optimal pre-grazing level. Ground conditions excellent. Move stock within 2 days.</div>
+      <div class="dec-reason" id="fd-dec-reason">Select a field to see today's grazing decision.</div>
     </div>
 
     <!-- Key metrics -->
     <div class="metrics">
       <div class="mc">
         <div class="mc-label">🌱 Grass Cover</div>
-        <div class="mc-val" id="fd-cover">2,939</div>
+        <div class="mc-val" id="fd-cover">—</div>
         <div class="mc-unit">kg DM/ha</div>
         <div class="mc-note note-g" id="fd-cover-note">Ready to graze</div>
       </div>
@@ -398,7 +398,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     <div class="icard" style="margin-top:10px">
       <div class="icard-hd">🌿 Grass Dashboard</div>
       <div class="icard-body">
-        <div class="irow"><span class="irow-label">Pre-grazing cover</span><span class="irow-val g" id="fd-grass-cover">2,939 kg DM/ha</span></div>
+        <div class="irow"><span class="irow-label">Pre-grazing cover</span><span class="irow-val g" id="fd-grass-cover">— kg DM/ha</span></div>
         <div class="irow"><span class="irow-label">Target cover</span><span class="irow-val">1,400 kg DM/ha</span></div>
         <div class="irow"><span class="irow-label">Growth rate</span><span class="irow-val g">60 kg DM/ha/day</span></div>
         <div class="irow"><span class="irow-label">Rotation</span><span class="irow-val">21 days</span></div>
@@ -531,7 +531,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     <div class="ac-card">
       <div class="ac-hd">
         <div class="ac-dot" style="background:#dc2626"></div>
-        <div class="ac-title">Silage Block — Ready to Cut</div>
+        <div class="ac-title">No active alerts</div>
         <div class="ac-time">Today</div>
       </div>
       <div class="ac-body">Cover at 3,820 kg DM/ha — above optimal. Quality will decline. Plan cutting within 48 hours.</div>
@@ -553,7 +553,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     <div class="ac-card" style="margin-top:8px">
       <div class="ac-hd">
         <div class="ac-dot" style="background:#d97706"></div>
-        <div class="ac-title">North Meadow — Growth Slowing</div>
+        <div class="ac-title">Satellite monitoring active</div>
         <div class="ac-time">2 days ago</div>
       </div>
       <div class="ac-body">NDVI declining over past 14 days. Monitor closely. May need rest period before next grazing.</div>
@@ -563,7 +563,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     <div class="section-hd" style="margin-top:8px">Resolved</div>
     <div class="icard" style="margin:0 14px 16px">
       <div class="icard-body">
-        <div class="irow"><span>✅</span><span style="flex:1;font-weight:600;margin-left:10px">Home Field — Grazing complete</span><span style="color:var(--muted);font-size:11px">3d ago</span></div>
+        <div class="irow"><span>✅</span><span style="flex:1;font-weight:600;margin-left:10px">Load your farm to see alerts</span><span style="color:var(--muted);font-size:11px">3d ago</span></div>
         <div class="irow"><span>✅</span><span style="flex:1;font-weight:600;margin-left:10px">River Field — Slurry applied</span><span style="color:var(--muted);font-size:11px">5d ago</span></div>
         <div class="irow"><span>✅</span><span style="flex:1;font-weight:600;margin-left:10px">East Block — ACRES check passed</span><span style="color:var(--muted);font-size:11px">1w ago</span></div>
       </div>
