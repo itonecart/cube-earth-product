@@ -901,18 +901,43 @@ let farmMap=null, satLayer, osmLayer;
 function initMap(){
   if(farmMap) return;
   setTimeout(()=>{
-    farmMap=L.map('farm-map',{zoomControl:true}).setView([52.055,-9.355],13);
+    const fields = liveFields.length ? liveFields : FIELDS;
+    // Centre on first field or Ireland default
+    const centre = fields.length ? [fields[0].lat, fields[0].lng] : [52.055,-9.355];
+    farmMap=L.map('farm-map',{zoomControl:true}).setView(centre,14);
     satLayer=L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
     osmLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'});
     satLayer.addTo(farmMap);
 
-    FIELDS.forEach(f=>{
-      const c=f.status==='green'?'#16a34a':f.status==='amber'?'#d97706':'#dc2626';
-      L.circleMarker([f.lat,f.lng],{radius:14,color:'#fff',weight:2.5,fillColor:c,fillOpacity:0.85})
-        .addTo(farmMap)
-        .bindPopup(`<b>${f.name}</b><br>${f.action}<br>${f.area} ha`)
-        .on('click',()=>goField(f.id));
-    });
+    // Draw real DAFM parcel boundaries if live fields
+    if(liveFields.length){
+      liveFields.forEach((f,i)=>{
+        if(!f.geometry) return;
+        const c=f.status==='green'?'#16a34a':f.status==='amber'?'#d97706':'#dc2626';
+        const layer=L.geoJSON({type:'Feature',geometry:f.geometry},{
+          style:{color:c,weight:2.5,fillColor:c,fillOpacity:0.15}
+        }).addTo(farmMap);
+        layer.on('click',()=>goField(f.id));
+        layer.bindTooltip(`<b>${f.name}</b><br>${f.action||'—'}<br>${f.area} ha`,{sticky:true});
+      });
+      // Fit map to all parcels
+      const allBounds = liveFields
+        .filter(f=>f.geometry)
+        .map(f=>L.geoJSON({type:'Feature',geometry:f.geometry}).getBounds());
+      if(allBounds.length){
+        const combined = allBounds.reduce((acc,b)=>acc.extend(b));
+        farmMap.fitBounds(combined,{padding:[20,20]});
+      }
+    } else {
+      // Demo — circle markers
+      fields.forEach(f=>{
+        const c=f.status==='green'?'#16a34a':f.status==='amber'?'#d97706':'#dc2626';
+        L.circleMarker([f.lat,f.lng],{radius:14,color:'#fff',weight:2.5,fillColor:c,fillOpacity:0.85})
+          .addTo(farmMap)
+          .bindPopup(`<b>${f.name}</b><br>${f.action}<br>${f.area} ha`)
+          .on('click',()=>goField(f.id));
+      });
+    }
   },300);
 }
 
