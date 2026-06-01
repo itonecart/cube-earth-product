@@ -2,842 +2,1003 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>Cube Earth — AI Satellite Intelligence for Irish Farms</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Cube Earth — Irish Farm Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --green:#1a5c38;--green2:#2d7a50;--green-pale:#e8f5ee;--green-dark:#0f3d24;
-  --text:#111827;--muted:#6b7280;--border:#e5e7eb;
-  --surface:#f9fafb;--white:#ffffff;
-  --red:#991b1b;--red-pale:#fee2e2;
-  --amber:#92400e;--amber-pale:#fef3c7;
-  --blue-pale:#dbeafe;--blue:#1e40af;
-  --mono:'DM Mono',monospace;
-  --sans:'DM Sans',sans-serif;
-  --serif:'Fraunces',serif;
+  --g1:#0a1f0f;--g2:#0f3320;--g3:#1a5c38;--g4:#2d7a50;--g5:#4a9a6f;
+  --g-pale:#e8f5ee;--g-soft:#d1edd9;
+  --amber:#d97706;--amber-lt:#fef3c7;
+  --red:#dc2626;--red-lt:#fee2e2;
+  --blue:#1d4ed8;--blue-lt:#dbeafe;
+  --text:#0a0f0c;--muted:#5a7060;--border:#dde8e0;
+  --surface:#f4f9f5;--white:#ffffff;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Sora',sans-serif;
+  --nav-h:64px;
 }
-*{-webkit-tap-highlight-color:transparent;}
-body{font-family:var(--sans);color:var(--text);background:var(--white);min-height:100vh;overflow-x:hidden;}
-.page{display:none;min-height:100vh;flex-direction:column;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--white);color:var(--text);}
+
+/* ── PAGES ── */
+.page{position:fixed;inset:0;display:none;flex-direction:column;background:var(--white);}
 .page.active{display:flex;}
 
 /* ── LOGIN ── */
-#page-login{
-  background:linear-gradient(160deg,#061a0d 0%,#0f3d24 50%,#1a5c38 100%);
-  align-items:center;justify-content:center;padding:24px;
-  position:relative;overflow:hidden;
+#pg-login{
+  background:linear-gradient(160deg,var(--g1) 0%,var(--g2) 40%,var(--g3) 100%);
+  align-items:center;justify-content:center;padding:28px;
 }
-#page-login::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 30% 20%,rgba(45,122,80,0.3) 0%,transparent 60%),
-             radial-gradient(ellipse at 70% 80%,rgba(26,92,56,0.4) 0%,transparent 60%);
-}
-.login-card{
-  background:rgba(255,255,255,0.97);border-radius:24px;
-  padding:44px 36px;width:100%;max-width:390px;
-  box-shadow:0 32px 80px rgba(0,0,0,0.4);
-  position:relative;z-index:1;
-}
-.login-logo{text-align:center;margin-bottom:32px;}
-.globe{font-size:52px;display:block;margin-bottom:10px;animation:float 3s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-.login-logo h1{font-family:var(--serif);font-size:28px;color:var(--green);letter-spacing:-0.5px;}
-.login-logo p{font-size:12px;color:var(--muted);margin-top:5px;letter-spacing:0.02em;}
-.form-group{margin-bottom:16px;}
-.form-group label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
-.form-group input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:var(--sans);outline:none;transition:border-color 0.2s;}
-.form-group input:focus{border-color:var(--green);}
-.btn-green{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;margin-top:8px;letter-spacing:0.02em;transition:background 0.2s;}
-.btn-green:active{background:var(--green-dark);}
-.btn-outline{width:100%;padding:13px;background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:12px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:10px;}
+.login-wrap{width:100%;max-width:360px;}
+.login-logo{text-align:center;margin-bottom:40px;}
+.logo-icon{font-size:56px;display:block;margin-bottom:12px;}
+.logo-name{font-size:32px;font-weight:800;color:#fff;letter-spacing:-1px;}
+.logo-tag{font-size:13px;color:rgba(255,255,255,0.6);margin-top:5px;font-weight:300;}
+.login-card{background:rgba(255,255,255,0.97);border-radius:20px;padding:32px 28px;box-shadow:0 24px 60px rgba(0,0,0,0.35);}
+.login-title{font-size:18px;font-weight:700;margin-bottom:20px;color:var(--g1);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.field input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;background:var(--surface);transition:border-color 0.2s;}
+.field input:focus{border-color:var(--g3);background:#fff;}
+.btn-primary{width:100%;padding:14px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;margin-top:6px;letter-spacing:0.02em;}
+.btn-ghost{width:100%;padding:12px;background:transparent;color:var(--g3);border:1.5px solid var(--g3);border-radius:10px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:10px;}
 .divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0;position:relative;}
-.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border);}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border);}
 .divider::before{left:0;}.divider::after{right:0;}
 
-/* ── SELECT ── */
-#page-select{background:var(--surface);}
-.top-bar{padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
-.top-bar h2{font-family:var(--serif);font-size:19px;color:var(--green);flex:1;letter-spacing:-0.3px;}
-.demo-badge{font-size:11px;color:var(--muted);background:var(--surface);padding:3px 10px;border-radius:100px;font-weight:600;}
-.step-body{flex:1;overflow-y:auto;padding:20px 18px 130px;}
-.step-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;}
-.county-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.county-btn{padding:13px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;text-align:left;color:var(--text);transition:all 0.15s;}
-.county-btn:active{border-color:var(--green);background:var(--green-pale);}
-.search-row{display:flex;gap:8px;margin-bottom:10px;}
-.search-row input{flex:1;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:var(--sans);outline:none;transition:border-color 0.2s;}
-.search-row input:focus{border-color:var(--green);}
-.btn-search{padding:12px 18px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);}
-.back-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--green);padding:0;line-height:1;}
-.field-btn{width:100%;padding:12px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:var(--sans);display:flex;align-items:center;gap:12px;transition:all 0.15s;}
-.field-btn:active{border-color:var(--green);background:var(--green-pale);}
-.field-num{background:var(--green);color:#fff;border-radius:8px;padding:5px 11px;font-size:13px;font-weight:700;flex-shrink:0;}
-.field-crop{font-size:13px;font-weight:600;flex:1;}
-.field-area{font-size:12px;color:var(--muted);flex-shrink:0;font-family:var(--mono);}
+/* ── SETUP ── */
+#pg-setup{background:var(--surface);}
+.setup-header{padding:20px 20px 0;text-align:center;}
+.setup-step{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
+.setup-title{font-size:24px;font-weight:800;color:var(--g1);letter-spacing:-0.5px;margin-bottom:6px;}
+.setup-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+.setup-body{flex:1;overflow-y:auto;padding:20px;}
+.setup-option{background:var(--white);border:2px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all 0.2s;}
+.setup-option:active{border-color:var(--g3);background:var(--g-pale);}
+.setup-option-icon{font-size:28px;flex-shrink:0;}
+.setup-option-text h3{font-size:15px;font-weight:700;margin-bottom:3px;}
+.setup-option-text p{font-size:12px;color:var(--muted);line-height:1.4;}
+.setup-btn-wrap{padding:16px 20px 32px;}
 
-/* ── CONFIRM PANEL ── */
-.confirm-panel{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--green);padding:16px 18px 24px;box-shadow:0 -8px 30px rgba(0,0,0,0.12);display:none;z-index:100;}
-.confirm-panel.show{display:block;}
-.confirm-info{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.confirm-icon{font-size:34px;}
-.confirm-crop{font-size:16px;font-weight:700;font-family:var(--serif);}
-.confirm-meta{font-size:12px;color:var(--muted);margin-top:2px;}
-.btn-confirm{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;}
-.btn-confirm:disabled{background:#86efac;cursor:not-allowed;}
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:var(--white);border-top:1px solid var(--border);display:none;z-index:1000;padding-bottom:env(safe-area-inset-bottom);}
+.bottom-nav.show{display:flex;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);border:none;background:none;font-family:var(--sans);padding:8px 4px;transition:color 0.15s;}
+.nav-item.active{color:var(--g3);}
+.nav-icon{font-size:22px;line-height:1;}
+.nav-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
 
-/* ── INTEL ── */
-#page-intel{background:var(--surface);}
-.intel-header{padding:13px 18px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
-.intel-header h2{font-family:var(--serif);font-size:17px;color:var(--green);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.3px;}
-.match-exact{font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:var(--green-pale);color:var(--green);}
-.match-near{font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:var(--amber-pale);color:var(--amber);}
-.intel-scroll{flex:1;overflow-y:auto;padding-bottom:110px;}
+/* ── TOP BAR ── */
+.topbar{height:52px;display:flex;align-items:center;padding:0 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;}
+.topbar-title{font-size:17px;font-weight:700;flex:1;letter-spacing:-0.3px;}
+.topbar-logo{font-size:13px;font-weight:800;color:var(--g3);}
+.back-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--g3);padding:0;line-height:1;}
+.icon-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
 
-/* ── MAP ── */
- #field-map{height:260px;width:100%;flex-shrink:0;background:#111;}
-.sentinel-overlay{width:100%!important;height:100%!important;object-fit:cover!important;}
-.map-overlay{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;padding:4px 8px;border-radius:6px;z-index:400;font-family:var(--mono);pointer-events:none;}
+/* ── SCROLL BODY ── */
+.scroll-body{flex:1;overflow-y:auto;padding-bottom:calc(var(--nav-h) + 16px);}
 
-/* ── CARDS ── */
-.card{background:var(--white);border-radius:16px;margin:12px 14px 0;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
-.card-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:14px 16px 0;}
+/* ── HOME ── */
+.farm-hero{background:linear-gradient(135deg,var(--g1),var(--g3));padding:20px 16px 22px;color:#fff;}
+.farm-hero-name{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
+.farm-hero-meta{font-size:13px;opacity:0.75;margin-bottom:18px;}
+.farm-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.farm-stat{background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 8px;text-align:center;backdrop-filter:blur(4px);}
+.farm-stat-num{font-size:22px;font-weight:800;font-family:var(--mono);line-height:1;}
+.farm-stat-label{font-size:10px;opacity:0.75;font-weight:500;margin-top:3px;text-transform:uppercase;letter-spacing:0.06em;}
+
+.status-row{display:flex;gap:8px;padding:16px;overflow-x:auto;}
+.status-row::-webkit-scrollbar{display:none;}
+.status-chip{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:100px;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.chip-green{background:var(--g-pale);color:var(--g3);}
+.chip-amber{background:var(--amber-lt);color:var(--amber);}
+.chip-red{background:var(--red-lt);color:var(--red);}
+
+.section-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:0 16px;margin-bottom:10px;}
+
+.priority-list{padding:0 16px;}
+.priority-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);}
+.priority-item:last-child{border-bottom:none;}
+.priority-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.priority-text{flex:1;}
+.priority-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+.priority-sub{font-size:12px;color:var(--muted);}
+.priority-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;}
+
+/* ── FIELDS ── */
+.search-bar{padding:12px 16px;border-bottom:1px solid var(--border);}
+.search-input{width:100%;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;}
+.search-input:focus{border-color:var(--g3);}
+
+.field-card{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;gap:12px;transition:background 0.1s;}
+.field-card:active{background:var(--surface);}
+.field-status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:#16a34a;}
+.dot-amber{background:#d97706;}
+.dot-red{background:#dc2626;}
+.field-info{flex:1;}
+.field-name{font-size:15px;font-weight:700;margin-bottom:3px;}
+.field-meta{font-size:12px;color:var(--muted);}
+.field-status-text{font-size:12px;font-weight:600;}
+.field-status-text.green{color:#16a34a;}
+.field-status-text.amber{color:#d97706;}
+.field-status-text.red{color:#dc2626;}
+.field-chevron{color:var(--muted);font-size:16px;}
+.field-area{font-size:12px;font-family:var(--mono);color:var(--muted);}
+
+/* ── FIELD DETAIL ── */
+.field-image{height:220px;width:100%;background:#111;flex-shrink:0;position:relative;overflow:hidden;}
+.field-image img{width:100%;height:100%;object-fit:cover;}
+.field-image-overlay{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.7));color:#fff;display:flex;align-items:flex-end;justify-content:space-between;}
+.field-image-date{font-size:11px;font-family:var(--mono);opacity:0.9;}
+.field-image-source{font-size:10px;opacity:0.7;}
+
+.decision-hero{margin:12px 14px;background:linear-gradient(135deg,var(--g1),var(--g3));border-radius:16px;padding:18px;color:#fff;}
+.decision-label{font-size:10px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.decision-value{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;}
+.decision-reason{font-size:13px;opacity:0.85;line-height:1.4;}
+
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px 0;}
+.metric-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.metric-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.metric-value{font-size:22px;font-weight:800;font-family:var(--mono);color:var(--g1);margin-bottom:2px;}
+.metric-unit{font-size:11px;color:var(--muted);}
+.metric-trend{font-size:11px;font-weight:600;margin-top:4px;}
+.trend-up{color:#16a34a;}
+.trend-down{color:#dc2626;}
+.trend-flat{color:var(--muted);}
+
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;margin:10px 14px 0;}
+.card-header{padding:14px 16px 0;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;}
 .card-body{padding:12px 16px 16px;}
 
-/* Summary */
-.summary-card{margin:12px 14px 0;background:linear-gradient(135deg,var(--green-dark),var(--green));border-radius:16px;padding:20px;color:#fff;position:relative;overflow:hidden;}
-.summary-card::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%;}
-.summary-type{font-size:10px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;}
-.summary-name{font-family:var(--serif);font-size:24px;margin:5px 0 4px;letter-spacing:-0.5px;}
-.summary-meta{font-size:12px;opacity:0.75;}
-.summary-stage{display:inline-flex;align-items:center;gap:6px;margin-top:13px;background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;backdrop-filter:blur(4px);}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.info-row:last-child{border-bottom:none;}
+.info-label{color:var(--muted);}
+.info-value{font-weight:600;}
+.info-value.green{color:#16a34a;}
+.info-value.amber{color:#d97706;}
+.info-value.red{color:#dc2626;}
 
-/* Field Overview */
-.dec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.dec-item{background:var(--surface);border-radius:12px;padding:13px 14px;}
-.dec-item.full{grid-column:1/-1;}
-.dec-item.locked{background:#f8fafc;border:1.5px dashed #cbd5e1;}
-.dec-emoji{font-size:24px;margin-bottom:5px;}
-.dec-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;}
-.dec-val{font-size:16px;font-weight:700;margin-top:3px;font-family:var(--serif);}
-.dec-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono);}
+.compliance-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.compliance-item:last-child{border-bottom:none;}
+.compliance-icon{font-size:16px;flex-shrink:0;}
+.compliance-name{flex:1;font-weight:600;}
+.compliance-status{font-size:12px;font-weight:700;}
 
-/* kg DM */
-.dm-val{font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);}
-.dm-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;}
+/* ── MAP ── */
+#farm-map{flex:1;z-index:1;}
+.map-controls{position:absolute;top:60px;right:12px;z-index:1000;display:flex;flex-direction:column;gap:6px;}
+.map-layer-btn{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.map-layer-btn.active{background:var(--g3);color:#fff;border-color:var(--g3);}
 
-/* ACRES */
-.acres-status{padding:12px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
-.acres-emoji{font-size:22px;flex-shrink:0;}
-.acres-label{font-size:14px;font-weight:700;}
-.acres-sub{font-size:11px;opacity:0.8;margin-top:2px;}
-.acres-actions{margin-top:10px;}
-.acres-action-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
-.acres-action-row:last-child{border-bottom:none;}
-.acres-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.acres-dot.green{background:#10b981;}
-.acres-dot.red{background:#ef4444;}
-.acres-dot.amber{background:#f59e0b;}
+/* ── ANALYTICS ── */
+.analytics-tabs{display:flex;overflow-x:auto;padding:0 16px;gap:8px;border-bottom:1px solid var(--border);padding-bottom:0;}
+.analytics-tabs::-webkit-scrollbar{display:none;}
+.atab{padding:10px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-family:var(--sans);}
+.atab.active{color:var(--g3);border-bottom-color:var(--g3);}
 
-/* Sensors */
-.sensor-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
-.sensor-row:last-child{border-bottom:none;}
-.s-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:10px;}
-.s-dot.green{background:#10b981;}.s-dot.amber{background:#f59e0b;}.s-dot.red{background:#ef4444;}.s-dot.gray{background:#d1d5db;}
-.s-name{font-size:13px;flex:1;}
-.s-val{font-family:var(--mono);font-size:13px;font-weight:600;}
-.s-age{font-size:10px;color:var(--muted);margin-left:8px;}
-.s-lock{font-size:13px;color:#94a3b8;}
-.unlock-cta{text-align:center;padding:14px 0 4px;border-top:1px solid var(--border);margin-top:4px;}
-.unlock-price{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;}
-.btn-unlock{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+.chart-placeholder{height:160px;background:var(--surface);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;margin:0 14px;}
 
-/* Trend */
-.trend-row{display:flex;align-items:center;gap:14px;padding:13px;background:var(--surface);border-radius:12px;}
-.trend-icon{font-size:36px;flex-shrink:0;}
-.trend-main{font-size:14px;font-weight:700;}
-.trend-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.trend-anomaly{font-size:12px;font-weight:700;margin-top:6px;padding:4px 10px;border-radius:8px;display:inline-block;}
-.a-pos{background:#d1fae5;color:#065f46;}
-.a-neg{background:#fee2e2;color:#991b1b;}
-.a-neu{background:#fef3c7;color:#92400e;}
-.event-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
-.event-row:last-child{border-bottom:none;}
-.ev-emoji{font-size:22px;flex-shrink:0;}
-.ev-title{font-size:13px;font-weight:700;}
-.ev-date{font-size:11px;color:var(--muted);font-family:var(--mono);}
-.ev-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;}
-.b-high{background:#fee2e2;color:#991b1b;}
-.b-mod{background:#fef3c7;color:#92400e;}
+/* ── ALERTS ── */
+.alert-card{margin:10px 14px 0;border-radius:14px;overflow:hidden;border:1px solid var(--border);}
+.alert-header{display:flex;align-items:center;gap:10px;padding:14px 16px;}
+.alert-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.alert-title{font-size:15px;font-weight:700;flex:1;}
+.alert-time{font-size:11px;color:var(--muted);}
+.alert-body{padding:0 16px 14px;font-size:13px;color:var(--muted);line-height:1.5;}
+.alert-action{margin:0 16px 14px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;border:none;font-family:var(--sans);width:calc(100% - 0px);}
 
-/* Confidence */
-.score-row{display:flex;align-items:center;gap:18px;margin-bottom:16px;}
-.score-ring{width:76px;height:76px;flex-shrink:0;position:relative;}
-.score-ring svg{transform:rotate(-90deg);}
-.score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;font-family:var(--mono);}
-.score-level{font-size:17px;font-weight:700;font-family:var(--serif);}
-.score-sub{font-size:12px;color:var(--muted);margin-top:3px;}
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.bar-label{font-size:11px;color:var(--muted);width:72px;flex-shrink:0;}
-.bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
-.bar-fill{height:100%;background:var(--green);border-radius:3px;transition:width 0.8s ease;}
-.bar-pct{font-size:10px;font-family:var(--mono);color:var(--muted);width:32px;text-align:right;}
+/* ── FARM OVERVIEW ── */
+.overview-stat{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;}
+.o-stat{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;}
+.o-stat-num{font-size:28px;font-weight:800;font-family:var(--mono);color:var(--g3);}
+.o-stat-label{font-size:11px;color:var(--muted);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;}
 
-/* Report CTA */
-.report-cta{margin:12px 14px 0;background:linear-gradient(135deg,var(--green-dark),var(--green2));border-radius:16px;padding:24px 20px;color:#fff;text-align:center;}
-.report-cta h3{font-family:var(--serif);font-size:22px;margin-bottom:7px;letter-spacing:-0.3px;}
-.report-cta p{font-size:12px;opacity:0.85;margin-bottom:18px;line-height:1.6;}
-.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.report-opt{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:12px;padding:14px 10px;font-size:11px;font-weight:700;font-family:var(--sans);cursor:pointer;text-align:center;transition:background 0.2s;}
-.report-opt:active{background:rgba(255,255,255,0.25);}
-.report-opt .price{display:block;font-size:18px;font-weight:700;margin-top:5px;font-family:var(--mono);}
-.report-full{grid-column:1/-1;background:rgba(255,255,255,0.25);}
+/* ── LOADING ── */
+.loading-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--muted);}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--g3);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:14px;font-weight:500;}
 
-/* Bottom Nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:none;padding:6px 0 max(8px,env(safe-area-inset-bottom));z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
-.bottom-nav.show{display:flex;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;font-family:var(--sans);letter-spacing:0.05em;text-transform:uppercase;}
-.nav-btn.active{color:var(--green);}
-.nav-btn .ni{font-size:21px;}
+/* ── MOBILE ── */
+@media(max-width:400px){
+  .metrics-grid{grid-template-columns:1fr 1fr;}
+  .farm-stats{grid-template-columns:1fr 1fr 1fr;}
+}
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
-<div class="page active" id="page-login">
-  <div class="login-card">
+<!-- ════════════════════════════════════════
+     LOGIN PAGE
+════════════════════════════════════════ -->
+<div class="page active" id="pg-login">
+  <div class="login-wrap">
     <div class="login-logo">
-      <span class="globe">🌍</span>
-      <h1>Cube Earth</h1>
-      <p>AI Satellite Intelligence for Irish Farms</p>
+      <span class="logo-icon">🌍</span>
+      <div class="logo-name">Cube Earth</div>
+      <div class="logo-tag">AI Satellite Intelligence for Irish Farms</div>
     </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" placeholder="farmer@example.ie" autocomplete="email">
+    <div class="login-card">
+      <div class="login-title">Sign in to your farm</div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" placeholder="farmer@example.ie" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" onclick="goSetup()">Sign In →</button>
+      <div class="divider">or</div>
+      <button class="btn-ghost" onclick="goDemo()">▶ Continue as Demo</button>
     </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="btn-green" onclick="showPage('select')">Sign In →</button>
-    <div class="divider">or</div>
-    <button class="btn-outline" onclick="showPage('select')">▶ Continue as Demo</button>
   </div>
 </div>
 
-<!-- ── SELECT ── -->
-<div class="page" id="page-select">
-  <div class="top-bar">
-    <span style="font-size:22px">🌍</span>
-    <h2 id="select-title">Select County</h2>
-    <span class="demo-badge">Demo</span>
+<!-- ════════════════════════════════════════
+     SETUP PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-setup">
+  <div class="topbar">
+    <span class="topbar-logo">🌍 Cube Earth</span>
   </div>
-
-  <!-- Step 1: County -->
-  <div class="step-body" id="step1">
-    <div class="step-label">Step 1 of 3 · Select your county</div>
-    <div class="county-grid">
-      <button class="county-btn" onclick="pickCounty('Carlow')">Carlow</button>
-      <button class="county-btn" onclick="pickCounty('Cavan')">Cavan</button>
-      <button class="county-btn" onclick="pickCounty('Clare')">Clare</button>
-      <button class="county-btn" onclick="pickCounty('Cork')">Cork</button>
-      <button class="county-btn" onclick="pickCounty('Donegal')">Donegal</button>
-      <button class="county-btn" onclick="pickCounty('Dublin')">Dublin</button>
-      <button class="county-btn" onclick="pickCounty('Galway')">Galway</button>
-      <button class="county-btn" onclick="pickCounty('Kerry')">Kerry</button>
-      <button class="county-btn" onclick="pickCounty('Kildare')">Kildare</button>
-      <button class="county-btn" onclick="pickCounty('Kilkenny')">Kilkenny</button>
-      <button class="county-btn" onclick="pickCounty('Laois')">Laois</button>
-      <button class="county-btn" onclick="pickCounty('Leitrim')">Leitrim</button>
-      <button class="county-btn" onclick="pickCounty('Limerick')">Limerick</button>
-      <button class="county-btn" onclick="pickCounty('Longford')">Longford</button>
-      <button class="county-btn" onclick="pickCounty('Louth')">Louth</button>
-      <button class="county-btn" onclick="pickCounty('Mayo')">Mayo</button>
-      <button class="county-btn" onclick="pickCounty('Meath')">Meath</button>
-      <button class="county-btn" onclick="pickCounty('Monaghan')">Monaghan</button>
-      <button class="county-btn" onclick="pickCounty('Offaly')">Offaly</button>
-      <button class="county-btn" onclick="pickCounty('Roscommon')">Roscommon</button>
-      <button class="county-btn" onclick="pickCounty('Sligo')">Sligo</button>
-      <button class="county-btn" onclick="pickCounty('Tipperary')">Tipperary</button>
-      <button class="county-btn" onclick="pickCounty('Waterford')">Waterford</button>
-      <button class="county-btn" onclick="pickCounty('Westmeath')">Westmeath</button>
-      <button class="county-btn" onclick="pickCounty('Wexford')">Wexford</button>
-      <button class="county-btn" onclick="pickCounty('Wicklow')">Wicklow</button>
-    </div>
+  <div class="setup-header">
+    <div class="setup-step">Getting Started</div>
+    <div class="setup-title">Find Your Farm</div>
+    <div class="setup-sub">Select how you'd like to identify your fields</div>
   </div>
-
-  <!-- Step 2: Townland -->
-  <div class="step-body" id="step2" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-      <button class="back-btn" onclick="goStep(1)">←</button>
-      <div class="step-label" style="margin:0">Step 2 of 3 · Enter townland or village</div>
-    </div>
-    <div class="search-row">
-      <input type="text" id="townland-input" placeholder="e.g. Tralee, Killarney, Listowel...">
-      <button class="btn-search" onclick="searchTownland()">Search</button>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Type the name of your nearest town or village</div>
-    <div id="townland-results"></div>
-  </div>
-
-  <!-- Step 3: Field list -->
-  <div class="step-body" id="step3" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
-      <button class="back-btn" onclick="goStep(2)">←</button>
-      <div class="step-label" style="margin:0">Step 3 of 3 · Select your field</div>
-    </div>
-    <div id="field-list"></div>
-  </div>
-
-  <!-- Confirm panel -->
-  <div class="confirm-panel" id="confirm-panel">
-    <div class="confirm-info">
-      <div class="confirm-icon" id="confirm-icon">🌾</div>
-      <div>
-        <div class="confirm-crop" id="confirm-crop">—</div>
-        <div class="confirm-meta" id="confirm-meta">—</div>
+  <div class="setup-body">
+    <div class="setup-option" onclick="goDemo()">
+      <div class="setup-option-icon">🔍</div>
+      <div class="setup-option-text">
+        <h3>Search by Eircode or Townland</h3>
+        <p>Enter your Eircode or nearest village to find your fields</p>
       </div>
     </div>
-    <button class="btn-confirm" id="btn-confirm" onclick="confirmField()" disabled>Confirm This Field →</button>
+    <div class="setup-option" onclick="goDemo()">
+      <div class="setup-option-icon">🗺</div>
+      <div class="setup-option-text">
+        <h3>Find on Map</h3>
+        <p>Browse the satellite map and tap your fields directly</p>
+      </div>
+    </div>
+    <div class="setup-option" onclick="goDemo()">
+      <div class="setup-option-icon">📋</div>
+      <div class="setup-option-text">
+        <h3>Import from DAFM</h3>
+        <p>Automatically import your registered LPIS parcels</p>
+      </div>
+    </div>
+    <div class="setup-option" onclick="goDemo()">
+      <div class="setup-option-icon">📍</div>
+      <div class="setup-option-text">
+        <h3>Use My Location</h3>
+        <p>Detect fields near your current GPS position</p>
+      </div>
+    </div>
+  </div>
+  <div class="setup-btn-wrap">
+    <button class="btn-primary" onclick="goDemo()">Continue with Demo Farm →</button>
   </div>
 </div>
 
-<!-- ── INTEL ── -->
-<div class="page" id="page-intel">
-  <div class="intel-header">
-    <button class="back-btn" onclick="showPage('select')">←</button>
-    <h2 id="intel-title">Field Intelligence</h2>
-    <span id="match-badge"></span>
+<!-- ════════════════════════════════════════
+     HOME PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-home">
+  <div class="topbar">
+    <div class="topbar-title">🌍 My Farm</div>
+    <div class="icon-btn" onclick="showPage('pg-alerts')">🔔</div>
   </div>
-  <div id="field-map">
-    <div class="map-overlay" id="map-overlay">Loading map...</div>
+  <div class="scroll-body">
+
+    <!-- Farm Hero -->
+    <div class="farm-hero">
+      <div class="farm-hero-name">Brookfield Farm</div>
+      <div class="farm-hero-meta">Tipperary · 185 ha · 23 fields</div>
+      <div class="farm-stats">
+        <div class="farm-stat">
+          <div class="farm-stat-num">8</div>
+          <div class="farm-stat-label">🟢 Graze</div>
+        </div>
+        <div class="farm-stat">
+          <div class="farm-stat-num">4</div>
+          <div class="farm-stat-label">🟡 Monitor</div>
+        </div>
+        <div class="farm-stat">
+          <div class="farm-stat-num">2</div>
+          <div class="farm-stat-label">🔴 Action</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status chips -->
+    <div class="status-row">
+      <div class="status-chip chip-green">🌱 Avg Cover: 2,480 kg DM/ha</div>
+      <div class="status-chip chip-green">📈 Growth: 58 kg/day</div>
+      <div class="status-chip chip-amber">⚠ 1 ACRES Alert</div>
+    </div>
+
+    <!-- Today's Priorities -->
+    <div class="section-title" style="margin-top:6px">Today's Priorities</div>
+    <div class="priority-list">
+      <div class="priority-item" onclick="goFieldDetail('home')">
+        <div class="priority-dot" style="background:#16a34a"></div>
+        <div class="priority-text">
+          <div class="priority-title">Graze Home Field</div>
+          <div class="priority-sub">Cover 2,939 kg DM/ha · Ready now</div>
+        </div>
+        <div class="priority-badge" style="background:var(--g-pale);color:var(--g3)">Now</div>
+      </div>
+      <div class="priority-item" onclick="goFieldDetail('silage')">
+        <div class="priority-dot" style="background:#d97706"></div>
+        <div class="priority-text">
+          <div class="priority-title">Check Silage Block</div>
+          <div class="priority-sub">Cover 3,820 kg DM/ha · Ready to cut</div>
+        </div>
+        <div class="priority-badge" style="background:var(--amber-lt);color:var(--amber)">Soon</div>
+      </div>
+      <div class="priority-item" onclick="showPage('pg-alerts')">
+        <div class="priority-dot" style="background:#dc2626"></div>
+        <div class="priority-text">
+          <div class="priority-title">ACRES Inspection Window</div>
+          <div class="priority-sub">Riparian buffer · No mow until Aug 31</div>
+        </div>
+        <div class="priority-badge" style="background:var(--red-lt);color:var(--red)">Check</div>
+      </div>
+      <div class="priority-item">
+        <div class="priority-dot" style="background:#16a34a"></div>
+        <div class="priority-text">
+          <div class="priority-title">North Meadow</div>
+          <div class="priority-sub">Growing well · Monitor in 3 days</div>
+        </div>
+        <div class="priority-badge" style="background:var(--g-pale);color:var(--g3)">3d</div>
+      </div>
+    </div>
+
+    <!-- Weather summary -->
+    <div class="section-title" style="margin-top:16px">Weather & Ground</div>
+    <div class="metrics-grid" style="margin-bottom:0">
+      <div class="metric-card">
+        <div class="metric-label">Rainfall 7d</div>
+        <div class="metric-value" style="font-size:18px">12<span style="font-size:12px;color:var(--muted)"> mm</span></div>
+        <div class="metric-trend trend-flat">Near average</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Trafficability</div>
+        <div class="metric-value" style="font-size:18px">✅</div>
+        <div class="metric-trend trend-up">Excellent</div>
+      </div>
+    </div>
+
   </div>
-  <div class="intel-scroll" id="intel-scroll">
-    <div style="text-align:center;padding:60px 20px;color:var(--muted)">
-      <div style="font-size:52px;margin-bottom:14px">🛰</div>
-      <div style="font-size:17px;font-weight:700;color:var(--text);font-family:var(--serif)">Scanning field...</div>
-      <div style="font-size:13px;margin-top:6px">Fetching satellite intelligence</div>
+</div>
+
+<!-- ════════════════════════════════════════
+     FIELDS PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-fields">
+  <div class="topbar">
+    <div class="topbar-title">My Fields</div>
+    <div style="font-size:12px;color:var(--muted)">23 fields</div>
+  </div>
+  <div class="search-bar">
+    <input class="search-input" placeholder="🔍 Search field name..." oninput="filterFields(this.value)">
+  </div>
+  <div class="scroll-body" id="field-list-scroll">
+    <!-- Fields rendered by JS -->
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     FIELD DETAIL PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-field-detail">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-fields')">←</button>
+    <div class="topbar-title" id="detail-title">Field Detail</div>
+    <div class="icon-btn" id="detail-status-icon">🟢</div>
+  </div>
+
+  <div class="scroll-body" id="field-detail-scroll">
+    <!-- Satellite Image -->
+    <div class="field-image" id="detail-image">
+      <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a3d20,#2d7a50);display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;color:rgba(255,255,255,0.4)">
+          <div style="font-size:32px;margin-bottom:8px">🛰</div>
+          <div style="font-size:12px">Loading satellite image...</div>
+        </div>
+      </div>
+      <div class="field-image-overlay">
+        <div class="field-image-date" id="detail-img-date">🛰 Sentinel-2</div>
+        <div class="field-image-source">© Copernicus/ESA</div>
+      </div>
+    </div>
+
+    <!-- Field header -->
+    <div style="padding:14px 14px 0">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px" id="detail-crop-type">Grassland</div>
+      <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px" id="detail-crop">Permanent Pasture</div>
+      <div style="font-size:13px;color:var(--muted)" id="detail-meta">16.09 ha · Owned · Tipperary</div>
+    </div>
+
+    <!-- Decision Hero -->
+    <div class="decision-hero" id="detail-decision">
+      <div class="decision-label">Today's Decision</div>
+      <div class="decision-value">✓ Graze Now</div>
+      <div class="decision-reason">Cover at 2,939 kg DM/ha — optimal pre-grazing level. Ground conditions excellent. Move stock within 2 days.</div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-grid" style="margin-top:10px">
+      <div class="metric-card">
+        <div class="metric-label">🌱 Grass Cover</div>
+        <div class="metric-value" id="detail-cover">2,939</div>
+        <div class="metric-unit">kg DM/ha</div>
+        <div class="metric-trend trend-up" id="detail-cover-status">Ready to graze</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">📈 Growth Rate</div>
+        <div class="metric-value" id="detail-growth">60</div>
+        <div class="metric-unit">kg DM/ha/day</div>
+        <div class="metric-trend trend-up">Strong growth</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">🌾 NDVI</div>
+        <div class="metric-value" id="detail-ndvi">0.69</div>
+        <div class="metric-unit">Vegetation index</div>
+        <div class="metric-trend trend-up" id="detail-ndvi-label">Good condition</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">💧 Soil Moisture</div>
+        <div class="metric-value" id="detail-moisture">0.31</div>
+        <div class="metric-unit">m³/m³</div>
+        <div class="metric-trend trend-flat" id="detail-moisture-label">Adequate</div>
+      </div>
+    </div>
+
+    <!-- Grass Dashboard -->
+    <div class="card">
+      <div class="card-header">🌿 Grass Dashboard</div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="info-label">Pre-grazing cover</span>
+          <span class="info-value green" id="dash-cover">2,939 kg DM/ha</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Target cover</span>
+          <span class="info-value">1,400 kg DM/ha</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Growth rate</span>
+          <span class="info-value green">60 kg DM/ha/day</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Rotation</span>
+          <span class="info-value">21 days</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Feed balance</span>
+          <span class="info-value green">Surplus</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather & Ground -->
+    <div class="card">
+      <div class="card-header">☁️ Weather & Ground</div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="info-label">Rainfall (7d)</span>
+          <span class="info-value">12 mm</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Soil moisture</span>
+          <span class="info-value green" id="w-moisture">Good</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Trafficability</span>
+          <span class="info-value green" id="w-traffic">Excellent</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Machinery access</span>
+          <span class="info-value green">Suitable</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compliance -->
+    <div class="card">
+      <div class="card-header">📋 Compliance Status</div>
+      <div class="card-body">
+        <div class="compliance-item">
+          <div class="compliance-icon">✅</div>
+          <div class="compliance-name">ACRES</div>
+          <div class="compliance-status" style="color:#16a34a">Compliant</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-icon">✅</div>
+          <div class="compliance-name">Eco Scheme</div>
+          <div class="compliance-status" style="color:#16a34a">Active</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-icon">✅</div>
+          <div class="compliance-name">BISS</div>
+          <div class="compliance-status" style="color:#16a34a">Eligible</div>
+        </div>
+        <div class="compliance-item">
+          <div class="compliance-icon">✅</div>
+          <div class="compliance-name">ANC</div>
+          <div class="compliance-status" style="color:#16a34a">Active</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Field Details (collapsed by default) -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-header" style="cursor:pointer;padding-bottom:12px" onclick="toggleFieldDetails()">
+        Field Details <span id="details-toggle" style="float:right;color:var(--muted)">▼</span>
+      </div>
+      <div id="field-details-body" style="display:none">
+        <div class="card-body" style="padding-top:0">
+          <div class="info-row">
+            <span class="info-label">LPIS reference</span>
+            <span class="info-value" style="font-family:var(--mono);font-size:11px">••••••••</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Claimed area</span>
+            <span class="info-value">16.09 ha</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Reference area</span>
+            <span class="info-value">15.37 ha</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Ownership</span>
+            <span class="info-value">Owned</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Data source</span>
+            <span class="info-value">DAFM LPIS 2024</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Satellite</span>
+            <span class="info-value">Sentinel-2 L2A</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Image date</span>
+            <span class="info-value" id="detail-img-date2">29 May 2026</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Confidence</span>
+            <span class="info-value green" id="detail-confidence">8.7/10 High</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MAP PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-map">
+  <div class="topbar">
+    <div class="topbar-title">Farm Map</div>
+  </div>
+  <div style="flex:1;position:relative;">
+    <div id="farm-map"></div>
+    <div class="map-controls">
+      <button class="map-layer-btn active" onclick="setLayer('satellite',this)">🛰 Satellite</button>
+      <button class="map-layer-btn" onclick="setLayer('ndvi',this)">🌱 NDVI</button>
+      <button class="map-layer-btn" onclick="setLayer('moisture',this)">💧 Moisture</button>
+      <button class="map-layer-btn" onclick="setLayer('osm',this)">🗺 Streets</button>
+    </div>
+    <div style="position:absolute;bottom:80px;left:0;right:0;text-align:center;z-index:500;">
+      <div style="display:inline-block;background:rgba(0,0,0,0.7);color:#fff;padding:8px 16px;border-radius:100px;font-size:12px;font-weight:500;backdrop-filter:blur(4px)">
+        Tap any field to view intelligence
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ── BOTTOM NAV ── -->
+<!-- ════════════════════════════════════════
+     ANALYTICS PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-analytics">
+  <div class="topbar">
+    <div class="topbar-title">Analytics</div>
+  </div>
+  <div class="analytics-tabs">
+    <div class="atab active" onclick="setAnalyticsTab('grass',this)">🌱 Grass</div>
+    <div class="atab" onclick="setAnalyticsTab('ndvi',this)">📊 NDVI</div>
+    <div class="atab" onclick="setAnalyticsTab('growth',this)">📈 Growth</div>
+    <div class="atab" onclick="setAnalyticsTab('moisture',this)">💧 Moisture</div>
+    <div class="atab" onclick="setAnalyticsTab('compliance',this)">📋 Compliance</div>
+  </div>
+  <div class="scroll-body">
+
+    <!-- Farm Overview stats -->
+    <div class="section-title" style="margin-top:16px">Farm Overview</div>
+    <div class="overview-stat">
+      <div class="o-stat">
+        <div class="o-stat-num">185</div>
+        <div class="o-stat-label">Total ha</div>
+      </div>
+      <div class="o-stat">
+        <div class="o-stat-num">2,480</div>
+        <div class="o-stat-label">Avg Cover</div>
+      </div>
+      <div class="o-stat">
+        <div class="o-stat-num">58</div>
+        <div class="o-stat-label">kg DM/day</div>
+      </div>
+      <div class="o-stat">
+        <div class="o-stat-num">8</div>
+        <div class="o-stat-label">Ready Fields</div>
+      </div>
+      <div class="o-stat">
+        <div class="o-stat-num">3</div>
+        <div class="o-stat-label">Silage Ops</div>
+      </div>
+      <div class="o-stat">
+        <div class="o-stat-num">0</div>
+        <div class="o-stat-label">Compliance ⚠</div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:16px">Grass Cover Trend</div>
+    <div id="analytics-chart" style="margin:0 14px;background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;overflow:hidden;">
+      <canvas id="grass-chart" height="140"></canvas>
+    </div>
+
+    <div class="section-title" style="margin-top:16px">Field Comparison</div>
+    <div id="field-comparison" style="padding:0 14px;margin-bottom:16px;">
+      <!-- Rendered by JS -->
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     ALERTS PAGE
+════════════════════════════════════════ -->
+<div class="page" id="pg-alerts">
+  <div class="topbar">
+    <button class="back-btn" onclick="showNavPage('pg-home')">←</button>
+    <div class="topbar-title">Alerts</div>
+    <div style="font-size:12px;color:var(--muted)">3 active</div>
+  </div>
+  <div class="scroll-body">
+
+    <div class="alert-card" style="border-left:4px solid #dc2626;">
+      <div class="alert-header">
+        <div class="alert-dot" style="background:#dc2626"></div>
+        <div class="alert-title">Silage Block — Ready to Cut</div>
+        <div class="alert-time">Today</div>
+      </div>
+      <div class="alert-body">Cover at 3,820 kg DM/ha — above optimal. Plan cutting within 48 hours to maintain quality.</div>
+      <button class="alert-action" style="background:var(--red-lt);color:var(--red)" onclick="goFieldDetail('silage')">View Field →</button>
+    </div>
+
+    <div class="alert-card" style="border-left:4px solid #d97706;margin-top:10px">
+      <div class="alert-header">
+        <div class="alert-dot" style="background:#d97706"></div>
+        <div class="alert-title">ACRES — Riparian Buffer</div>
+        <div class="alert-time">Ongoing</div>
+      </div>
+      <div class="alert-body">No mowing restriction active until 31 Aug 2026. Satellite monitoring confirms compliance so far.</div>
+      <button class="alert-action" style="background:var(--amber-lt);color:var(--amber)">View Evidence →</button>
+    </div>
+
+    <div class="alert-card" style="border-left:4px solid #d97706;margin-top:10px">
+      <div class="alert-header">
+        <div class="alert-dot" style="background:#d97706"></div>
+        <div class="alert-title">North Meadow — Growth Slowing</div>
+        <div class="alert-time">2 days ago</div>
+      </div>
+      <div class="alert-body">NDVI trend declining over past 14 days. Monitor closely. May need rest period.</div>
+      <button class="alert-action" style="background:var(--amber-lt);color:var(--amber)" onclick="goFieldDetail('north')">View Field →</button>
+    </div>
+
+    <div style="margin-top:16px;padding:0 14px;">
+      <div class="section-title" style="padding:0;margin-bottom:10px">Recent — Resolved</div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;">
+          <span>✅</span>
+          <span style="flex:1;font-weight:600">Home Field — Grazing complete</span>
+          <span style="color:var(--muted);font-size:11px">3d ago</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:13px;">
+          <span>✅</span>
+          <span style="flex:1;font-weight:600">River Field — Slurry applied</span>
+          <span style="color:var(--muted);font-size:11px">5d ago</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     BOTTOM NAVIGATION
+════════════════════════════════════════ -->
 <div class="bottom-nav" id="bottom-nav">
-  <button class="nav-btn active" onclick="navTo('sec-overview',this)"><span class="ni">🏠</span>Today</button>
-  <button class="nav-btn" onclick="navTo('sec-acres',this)"><span class="ni">📋</span>ACRES</button>
-  <button class="nav-btn" onclick="navTo('sec-score',this)"><span class="ni">🎯</span>Score</button>
-  <button class="nav-btn" onclick="navTo('sec-report',this)"><span class="ni">📄</span>Report</button>
+  <button class="nav-item active" onclick="showNavPage('pg-home',this)" id="nav-home">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Home</span>
+  </button>
+  <button class="nav-item" onclick="showNavPage('pg-fields',this)" id="nav-fields">
+    <span class="nav-icon">🌾</span>
+    <span class="nav-label">Fields</span>
+  </button>
+  <button class="nav-item" onclick="showNavPage('pg-map',this)" id="nav-map">
+    <span class="nav-icon">🗺</span>
+    <span class="nav-label">Map</span>
+  </button>
+  <button class="nav-item" onclick="showNavPage('pg-analytics',this)" id="nav-analytics">
+    <span class="nav-icon">📈</span>
+    <span class="nav-label">Analytics</span>
+  </button>
+  <button class="nav-item" onclick="showNavPage('pg-alerts',this)" id="nav-alerts">
+    <span class="nav-icon">🔔</span>
+    <span class="nav-label">Alerts</span>
+  </button>
 </div>
 
 <script>
-let selectedCounty='', selectedParcel=null, selectedLatLng=null, villageParcels=[];
-let fieldMap=null;
+const API = 'https://cube-earth.onrender.com';
 
-// ── NAVIGATION ──
+// ── DEMO DATA ──
+const demoFields = [
+  {id:'home', name:'Home Field', crop:'Permanent Pasture', area:16.09, status:'green', statusText:'Ready to Graze', cover:2939, growth:60, ndvi:0.69, lat:52.05, lng:-9.35},
+  {id:'north', name:'North Meadow', crop:'Permanent Pasture', area:12.7, status:'amber', statusText:'Growing Well', cover:1820, growth:45, ndvi:0.58, lat:52.06, lng:-9.36},
+  {id:'silage', name:'Silage Block', crop:'Grass Silage', area:8.5, status:'red', statusText:'Ready to Cut', cover:3820, growth:55, ndvi:0.78, lat:52.04, lng:-9.34},
+  {id:'river', name:'River Field', crop:'Permanent Pasture', area:9.2, status:'green', statusText:'Good Condition', cover:2150, growth:50, ndvi:0.65, lat:52.05, lng:-9.37},
+  {id:'back', name:'Back Field', crop:'Permanent Pasture', area:11.3, status:'green', statusText:'Ready to Graze', cover:2780, growth:58, ndvi:0.71, lat:52.07, lng:-9.35},
+  {id:'east', name:'East Block', crop:'Barley - Spring', area:14.2, status:'amber', statusText:'Monitoring', cover:null, growth:null, ndvi:0.45, lat:52.03, lng:-9.33},
+  {id:'west', name:'West Pasture', crop:'Permanent Pasture', area:7.8, status:'green', statusText:'Good Condition', cover:2340, growth:52, ndvi:0.67, lat:52.06, lng:-9.38},
+  {id:'hill', name:'Hill Field', crop:'Extensively Grazed Pasture', area:18.5, status:'amber', statusText:'Monitor', cover:1650, growth:38, ndvi:0.52, lat:52.08, lng:-9.36},
+];
+
+let farmMap = null;
+let currentField = null;
+
+// ── PAGE NAVIGATION ──
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  document.getElementById('bottom-nav').classList.toggle('show',id==='intel');
+  document.getElementById(id).classList.add('active');
 }
 
-function navTo(id,btn){
-  document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn?.classList.add('active');
+function showNavPage(id, btn){
+  showPage(id);
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(id==='pg-map') initMap();
+  if(id==='pg-fields') renderFieldList(demoFields);
+  if(id==='pg-analytics') renderAnalytics();
 }
 
-function goStep(n){
-  document.getElementById('step1').style.display=n===1?'block':'none';
-  document.getElementById('step2').style.display=n===2?'block':'none';
-  document.getElementById('step3').style.display=n===3?'block':'none';
-  document.getElementById('confirm-panel').classList.remove('show');
-  document.getElementById('btn-confirm').disabled=true;
-  const titles={1:'Select County',2:'Select Townland',3:'Select Field'};
-  document.getElementById('select-title').textContent=titles[n];
+function goSetup(){showPage('pg-setup');}
+
+function goDemo(){
+  showPage('pg-home');
+  document.getElementById('bottom-nav').classList.add('show');
+  renderFieldList(demoFields);
 }
 
-// ── COUNTY ──
-function pickCounty(c){
-  selectedCounty=c;
-  goStep(2);
-  document.getElementById('townland-input').value='';
-  document.getElementById('townland-results').innerHTML='';
-  document.getElementById('select-title').textContent=c;
-  setTimeout(()=>document.getElementById('townland-input').focus(),300);
+// ── FIELD LIST ──
+function renderFieldList(fields){
+  const el = document.getElementById('field-list-scroll');
+  const dotColor = {green:'dot-green', amber:'dot-amber', red:'dot-red'};
+  const txtColor = {green:'green', amber:'amber', red:'red'};
+  el.innerHTML = fields.map(f=>`
+    <div class="field-card" onclick="goFieldDetail('${f.id}')">
+      <div class="field-status-dot ${dotColor[f.status]}"></div>
+      <div class="field-info">
+        <div class="field-name">${f.name}</div>
+        <div class="field-meta">${f.crop} · ${f.area} ha</div>
+      </div>
+      <div style="text-align:right">
+        <div class="field-status-text ${txtColor[f.status]}">${f.statusText}</div>
+        ${f.cover?`<div class="field-area">${f.cover.toLocaleString()} kg DM/ha</div>`:''}
+      </div>
+      <div class="field-chevron">›</div>
+    </div>`).join('');
 }
 
-// ── TOWNLAND SEARCH ──
-async function searchTownland(){
-  const q=document.getElementById('townland-input').value.trim();
-  if(!q) return;
-  const el=document.getElementById('townland-results');
-  el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0">Searching...</div>';
-  try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', '+selectedCounty+', Ireland')}&format=json&limit=4`);
-    const data=await r.json();
-    if(!data.length){el.innerHTML='<div style="color:var(--red);font-size:13px">Not found — try another name</div>';return;}
-    el.innerHTML=data.map(d=>`
-      <button class="field-btn" onclick="loadFields(${d.lat},${d.lon},'${d.display_name.split(',')[0].replace(/'/g,"\\'")}')">
-        <span style="font-size:22px">📍</span>
-        <span class="field-crop">${d.display_name.split(',').slice(0,2).join(', ')}</span>
-      </button>`).join('');
-  }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:13px">Error: ${e.message}</div>`;}
+function filterFields(q){
+  const filtered = demoFields.filter(f=>
+    f.name.toLowerCase().includes(q.toLowerCase()) ||
+    f.crop.toLowerCase().includes(q.toLowerCase())
+  );
+  renderFieldList(filtered);
 }
 
-// ── FIELD ICONS ──
-const cropIcon=c=>{
-  const cl=(c||'').toLowerCase();
-  return cl.includes('pasture')||cl.includes('grass')||cl.includes('riparian')||cl.includes('extensive')?'🌱':
-         cl.includes('barley')||cl.includes('wheat')||cl.includes('oat')||cl.includes('rape')||cl.includes('clover')?'🌾':
-         cl.includes('potato')||cl.includes('beet')||cl.includes('maize')||cl.includes('bean')?'🥕':'🌿';
-};
+// ── FIELD DETAIL ──
+function goFieldDetail(id){
+  const f = demoFields.find(x=>x.id===id) || demoFields[0];
+  currentField = f;
+  showPage('pg-field-detail');
 
-// ── LOAD FIELDS ──
-async function loadFields(lat,lng,name){
-  goStep(3);
-  document.getElementById('select-title').textContent=name;
-  const el=document.getElementById('field-list');
-  el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:10px 0">Loading fields near ${name}...</div>`;
-  try{
-    const tol=0.025;
-    const url=`https://cube-earth.onrender.com/parcels_in_bbox?minlng=${lng-tol}&minlat=${lat-tol}&maxlng=${lng+tol}&maxlat=${lat+tol}`;
-    const r=await fetch(url);
-    const data=await r.json();
-    const skipList=['building','road','water','farmyard','forestry ineligible','habitat','winter bird food plot'];
-    villageParcels=(data.features||[]).filter(f=>{
-      const c=(f.properties?.CROP||'').toLowerCase();
-      const area=parseFloat(f.properties?.CLAIM_AREA||0);
-      return !skipList.some(s=>c.includes(s))&&c!==''&&area>0.2;
-    }).sort((a,b)=>parseFloat(b.properties?.CLAIM_AREA||0)-parseFloat(a.properties?.CLAIM_AREA||0));
+  document.getElementById('detail-title').textContent = f.name;
+  document.getElementById('detail-status-icon').textContent = f.status==='green'?'🟢':f.status==='amber'?'🟡':'🔴';
+  document.getElementById('detail-crop').textContent = f.crop;
+  document.getElementById('detail-crop-type').textContent = f.crop.includes('Pasture')||f.crop.includes('Grass')||f.crop.includes('Grazed')?'🌱 Grassland':'🌾 Tillage';
+  document.getElementById('detail-meta').textContent = `${f.area} ha · Owned · Tipperary`;
+  document.getElementById('detail-ndvi').textContent = f.ndvi.toFixed(2);
+  document.getElementById('detail-ndvi-label').textContent = f.ndvi>0.7?'Excellent':f.ndvi>0.55?'Good':f.ndvi>0.4?'Moderate':'Low';
 
-    if(!villageParcels.length){el.innerHTML='<div style="color:var(--red);font-size:13px">No fields found. Try a nearby town.</div>';return;}
-
-    el.innerHTML=`
-    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600">${villageParcels.length} fields found near ${name}</div>
-    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--muted);align-self:center">Filter:</span>
-      <button onclick="filterFields('all',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--green);color:#fff;cursor:pointer;font-family:var(--sans);font-weight:600">All</button>
-      <button onclick="filterFields('grass',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:var(--sans);font-weight:600">🌱 Grass</button>
-      <button onclick="filterFields('tillage',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:var(--sans);font-weight:600">🌾 Tillage</button>
-      <button onclick="filterFields('arable',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:var(--sans);font-weight:600">🥕 Arable</button>
-    </div>`+
-    villageParcels.map((f,i)=>{
-      const p=f.properties;
-      const eco=p.ECO==='Y'?'<span style="font-size:9px;background:#d1fae5;color:#065f46;padding:2px 6px;border-radius:4px;font-weight:700">ECO</span> ':'';
-      const biss=p.BISS==='Y'?'<span style="font-size:9px;background:#dbeafe;color:#1e40af;padding:2px 6px;border-radius:4px;font-weight:700">BISS</span>':'';
-      return `<button class="field-btn" onclick="pickField(${i})" style="flex-wrap:wrap;align-items:flex-start">
-        <span class="field-num" style="margin-top:2px">Field ${i+1}</span>
-        <div style="flex:1;min-width:0">
-          <div class="field-crop">${cropIcon(p.CROP)} ${p.CROP||'Unknown'}</div>
-          ${(eco||biss)?`<div style="margin-top:4px">${eco}${biss}</div>`:''}
-        </div>
-        <span class="field-area">${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha</span>
-      </button>`;
-    }).join('');
-  }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:13px">Error: ${e.message}</div>`;}
-}
-
-// ── FILTER FIELDS ──
-function filterFields(type,evt){
-  document.querySelectorAll('#field-list button[onclick^="filterFields"]').forEach(b=>{
-    b.style.background='var(--white)';b.style.color='var(--text)';
-  });
-  if(evt?.target){evt.target.style.background='var(--green)';evt.target.style.color='#fff';}
-  document.querySelectorAll('.field-btn').forEach(b=>{
-    if(type==='all'){b.style.display='flex';return;}
-    const c=b.querySelector('.field-crop')?.textContent||'';
-    b.style.display=(type==='grass'&&c.includes('🌱'))||(type==='tillage'&&c.includes('🌾'))||(type==='arable'&&c.includes('🥕'))?'flex':'none';
-  });
-}
-
-// ── PICK FIELD ──
-function pickField(i){
-  const f=villageParcels[i];if(!f)return;
-  selectedParcel=f;
-  const p=f.properties;
-  let lat=0,lng=0;
-  if(f.geometry?.type==='Polygon'){
-    const c=f.geometry.coordinates[0];
-    lng=c.reduce((s,v)=>s+v[0],0)/c.length;
-    lat=c.reduce((s,v)=>s+v[1],0)/c.length;
+  if(f.cover){
+    document.getElementById('detail-cover').textContent = f.cover.toLocaleString();
+    document.getElementById('detail-cover-status').textContent = f.cover>3000?'Consider topping':f.cover>1800?'Ready to graze':f.cover>1400?'Approaching threshold':'Below threshold';
+    document.getElementById('dash-cover').textContent = f.cover.toLocaleString()+' kg DM/ha';
   }
-  selectedLatLng={lat,lng};
-  const gl=p.GRASSLND==='Y',ti=p.TILLAGE==='Y',ar=p.ARABL_IND==='Y';
-  document.getElementById('confirm-icon').textContent=gl?'🌱':ti?'🌾':ar?'🥕':'🏡';
-  document.getElementById('confirm-crop').textContent=`Field ${i+1} — ${p.CROP||'Unknown'}`;
-  document.getElementById('confirm-meta').textContent=`${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha${p.OLR?' · '+p.OLR:''}${p.ECO==='Y'?' · ECO':''}${p.BISS==='Y'?' · BISS':''}`;
-  document.getElementById('confirm-panel').classList.add('show');
-  document.getElementById('btn-confirm').disabled=false;
-  document.querySelectorAll('.field-btn').forEach((b,idx)=>{
-    b.style.borderColor=idx===i?'var(--green)':'var(--border)';
-    b.style.background=idx===i?'var(--green-pale)':'var(--white)';
-  });
+
+  if(f.growth){
+    document.getElementById('detail-growth').textContent = f.growth;
+  }
+
+  // Decision
+  const dec = document.getElementById('detail-decision');
+  if(f.status==='red'){
+    dec.style.background = 'linear-gradient(135deg,#7f1d1d,#dc2626)';
+    dec.querySelector('.decision-value').textContent = '✂ Cut Now';
+    dec.querySelector('.decision-reason').textContent = 'Cover above 3,500 kg DM/ha — quality declining. Plan cutting immediately.';
+  } else if(f.status==='amber'){
+    dec.style.background = 'linear-gradient(135deg,#78350f,#d97706)';
+    dec.querySelector('.decision-value').textContent = '👁 Monitor';
+    dec.querySelector('.decision-reason').textContent = 'Cover building well. Check again in 3 days before grazing decision.';
+  } else {
+    dec.style.background = 'linear-gradient(135deg,var(--g1),var(--g3))';
+    dec.querySelector('.decision-value').textContent = '✓ Graze Now';
+    dec.querySelector('.decision-reason').textContent = `Cover at ${f.cover?.toLocaleString()||'—'} kg DM/ha — optimal pre-grazing level. Move stock within 2 days.`;
+  }
+
+  // Load satellite image
+  loadSatelliteImage(f);
+
+  // Scroll to top
+  document.getElementById('field-detail-scroll').scrollTop = 0;
 }
 
-// ── CONFIRM FIELD ──
-function confirmField(){
-  if(!selectedLatLng)return;
-  showPage('intel');
+function loadSatelliteImage(f){
+  const pad = 0.015;
+  const minlng = f.lng - pad;
+  const maxlng = f.lng + pad;
+  const minlat = f.lat - pad;
+  const maxlat = f.lat + pad;
+  const imgUrl = `${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
+
+  const imgEl = document.getElementById('detail-image');
+  imgEl.style.backgroundImage = `url(${imgUrl})`;
+  imgEl.style.backgroundSize = 'cover';
+  imgEl.style.backgroundPosition = 'center';
+  imgEl.innerHTML = `<div class="field-image-overlay">
+    <div class="field-image-date">🛰 Sentinel-2 · 29 May 2026</div>
+    <div class="field-image-source">© Copernicus/ESA</div>
+  </div>`;
+}
+
+function toggleFieldDetails(){
+  const body = document.getElementById('field-details-body');
+  const toggle = document.getElementById('details-toggle');
+  if(body.style.display==='none'){
+    body.style.display='block';
+    toggle.textContent='▲';
+  } else {
+    body.style.display='none';
+    toggle.textContent='▼';
+  }
+}
+
+// ── MAP ──
+let satelliteLayer, osmLayer, currentMapLayer='satellite';
+
+function initMap(){
+  if(farmMap) return;
   setTimeout(()=>{
-    if(fieldMap){fieldMap.remove();fieldMap=null;}
-    const mapEl=document.getElementById('field-map');
-    mapEl.style.background='#1a1a1a';
-    document.getElementById('map-overlay').textContent='⏳ Loading...';
+    farmMap = L.map('farm-map',{zoomControl:true}).setView([52.05,-9.35],13);
+    satelliteLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
+    osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'});
+    satelliteLayer.addTo(farmMap);
 
-    if(selectedParcel?.geometry){
-      const coords=selectedParcel.geometry.coordinates[0];
-      const lngs=coords.map(c=>c[0]);
-      const lats=coords.map(c=>c[1]);
-      // Wide bbox for context
-      const minlng=Math.min(...lngs)-0.02;
-      const maxlng=Math.max(...lngs)+0.02;
-      const minlat=Math.min(...lats)-0.02;
-      const maxlat=Math.max(...lats)+0.02;
-
-      const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
-
-      // Set background image
-      mapEl.style.backgroundImage=`url(${imgUrl})`;
-      mapEl.style.backgroundSize='cover';
-      mapEl.style.backgroundPosition='center';
-      mapEl.style.backgroundRepeat='no-repeat';
-      document.getElementById('map-overlay').textContent='🛰 Sentinel-2 · May 2026';
-
-      // Add Leaflet on top for parcel boundary only
-      fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{opacity:0}).addTo(fieldMap);
-      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
-      fieldMap.fitBounds(l.getBounds(),{padding:[30,30]});
-    } else {
-      mapEl.style.background='#111';
-      document.getElementById('map-overlay').textContent='🛰 Sentinel-2';
-    }
-  },300);
-  loadIntel(selectedLatLng.lat,selectedLatLng.lng);
-}
-// ── LOAD INTEL ──
-async function loadIntel(lat,lng){
-  const scroll=document.getElementById('intel-scroll');
-  try{
-    const p=selectedParcel?.properties||{};
-    console.log('Sending parcel override:', p.CROP, p.CLAIM_AREA);
-    const r=await fetch('https://cube-earth.onrender.com/field_profile',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-  lat,lng,year:2026,
-  parcel_override:{
-    crop:p.CROP,claim_area:parseFloat(p.CLAIM_AREA||0),
-    grassland:p.GRASSLND==='Y',tillage:p.TILLAGE==='Y',
-    arable:p.ARABL_IND==='Y',biss:p.BISS==='Y',
-    eco:p.ECO==='Y',olr:p.OLR,
-  }
-})
+    // Add demo field markers
+    demoFields.forEach(f=>{
+      const color = f.status==='green'?'#16a34a':f.status==='amber'?'#d97706':'#dc2626';
+      const circle = L.circleMarker([f.lat,f.lng],{
+        radius:12,color:'#fff',weight:2,
+        fillColor:color,fillOpacity:0.8
+      }).addTo(farmMap);
+      circle.bindPopup(`<b>${f.name}</b><br>${f.crop}<br>${f.area} ha`);
+      circle.on('click',()=>goFieldDetail(f.id));
     });
-    const d=await r.json();
-    if(!d.success){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${d.detail||'Failed to load'}</div>`;return;}
-    renderIntel(d);
-  }catch(e){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${e.message}</div>`;}
+  },300);
 }
 
-// ── HELPERS ──
-const dot=a=>a==null?'gray':a<=3?'green':a<=14?'amber':'red';
-
-const ndviLabel=v=>!v?'—':v>0.75?'Excellent':v>0.55?'High':v>0.35?'Moderate':v>0.20?'Low':'Very low';
-
-const smLabel=v=>!v?'—':v>0.35?'Wet':v>0.25?'Adequate':v>0.15?'Dry':'Very dry';
-
-// Corrected stage label — avoids contradictions with NDVI
-function correctStageLabel(label, ndvi, cropType){
-  if(!label) return label;
-  const isGrass = cropType==='Grassland';
-  if(label==='Peak Growth' || label==='Peak growth'){
-    if(ndvi && ndvi < 0.65){
-      if(ndvi > 0.50) return 'Active Growth';
-      if(ndvi > 0.35) return 'Recovering Pasture';
-      return 'Post-disturbance Recovery';
-    }
-  }
-  if(label==='Post-disturbance Field State' && ndvi && ndvi > 0.65){
-    return isGrass ? 'Active Growth' : 'Vegetative Growth';
-  }
-  return label;
+function setLayer(type, btn){
+  document.querySelectorAll('.map-layer-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(!farmMap) return;
+  if(type==='satellite'){farmMap.removeLayer(osmLayer);satelliteLayer.addTo(farmMap);}
+  else if(type==='osm'){farmMap.removeLayer(satelliteLayer);osmLayer.addTo(farmMap);}
 }
 
-// kg DM/ha from NDVI (Irish grassland formula)
-function calcDMha(ndvi){
-  if(!ndvi || ndvi < 0.15) return null;
-  return Math.round((ndvi - 0.15) * 8500);
+// ── ANALYTICS ──
+function renderAnalytics(){
+  // Simple bar chart using canvas
+  const canvas = document.getElementById('grass-chart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.offsetWidth;
+  canvas.width = w;
+  canvas.height = 140;
+
+  const data = [2100,2280,2450,2380,2620,2750,2939];
+  const labels = ['26 Apr','3 May','10 May','17 May','24 May','27 May','30 May'];
+  const max = Math.max(...data) * 1.1;
+  const barW = (w - 40) / data.length - 6;
+
+  ctx.clearRect(0,0,w,140);
+  ctx.fillStyle = '#f4f9f5';
+  ctx.fillRect(0,0,w,140);
+
+  // Target line
+  ctx.strokeStyle = '#d97706';
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  const targetY = 140 - (1400/max)*110 - 10;
+  ctx.moveTo(30,targetY);
+  ctx.lineTo(w-10,targetY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#d97706';
+  ctx.font = '9px Sora';
+  ctx.fillText('Target 1,400',32,targetY-3);
+
+  data.forEach((v,i)=>{
+    const x = 30 + i*(barW+6);
+    const h = (v/max)*110;
+    const y = 140-h-10;
+    ctx.fillStyle = i===data.length-1?'#1a5c38':'#4a9a6f';
+    ctx.beginPath();
+    ctx.roundRect(x,y,barW,h,3);
+    ctx.fill();
+    ctx.fillStyle = '#5a7060';
+    ctx.font = '8px JetBrains Mono';
+    ctx.fillText(labels[i],x,138);
+  });
+
+  // Field comparison
+  const comp = document.getElementById('field-comparison');
+  comp.innerHTML = demoFields.slice(0,6).map(f=>
+    `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="width:8px;height:8px;border-radius:50%;background:${f.status==='green'?'#16a34a':f.status==='amber'?'#d97706':'#dc2626'};flex-shrink:0"></div>
+      <div style="flex:1;font-size:13px;font-weight:600">${f.name}</div>
+      <div style="font-size:12px;font-family:var(--mono);color:var(--muted)">${f.cover?f.cover.toLocaleString():'—'} kg</div>
+      <div style="width:60px;height:4px;background:var(--border);border-radius:2px">
+        <div style="height:100%;background:${f.status==='green'?'#16a34a':f.status==='amber'?'#d97706':'#dc2626'};border-radius:2px;width:${f.cover?Math.min(100,f.cover/40)+'%':'30%'}"></div>
+      </div>
+    </div>`
+  ).join('');
 }
 
-// ── RENDER INTEL ──
-function renderIntel(d){
-  const scroll=document.getElementById('intel-scroll');
-  const p=d.parcel||{}, v=d.vegetation||{}, ag=d.agronomic||{};
-  const sm=d.soil_moisture||{}, vt=d.vegetation_trend||{};
-  const conf=d.confidence||{}, fresh=d.freshness||{};
-  const pc=d.parcel_context||{};
-
-  // Header
-  document.getElementById('intel-title').textContent=p.crop||'Field Intelligence';
-  const dist=pc.match_distance_m;
-  const badge=document.getElementById('match-badge');
-  if(dist!=null){
-    badge.textContent=dist<100?`✓ ${Math.round(dist)}m`:`~ ${Math.round(dist)}m`;
-    badge.className=dist<100?'match-exact':'match-near';
-  }
-
-  // Core values
-  const gl=p.grassland, ti=p.tillage, ar=p.arable;
-  const cIcon=gl?'🌱':ti?'🌾':ar?'🥕':'🏡';
-  const cropType=gl?'Grassland':ti?'Tillage':ar?'Arable':'Field';
-  const ndvi=v.ndvi;
-  const smapVal=sm.smap?.sm_surface_m3;
-  const dmha=calcDMha(ndvi);
-
-  // Stage — corrected
-  const stageRaw=ag.crop_stage;
-  const stageLabel=correctStageLabel(stageRaw?.label, ndvi, cropType);
-  const stageAdvice=stageRaw?.advice||'';
-
-  // Trend
-  const trend=vt.long_trend||'stable';
-  const tIcon=trend==='strong_increase'?'📈':trend==='increasing'?'↗️':trend==='stable'?'➡️':trend==='declining'?'↘️':'📉';
-  const aPct=vt.seasonal?.anomaly_pct;
-  const aClass=aPct>20?'a-pos':aPct<-20?'a-neg':'a-neu';
-  let tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable vegetation';
-  
-  if(aPct && aPct > 40) tLabel = gl ? 'Exceptional pasture growth — high biomass accumulation' : 'Exceptional canopy development';
-else if(aPct && aPct > 20) tLabel = gl ? 'Strong pasture growth — above seasonal average' : 'Strong canopy growth';
-  if(aPct!=null){
-    if((trend==='declining'||trend==='strong_decline')&&aPct>10)
-      tLabel=gl?'Pasture growth softening from above-average levels':'Canopy easing from above-average levels';
-    else if((trend==='declining'||trend==='strong_decline')&&aPct>0)
-      tLabel=gl?'Pasture slightly below recent peak':'Canopy below recent peak';
-  }
-  const aLabel=aPct!=null?
-    ((trend==='declining'||trend==='strong_decline')&&aPct>0?
-      `Remains +${aPct}% above seasonal baseline despite softening`:
-      `${aPct>0?'+':''}${aPct}% vs seasonal baseline`):'';
-
-  // ACRES
-  const today=new Date();
-  const month=today.getMonth()+1;
-  const restrictedPeriod=month>=3&&month<=8;
-  const events=vt.events||[];
-  // Only flag violation if NDVI confirms disturbance
-const hasViolation=events.some(e=>
-  (e.type==='harvest_or_cut'||e.type==='bare_soil')&&
-  restrictedPeriod &&
-  ndvi && ndvi < 0.50  // Cannot be mowing if NDVI > 0.50
-);
-  const isACRESField=p.eco||p.acres||
-    (p.crop||'').toLowerCase().includes('riparian')||
-    (p.crop||'').toLowerCase().includes('extensive')||gl;
-  const acresStatus=hasViolation?'red':restrictedPeriod&&isACRESField?'amber':'green';
-  const acresEmoji=acresStatus==='red'?'🔴':acresStatus==='amber'?'🟡':'🟢';
-  const acresLabel=acresStatus==='red'?'At Risk — mowing event detected':
-                   acresStatus==='amber'?'Restricted period active — monitor field':
-                   'Compliant — no violations detected';
-  const acresBg=acresStatus==='red'?'#fee2e2':acresStatus==='amber'?'#fef3c7':'#d1fae5';
-  const acresColor=acresStatus==='red'?'#991b1b':acresStatus==='amber'?'#92400e':'#065f46';
-
-  // Confidence
-  const score=conf.score||0;
-  const C=2*Math.PI*28;
-  const DO=C-(score/10)*C;
-  const contribs=conf.contributions||{};
-
-  // Locked decisions text
-  const decText=gl?'Grazing · Slurry timing · Machinery · Pasture advice':
-                ti||ar?'Machinery · Harvest readiness · Moisture monitoring · Crop advice':
-                'Machinery · Field management · Crop advice';
-
-  scroll.innerHTML=`
-  <!-- SUMMARY -->
-  <div class="summary-card" id="sec-overview">
-    <div class="summary-type">${cIcon} ${cropType}</div>
-    <div class="summary-name">${p.crop||'Unknown'}</div>
-    <div class="summary-meta">${(p.claim_area||0).toFixed(1)} ha${p.olr?' · '+p.olr:''} · ${d.terrain?.elevation_m||'—'}m</div>
-    ${stageLabel?`<div class="summary-stage">📅 ${stageLabel}</div>`:''}
-  </div>
-
-  <!-- FIELD OVERVIEW -->
-  <div class="card">
-    <div class="card-label">Field Overview</div>
-    <div class="card-body">
-      <div class="dec-grid">
-        <div class="dec-item">
-          <div class="dec-emoji">🌾</div>
-          <div class="dec-label">Crop Canopy</div>
-          <div class="dec-val">${ndviLabel(ndvi)}</div>
-          <div class="dec-sub">NDVI ${ndvi?.toFixed(3)||'—'}</div>
-        </div>
-        <div class="dec-item">
-          <div class="dec-emoji">💧</div>
-          <div class="dec-label">Soil Moisture</div>
-          <div class="dec-val">${smLabel(smapVal)}</div>
-          <div class="dec-sub">${smapVal?.toFixed(3)||'—'} m³/m³</div>
-        </div>
-        ${gl&&dmha?`
-        <div class="dec-item full" style="background:var(--green-pale)">
-          <div class="dm-label">🌱 Estimated Grass Cover</div>
-          <div class="dm-val">${dmha.toLocaleString()} <span style="font-size:14px;color:var(--muted)">kg DM/ha</span></div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">
-            ${dmha<1400?'Below grazing threshold':dmha<1800?'Approaching grazing threshold':dmha<3000?'Ready to graze':'Pre-grazing cover — consider topping'}
-          </div>
-        </div>`:''}
-        <div class="dec-item full locked" style="text-align:center;padding:16px">
-          <div style="font-size:13px;font-weight:700;color:var(--green)">🔒 Full Field Decisions</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">${decText}</div>
-          <div style="font-size:12px;font-weight:700;color:var(--green);margin-top:8px">Unlock — €2.99</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ACRES COMPLIANCE -->
-  <div class="card" id="sec-acres">
-    <div class="card-label">📋 ACRES Compliance</div>
-    <div class="card-body">
-      <div class="acres-status" style="background:${acresBg}">
-        <div class="acres-emoji">${acresEmoji}</div>
-        <div>
-          <div class="acres-label" style="color:${acresColor}">${acresLabel}</div>
-          <div class="acres-sub" style="color:${acresColor}">Based on satellite event detection · May 2026</div>
-        </div>
-      </div>
-      <div class="acres-actions">
-        ${gl||isACRESField?`
-        <div class="acres-action-row">
-          <div class="acres-dot ${hasViolation?'red':'green'}"></div>
-          <span>No mowing restriction: Mar 1 — Aug 31</span>
-          <span style="margin-left:auto;font-size:11px;font-weight:700;color:${hasViolation?'#991b1b':'#065f46'}">${hasViolation?'⚠️ Check':'✓ OK'}</span>
-        </div>`:''}
-        <div class="acres-action-row">
-          <div class="acres-dot ${acresStatus==='red'?'red':'green'}"></div>
-          <span>Satellite monitoring: Copernicus Sentinel</span>
-          <span style="margin-left:auto;font-size:11px;font-weight:700;color:#065f46">Active</span>
-        </div>
-        <div class="acres-action-row">
-          <div class="acres-dot green"></div>
-          <span>DAFM AMS colour code</span>
-          <span style="margin-left:auto;font-size:11px;font-weight:700;color:${acresColor}">${acresStatus==='red'?'🔴 Red':acresStatus==='amber'?'🟡 Yellow':'🟢 Green'}</span>
-        </div>
-      </div>
-      ${hasViolation?`
-      <div style="margin-top:12px;padding:10px 12px;background:#fff3f3;border-radius:10px;border-left:3px solid #ef4444">
-        <div style="font-size:12px;font-weight:700;color:#991b1b">⚠️ Recommended Action</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">Contact your ACRES advisor and submit geotagged photos to support your application. Do not delay.</div>
-      </div>`:''}
-    </div>
-  </div>
-
-  <!-- LIVE SENSORS -->
-  <div class="card">
-    <div class="card-label">🛰 Live Sensors</div>
-    <div class="card-body">
-      <div class="sensor-row">
-        <div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div>
-        <div class="s-name">Sentinel-2 NDVI</div>
-        <div class="s-val">${ndvi?.toFixed(3)||'—'}</div>
-        <div class="s-age">${fresh.sentinel2?.age_days||'—'}d · 10m</div>
-      </div>
-      <div class="sensor-row">
-        <div class="s-dot gray"></div>
-        <div class="s-name" style="color:var(--muted)">SMAP Soil Moisture</div>
-        <div class="s-lock">🔒</div>
-      </div>
-      <div class="sensor-row">
-        <div class="s-dot gray"></div>
-        <div class="s-name" style="color:var(--muted)">SAR Radar RVI</div>
-        <div class="s-lock">🔒</div>
-      </div>
-      <div class="sensor-row">
-        <div class="s-dot gray"></div>
-        <div class="s-name" style="color:var(--muted)">Thermal LST</div>
-        <div class="s-lock">🔒</div>
-      </div>
-      <div class="unlock-cta">
-        <div class="unlock-price">Unlock all 5 sensors — €2.99</div>
-        <button class="btn-unlock" onclick="alert('Coming soon — payment integration in progress')">Get Sensor Report →</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- VEGETATION TREND -->
-  <div class="card">
-    <div class="card-label">📈 Vegetation Trend</div>
-    <div class="card-body">
-      <div class="trend-row">
-        <div class="trend-icon">${tIcon}</div>
-        <div>
-          <div class="trend-main">${tLabel}</div>
-          <div class="trend-sub">${vt.count||0} observations · 90 days</div>
-          ${aLabel?`<span class="trend-anomaly ${aClass}">${aLabel}</span>`:''}
-        </div>
-      </div>
-      ${events.length?`
-      <div style="margin-top:12px">
-        ${events.map(e=>`
-        <div class="event-row">
-          <div class="ev-emoji">${e.type==='harvest_or_cut'?'🌾':e.type==='bare_soil'?'🟤':'🌱'}</div>
-          <div>
-            <div class="ev-title">${e.label||e.type}</div>
-            <div class="ev-date">${e.date||''}</div>
-            <span class="ev-badge ${e.confidence==='high'?'b-high':'b-mod'}">${e.confidence||'moderate'}</span>
-          </div>
-        </div>`).join('')}
-      </div>`:
-      `<div style="margin-top:10px;font-size:12px;color:var(--muted)">✓ No significant events detected in 90-day window</div>`}
-    </div>
-  </div>
-
-  <!-- DATA CONFIDENCE -->
-  <div class="card" id="sec-score">
-    <div class="card-label">🎯 Data Confidence</div>
-    <div class="card-body">
-      <div class="score-row">
-        <div class="score-ring">
-          <svg width="76" height="76" viewBox="0 0 76 76">
-            <circle cx="38" cy="38" r="28" fill="none" stroke="#e5e7eb" stroke-width="7"/>
-            <circle cx="38" cy="38" r="28" fill="none" stroke="${score>=8?'#1a5c38':score>=6?'#f59e0b':'#ef4444'}" stroke-width="7" stroke-dasharray="${C}" stroke-dashoffset="${DO}" stroke-linecap="round"/>
-          </svg>
-          <div class="score-num">${score}</div>
-        </div>
-        <div>
-          <div class="score-level">${conf.level||'Operational'}</div>
-          <div class="score-sub">Uncertainty: ${score>=8?'Low':score>=6?'Moderate':'High'}</div>
-          <div class="score-sub">Agreement: ${d.agreement?.score?.toFixed(1)||'—'}/10</div>
-        </div>
-      </div>
-      ${Object.entries(contribs).filter(([k,v])=>(v.percent||0)>0).slice(0,5).map(([k,v])=>`
-      <div class="bar-row">
-        <div class="bar-label">${k==='Sentinel-2'?'Optical':k==='SMAP'?'Moisture':k==='ERA5'?'Weather':k==='Sentinel-1'?'Radar':'Thermal'}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${v.percent||0}%"></div></div>
-        <div class="bar-pct">${v.percent||0}%</div>
-      </div>`).join('')}
-    </div>
-  </div>
-
-  <!-- REPORT CTA -->
-  <div class="report-cta" id="sec-report">
-    <h3>Full Field Report</h3>
-    <p>Professional PDF with complete sensor analysis, ACRES compliance evidence and agronomic recommendations.</p>
-    <div class="report-grid">
-      <button class="report-opt" onclick="alert('Coming soon')">Sensor Report<span class="price">€2.99</span></button>
-      <button class="report-opt" onclick="alert('Coming soon')">Data Quality<span class="price">€2.99</span></button>
-      <button class="report-opt report-full" onclick="alert('Coming soon')">Full PDF Field Report<span class="price">€7.99</span></button>
-    </div>
-  </div>
-  <div style="height:20px"></div>`;
+function setAnalyticsTab(tab, btn){
+  document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
 }
 
-// ── EVENT LISTENERS ──
-document.getElementById('townland-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchTownland();});
+// ── INIT ──
+document.addEventListener('DOMContentLoaded',()=>{
+  renderFieldList(demoFields);
+});
 </script>
 </body>
 </html>
