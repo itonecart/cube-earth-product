@@ -4,224 +4,158 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>Cube Earth — AI Satellite Intelligence for Irish Farms</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Cube Earth v2</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --green:#1a5c38;--green2:#2d7a50;--green-pale:#e8f5ee;--green-dark:#0f3d24;
+  --green:#1a5c38;--green-light:#2d7a50;--green-pale:#e8f5ee;
   --text:#111827;--muted:#6b7280;--border:#e5e7eb;
-  --surface:#f9fafb;--white:#ffffff;
-  --red:#991b1b;--red-pale:#fee2e2;
-  --amber:#92400e;--amber-pale:#fef3c7;
-  --blue-pale:#dbeafe;--blue:#1e40af;
-  --mono:'DM Mono',monospace;
-  --sans:'DM Sans',sans-serif;
-  --serif:'Fraunces',serif;
+  --surface:#f9fafb;--white:#ffffff;--red:#991b1b;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'DM Serif Display',serif;
 }
-*{-webkit-tap-highlight-color:transparent;}
-body{font-family:var(--sans);color:var(--text);background:var(--white);min-height:100vh;overflow-x:hidden;}
+body{font-family:var(--sans);color:var(--text);background:var(--white);min-height:100vh;}
 .page{display:none;min-height:100vh;flex-direction:column;}
 .page.active{display:flex;}
 
-/* ── LOGIN ── */
-#page-login{
-  background:linear-gradient(160deg,#061a0d 0%,#0f3d24 50%,#1a5c38 100%);
-  align-items:center;justify-content:center;padding:24px;
-  position:relative;overflow:hidden;
-}
-#page-login::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 30% 20%,rgba(45,122,80,0.3) 0%,transparent 60%),
-             radial-gradient(ellipse at 70% 80%,rgba(26,92,56,0.4) 0%,transparent 60%);
-}
-.login-card{
-  background:rgba(255,255,255,0.97);border-radius:24px;
-  padding:44px 36px;width:100%;max-width:390px;
-  box-shadow:0 32px 80px rgba(0,0,0,0.4);
-  position:relative;z-index:1;
-}
-.login-logo{text-align:center;margin-bottom:32px;}
-.globe{font-size:52px;display:block;margin-bottom:10px;animation:float 3s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-.login-logo h1{font-family:var(--serif);font-size:28px;color:var(--green);letter-spacing:-0.5px;}
-.login-logo p{font-size:12px;color:var(--muted);margin-top:5px;letter-spacing:0.02em;}
+/* LOGIN */
+#page-login{background:linear-gradient(160deg,#0a2e1a,#1a5c38,#0f3d24);align-items:center;justify-content:center;padding:24px;}
+.login-card{background:#fff;border-radius:20px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 25px 60px rgba(0,0,0,0.3);}
+.login-logo{text-align:center;margin-bottom:28px;}
+.globe{font-size:48px;display:block;margin-bottom:8px;}
+.login-logo h1{font-family:var(--serif);font-size:26px;color:var(--green);}
+.login-logo p{font-size:12px;color:var(--muted);margin-top:4px;}
 .form-group{margin-bottom:16px;}
-.form-group label{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
-.form-group input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:15px;font-family:var(--sans);outline:none;transition:border-color 0.2s;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:var(--sans);outline:none;}
 .form-group input:focus{border-color:var(--green);}
-.btn-green{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;margin-top:8px;letter-spacing:0.02em;transition:background 0.2s;}
-.btn-green:active{background:var(--green-dark);}
-.btn-outline{width:100%;padding:13px;background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:12px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:10px;}
-.divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0;position:relative;}
+.btn-green{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:8px;}
+.btn-outline{width:100%;padding:12px;background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:10px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:10px;}
+.divider{text-align:center;color:var(--muted);font-size:12px;margin:12px 0;position:relative;}
 .divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border);}
 .divider::before{left:0;}.divider::after{right:0;}
 
-/* ── SELECT ── */
+/* SELECT */
 #page-select{background:var(--surface);}
-.top-bar{padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
-.top-bar h2{font-family:var(--serif);font-size:19px;color:var(--green);flex:1;letter-spacing:-0.3px;}
-.demo-badge{font-size:11px;color:var(--muted);background:var(--surface);padding:3px 10px;border-radius:100px;font-weight:600;}
-.step-body{flex:1;overflow-y:auto;padding:20px 18px 130px;}
-.step-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;}
+.top-bar{padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white);display:flex;align-items:center;gap:10px;}
+.top-bar h2{font-family:var(--serif);font-size:18px;color:var(--green);flex:1;}
+.step-body{flex:1;overflow-y:auto;padding:20px 18px 120px;}
+.step-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;}
 .county-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.county-btn{padding:13px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;text-align:left;color:var(--text);transition:all 0.15s;}
-.county-btn:active{border-color:var(--green);background:var(--green-pale);}
-.search-row{display:flex;gap:8px;margin-bottom:10px;}
-.search-row input{flex:1;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:var(--sans);outline:none;transition:border-color 0.2s;}
+.county-btn{padding:12px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;text-align:left;color:var(--text);}
+.county-btn:hover{border-color:var(--green);background:var(--green-pale);}
+.search-row{display:flex;gap:8px;margin-bottom:8px;}
+.search-row input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;}
 .search-row input:focus{border-color:var(--green);}
-.btn-search{padding:12px 18px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);}
-.back-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--green);padding:0;line-height:1;}
-.field-btn{width:100%;padding:12px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:var(--sans);display:flex;align-items:center;gap:12px;transition:all 0.15s;}
-.field-btn:active{border-color:var(--green);background:var(--green-pale);}
-.field-num{background:var(--green);color:#fff;border-radius:8px;padding:5px 11px;font-size:13px;font-weight:700;flex-shrink:0;}
+.btn-search{padding:11px 16px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.field-btn{width:100%;padding:12px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:var(--sans);display:flex;align-items:center;gap:12px;}
+.field-btn:hover{border-color:var(--green);background:var(--green-pale);}
+.field-num{background:var(--green);color:#fff;border-radius:8px;padding:4px 10px;font-size:13px;font-weight:700;flex-shrink:0;}
 .field-crop{font-size:13px;font-weight:600;flex:1;}
-.field-area{font-size:12px;color:var(--muted);flex-shrink:0;font-family:var(--mono);}
+.field-area{font-size:12px;color:var(--muted);flex-shrink:0;}
+.back-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--green);padding:0;}
 
-/* ── CONFIRM PANEL ── */
-.confirm-panel{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--green);padding:16px 18px 24px;box-shadow:0 -8px 30px rgba(0,0,0,0.12);display:none;z-index:100;}
+/* CONFIRM PANEL */
+.confirm-panel{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--green);padding:16px 18px;box-shadow:0 -4px 20px rgba(0,0,0,0.1);display:none;z-index:100;}
 .confirm-panel.show{display:block;}
 .confirm-info{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.confirm-icon{font-size:34px;}
-.confirm-crop{font-size:16px;font-weight:700;font-family:var(--serif);}
+.confirm-icon{font-size:32px;}
+.confirm-crop{font-size:16px;font-weight:700;}
 .confirm-meta{font-size:12px;color:var(--muted);margin-top:2px;}
-.btn-confirm{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;}
+.btn-confirm{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;}
 .btn-confirm:disabled{background:#86efac;cursor:not-allowed;}
 
-/* ── INTEL ── */
+/* INTEL */
 #page-intel{background:var(--surface);}
-.intel-header{padding:13px 18px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;}
-.intel-header h2{font-family:var(--serif);font-size:17px;color:var(--green);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-0.3px;}
-.match-exact{font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:var(--green-pale);color:var(--green);}
-.match-near{font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:var(--amber-pale);color:var(--amber);}
+.intel-header{padding:14px 18px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.intel-header h2{font-family:var(--serif);font-size:17px;color:var(--green);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.match-exact{font-size:11px;padding:3px 8px;border-radius:100px;font-weight:600;background:var(--green-pale);color:var(--green);}
+.match-near{font-size:11px;padding:3px 8px;border-radius:100px;font-weight:600;background:#fef3c7;color:#92400e;}
 .intel-scroll{flex:1;overflow-y:auto;padding-bottom:110px;}
+#field-map{height:160px;width:100%;flex-shrink:0;}
 
-/* ── MAP ── */
- #field-map{height:260px;width:100%;flex-shrink:0;background:#111;}
-.sentinel-overlay{width:100%!important;height:100%!important;object-fit:cover!important;}
-.map-overlay{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.65);color:#fff;font-size:10px;padding:4px 8px;border-radius:6px;z-index:400;font-family:var(--mono);pointer-events:none;}
-
-/* ── CARDS ── */
-.card{background:var(--white);border-radius:16px;margin:12px 14px 0;box-shadow:0 1px 4px rgba(0,0,0,0.07);}
-.card-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:14px 16px 0;}
+/* CARDS */
+.card{background:var(--white);border-radius:14px;margin:12px 14px 0;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.card-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:14px 16px 0;}
 .card-body{padding:12px 16px 16px;}
-
-/* Summary */
-.summary-card{margin:12px 14px 0;background:linear-gradient(135deg,var(--green-dark),var(--green));border-radius:16px;padding:20px;color:#fff;position:relative;overflow:hidden;}
-.summary-card::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,0.05);border-radius:50%;}
-.summary-type{font-size:10px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;}
-.summary-name{font-family:var(--serif);font-size:24px;margin:5px 0 4px;letter-spacing:-0.5px;}
-.summary-meta{font-size:12px;opacity:0.75;}
-.summary-stage{display:inline-flex;align-items:center;gap:6px;margin-top:13px;background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;backdrop-filter:blur(4px);}
-
-/* Field Overview */
+.summary-card{margin:12px 14px 0;background:var(--green);border-radius:14px;padding:18px;color:#fff;}
+.summary-type{font-size:11px;font-weight:600;opacity:0.75;text-transform:uppercase;letter-spacing:0.08em;}
+.summary-name{font-family:var(--serif);font-size:22px;margin:4px 0 3px;}
+.summary-meta{font-size:12px;opacity:0.8;}
+.summary-stage{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:12px;font-weight:600;}
 .dec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.dec-item{background:var(--surface);border-radius:12px;padding:13px 14px;}
+.dec-item{background:var(--surface);border-radius:10px;padding:12px 14px;}
 .dec-item.full{grid-column:1/-1;}
 .dec-item.locked{background:#f8fafc;border:1.5px dashed #cbd5e1;}
-.dec-emoji{font-size:24px;margin-bottom:5px;}
-.dec-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;}
-.dec-val{font-size:16px;font-weight:700;margin-top:3px;font-family:var(--serif);}
-.dec-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono);}
-
-/* kg DM */
-.dm-val{font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono);}
-.dm-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.07em;}
-
-/* ACRES */
-.acres-status{padding:12px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
-.acres-emoji{font-size:22px;flex-shrink:0;}
-.acres-label{font-size:14px;font-weight:700;}
-.acres-sub{font-size:11px;opacity:0.8;margin-top:2px;}
-.acres-actions{margin-top:10px;}
-.acres-action-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;}
-.acres-action-row:last-child{border-bottom:none;}
-.acres-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.acres-dot.green{background:#10b981;}
-.acres-dot.red{background:#ef4444;}
-.acres-dot.amber{background:#f59e0b;}
-
-/* Sensors */
-.sensor-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.dec-emoji{font-size:22px;margin-bottom:4px;}
+.dec-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.dec-val{font-size:15px;font-weight:700;margin-top:3px;}
+.dec-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.sensor-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);}
 .sensor-row:last-child{border-bottom:none;}
 .s-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:10px;}
 .s-dot.green{background:#10b981;}.s-dot.amber{background:#f59e0b;}.s-dot.red{background:#ef4444;}.s-dot.gray{background:#d1d5db;}
 .s-name{font-size:13px;flex:1;}
 .s-val{font-family:var(--mono);font-size:13px;font-weight:600;}
 .s-age{font-size:10px;color:var(--muted);margin-left:8px;}
-.s-lock{font-size:13px;color:#94a3b8;}
-.unlock-cta{text-align:center;padding:14px 0 4px;border-top:1px solid var(--border);margin-top:4px;}
-.unlock-price{font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;}
-.btn-unlock{padding:9px 22px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);}
-
-/* Trend */
-.trend-row{display:flex;align-items:center;gap:14px;padding:13px;background:var(--surface);border-radius:12px;}
-.trend-icon{font-size:36px;flex-shrink:0;}
+.s-lock{font-size:12px;color:#94a3b8;}
+.score-row{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
+.score-ring{width:72px;height:72px;flex-shrink:0;position:relative;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;font-family:var(--mono);}
+.score-level{font-size:16px;font-weight:700;}
+.score-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.bar-label{font-size:11px;color:var(--muted);width:72px;flex-shrink:0;}
+.bar-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--green);border-radius:3px;}
+.bar-pct{font-size:10px;font-family:var(--mono);color:var(--muted);width:28px;text-align:right;}
+.trend-row{display:flex;align-items:center;gap:14px;padding:12px;background:var(--surface);border-radius:10px;}
+.trend-icon{font-size:34px;flex-shrink:0;}
 .trend-main{font-size:14px;font-weight:700;}
 .trend-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.trend-anomaly{font-size:12px;font-weight:700;margin-top:6px;padding:4px 10px;border-radius:8px;display:inline-block;}
-.a-pos{background:#d1fae5;color:#065f46;}
-.a-neg{background:#fee2e2;color:#991b1b;}
-.a-neu{background:#fef3c7;color:#92400e;}
+.trend-anomaly{font-size:12px;font-weight:600;margin-top:5px;padding:3px 8px;border-radius:6px;display:inline-block;}
+.a-pos{background:#d1fae5;color:#065f46;}.a-neg{background:#fee2e2;color:#991b1b;}.a-neu{background:#fef3c7;color:#92400e;}
 .event-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
 .event-row:last-child{border-bottom:none;}
-.ev-emoji{font-size:22px;flex-shrink:0;}
-.ev-title{font-size:13px;font-weight:700;}
-.ev-date{font-size:11px;color:var(--muted);font-family:var(--mono);}
-.ev-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:100px;margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;}
-.b-high{background:#fee2e2;color:#991b1b;}
-.b-mod{background:#fef3c7;color:#92400e;}
-
-/* Confidence */
-.score-row{display:flex;align-items:center;gap:18px;margin-bottom:16px;}
-.score-ring{width:76px;height:76px;flex-shrink:0;position:relative;}
-.score-ring svg{transform:rotate(-90deg);}
-.score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;font-family:var(--mono);}
-.score-level{font-size:17px;font-weight:700;font-family:var(--serif);}
-.score-sub{font-size:12px;color:var(--muted);margin-top:3px;}
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
-.bar-label{font-size:11px;color:var(--muted);width:72px;flex-shrink:0;}
-.bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
-.bar-fill{height:100%;background:var(--green);border-radius:3px;transition:width 0.8s ease;}
-.bar-pct{font-size:10px;font-family:var(--mono);color:var(--muted);width:32px;text-align:right;}
-
-/* Report CTA */
-.report-cta{margin:12px 14px 0;background:linear-gradient(135deg,var(--green-dark),var(--green2));border-radius:16px;padding:24px 20px;color:#fff;text-align:center;}
-.report-cta h3{font-family:var(--serif);font-size:22px;margin-bottom:7px;letter-spacing:-0.3px;}
-.report-cta p{font-size:12px;opacity:0.85;margin-bottom:18px;line-height:1.6;}
+.ev-emoji{font-size:20px;flex-shrink:0;}
+.ev-title{font-size:13px;font-weight:600;}
+.ev-date{font-size:11px;color:var(--muted);}
+.ev-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;margin-top:3px;}
+.b-high{background:#fee2e2;color:#991b1b;}.b-mod{background:#fef3c7;color:#92400e;}
+.report-cta{margin:12px 14px 0;background:linear-gradient(135deg,#1a5c38,#2d7a50);border-radius:14px;padding:22px 18px;color:#fff;text-align:center;}
+.report-cta h3{font-family:var(--serif);font-size:20px;margin-bottom:6px;}
+.report-cta p{font-size:12px;opacity:0.85;margin-bottom:16px;line-height:1.5;}
 .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.report-opt{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:12px;padding:14px 10px;font-size:11px;font-weight:700;font-family:var(--sans);cursor:pointer;text-align:center;transition:background 0.2s;}
-.report-opt:active{background:rgba(255,255,255,0.25);}
-.report-opt .price{display:block;font-size:18px;font-weight:700;margin-top:5px;font-family:var(--mono);}
+.report-opt{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:10px;padding:12px 8px;font-size:11px;font-weight:600;font-family:var(--sans);cursor:pointer;text-align:center;}
+.report-opt .price{display:block;font-size:16px;font-weight:700;margin-top:4px;}
 .report-full{grid-column:1/-1;background:rgba(255,255,255,0.25);}
-
-/* Bottom Nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:none;padding:6px 0 max(8px,env(safe-area-inset-bottom));z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:none;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:200;}
 .bottom-nav.show{display:flex;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:700;font-family:var(--sans);letter-spacing:0.05em;text-transform:uppercase;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:600;font-family:var(--sans);}
 .nav-btn.active{color:var(--green);}
-.nav-btn .ni{font-size:21px;}
+.nav-btn .ni{font-size:20px;}
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
+<!-- LOGIN -->
 <div class="page active" id="page-login">
   <div class="login-card">
     <div class="login-logo">
       <span class="globe">🌍</span>
       <h1>Cube Earth</h1>
-      <p>AI Satellite Intelligence for Irish Farms</p>
+      <p>Satellite Intelligence for Irish Farms</p>
     </div>
     <div class="form-group">
       <label>Email</label>
-      <input type="email" placeholder="farmer@example.ie" autocomplete="email">
+      <input type="email" placeholder="farmer@example.ie">
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" placeholder="••••••••" autocomplete="current-password">
+      <input type="password" placeholder="••••••••">
     </div>
     <button class="btn-green" onclick="showPage('select')">Sign In →</button>
     <div class="divider">or</div>
@@ -229,12 +163,12 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
   </div>
 </div>
 
-<!-- ── SELECT ── -->
+<!-- SELECT -->
 <div class="page" id="page-select">
   <div class="top-bar">
-    <span style="font-size:22px">🌍</span>
+    <span style="font-size:20px">🌍</span>
     <h2 id="select-title">Select County</h2>
-    <span class="demo-badge">Demo</span>
+    <span style="font-size:11px;color:var(--muted);background:var(--surface);padding:3px 8px;border-radius:100px">Demo</span>
   </div>
 
   <!-- Step 1: County -->
@@ -272,12 +206,12 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
 
   <!-- Step 2: Townland -->
   <div class="step-body" id="step2" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <button class="back-btn" onclick="goStep(1)">←</button>
       <div class="step-label" style="margin:0">Step 2 of 3 · Enter townland or village</div>
     </div>
     <div class="search-row">
-      <input type="text" id="townland-input" placeholder="e.g. Tralee, Killarney, Listowel...">
+      <input type="text" id="townland-input" placeholder="e.g. Kilcock, Naas, Athy...">
       <button class="btn-search" onclick="searchTownland()">Search</button>
     </div>
     <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Type the name of your nearest town or village</div>
@@ -286,7 +220,7 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
 
   <!-- Step 3: Field list -->
   <div class="step-body" id="step3" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <button class="back-btn" onclick="goStep(2)">←</button>
       <div class="step-label" style="margin:0">Step 3 of 3 · Select your field</div>
     </div>
@@ -306,38 +240,35 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
   </div>
 </div>
 
-<!-- ── INTEL ── -->
+<!-- INTEL -->
 <div class="page" id="page-intel">
   <div class="intel-header">
     <button class="back-btn" onclick="showPage('select')">←</button>
     <h2 id="intel-title">Field Intelligence</h2>
     <span id="match-badge"></span>
   </div>
-  <div id="field-map">
-    <div class="map-overlay" id="map-overlay">Loading map...</div>
-  </div>
+  <div id="field-map"></div>
   <div class="intel-scroll" id="intel-scroll">
     <div style="text-align:center;padding:60px 20px;color:var(--muted)">
-      <div style="font-size:52px;margin-bottom:14px">🛰</div>
-      <div style="font-size:17px;font-weight:700;color:var(--text);font-family:var(--serif)">Scanning field...</div>
+      <div style="font-size:48px;margin-bottom:12px">🛰</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text)">Scanning field...</div>
       <div style="font-size:13px;margin-top:6px">Fetching satellite intelligence</div>
     </div>
   </div>
 </div>
 
-<!-- ── BOTTOM NAV ── -->
+<!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottom-nav">
   <button class="nav-btn active" onclick="navTo('sec-overview',this)"><span class="ni">🏠</span>Today</button>
-  <button class="nav-btn" onclick="navTo('sec-acres',this)"><span class="ni">📋</span>ACRES</button>
+  <button class="nav-btn" onclick="navTo('sec-sensors',this)"><span class="ni">🛰</span>Sensors</button>
   <button class="nav-btn" onclick="navTo('sec-score',this)"><span class="ni">🎯</span>Score</button>
   <button class="nav-btn" onclick="navTo('sec-report',this)"><span class="ni">📄</span>Report</button>
 </div>
 
 <script>
-let selectedCounty='', selectedParcel=null, selectedLatLng=null, villageParcels=[];
-let fieldMap=null;
+let selectedCounty='', selectedParcel=null, selectedLatLng=null;
+let villageParcels=[];
 
-// ── NAVIGATION ──
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
@@ -347,7 +278,7 @@ function showPage(id){
 function navTo(id,btn){
   document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn?.classList.add('active');
+  btn.classList.add('active');
 }
 
 function goStep(n){
@@ -360,80 +291,65 @@ function goStep(n){
   document.getElementById('select-title').textContent=titles[n];
 }
 
-// ── COUNTY ──
 function pickCounty(c){
   selectedCounty=c;
   goStep(2);
   document.getElementById('townland-input').value='';
   document.getElementById('townland-results').innerHTML='';
   document.getElementById('select-title').textContent=c;
-  setTimeout(()=>document.getElementById('townland-input').focus(),300);
 }
 
-// ── TOWNLAND SEARCH ──
 async function searchTownland(){
   const q=document.getElementById('townland-input').value.trim();
   if(!q) return;
   const el=document.getElementById('townland-results');
-  el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:10px 0">Searching...</div>';
+  el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">Searching...</div>';
   try{
     const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', '+selectedCounty+', Ireland')}&format=json&limit=4`);
     const data=await r.json();
     if(!data.length){el.innerHTML='<div style="color:var(--red);font-size:13px">Not found — try another name</div>';return;}
     el.innerHTML=data.map(d=>`
       <button class="field-btn" onclick="loadFields(${d.lat},${d.lon},'${d.display_name.split(',')[0].replace(/'/g,"\\'")}')">
-        <span style="font-size:22px">📍</span>
+        <span style="font-size:20px">📍</span>
         <span class="field-crop">${d.display_name.split(',').slice(0,2).join(', ')}</span>
       </button>`).join('');
   }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:13px">Error: ${e.message}</div>`;}
 }
 
-// ── FIELD ICONS ──
-const cropIcon=c=>{
-  const cl=(c||'').toLowerCase();
-  return cl.includes('pasture')||cl.includes('grass')||cl.includes('riparian')||cl.includes('extensive')?'🌱':
-         cl.includes('barley')||cl.includes('wheat')||cl.includes('oat')||cl.includes('rape')||cl.includes('clover')?'🌾':
-         cl.includes('potato')||cl.includes('beet')||cl.includes('maize')||cl.includes('bean')?'🥕':'🌿';
-};
-
-// ── LOAD FIELDS ──
 async function loadFields(lat,lng,name){
   goStep(3);
   document.getElementById('select-title').textContent=name;
   const el=document.getElementById('field-list');
-  el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:10px 0">Loading fields near ${name}...</div>`;
+  el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">Loading fields near '+name+'...</div>';
   try{
     const tol=0.025;
     const url=`https://cube-earth.onrender.com/parcels_in_bbox?minlng=${lng-tol}&minlat=${lat-tol}&maxlng=${lng+tol}&maxlat=${lat+tol}`;
     const r=await fetch(url);
     const data=await r.json();
-    const skipList=['building','road','water','farmyard','forestry ineligible','habitat','winter bird food plot'];
     villageParcels=(data.features||[]).filter(f=>{
       const c=(f.properties?.CROP||'').toLowerCase();
       const area=parseFloat(f.properties?.CLAIM_AREA||0);
-      return !skipList.some(s=>c.includes(s))&&c!==''&&area>0.2;
-    }).sort((a,b)=>parseFloat(b.properties?.CLAIM_AREA||0)-parseFloat(a.properties?.CLAIM_AREA||0));
-
+      const skip=['building','road','water','farmyard','forestry ineligible','habitat','winter bird food plot'];
+      return !skip.some(s=>c.includes(s))&&c!==''&&area>0.2;
+    });
+    // Sort by area descending
+    villageParcels.sort((a,b)=>parseFloat(b.properties?.CLAIM_AREA||0)-parseFloat(a.properties?.CLAIM_AREA||0));
     if(!villageParcels.length){el.innerHTML='<div style="color:var(--red);font-size:13px">No fields found. Try a nearby town.</div>';return;}
-
-    el.innerHTML=`
-    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600">${villageParcels.length} fields found near ${name}</div>
-    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-      <span style="font-size:11px;color:var(--muted);align-self:center">Filter:</span>
-      <button onclick="filterFields('all',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--green);color:#fff;cursor:pointer;font-family:var(--sans);font-weight:600">All</button>
-      <button onclick="filterFields('grass',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:var(--sans);font-weight:600">🌱 Grass</button>
-      <button onclick="filterFields('tillage',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:var(--sans);font-weight:600">🌾 Tillage</button>
-      <button onclick="filterFields('arable',event)" style="font-size:11px;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-family:var(--sans);font-weight:600">🥕 Arable</button>
-    </div>`+
+    const icon=c=>{
+      const cl=(c||'').toLowerCase();
+      return cl.includes('pasture')||cl.includes('grass')?'🌱':
+             cl.includes('barley')||cl.includes('wheat')||cl.includes('oat')||cl.includes('rape')?'🌾':
+             cl.includes('potato')||cl.includes('beet')||cl.includes('maize')||cl.includes('bean')?'🥕':'🌿';
+    };
+    el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:600">${villageParcels.length} fields found near ${name}</div>`+
     villageParcels.map((f,i)=>{
       const p=f.properties;
-      const eco=p.ECO==='Y'?'<span style="font-size:9px;background:#d1fae5;color:#065f46;padding:2px 6px;border-radius:4px;font-weight:700">ECO</span> ':'';
-      const biss=p.BISS==='Y'?'<span style="font-size:9px;background:#dbeafe;color:#1e40af;padding:2px 6px;border-radius:4px;font-weight:700">BISS</span>':'';
-      return `<button class="field-btn" onclick="pickField(${i})" style="flex-wrap:wrap;align-items:flex-start">
-        <span class="field-num" style="margin-top:2px">Field ${i+1}</span>
-        <div style="flex:1;min-width:0">
-          <div class="field-crop">${cropIcon(p.CROP)} ${p.CROP||'Unknown'}</div>
-          ${(eco||biss)?`<div style="margin-top:4px">${eco}${biss}</div>`:''}
+      const badges=(p.ECO==='Y'?'<span style="font-size:9px;background:#d1fae5;color:#065f46;padding:2px 5px;border-radius:4px;font-weight:700">ECO</span> ':'')+(p.BISS==='Y'?'<span style="font-size:9px;background:#dbeafe;color:#1e40af;padding:2px 5px;border-radius:4px;font-weight:700">BISS</span>':'');
+      return `<button class="field-btn" onclick="pickField(${i})" style="flex-wrap:wrap">
+        <span class="field-num">Field ${i+1}</span>
+        <div style="flex:1">
+          <div class="field-crop">${icon(p.CROP)} ${p.CROP||'Unknown'}</div>
+          ${badges?`<div style="margin-top:3px">${badges}</div>`:''}
         </div>
         <span class="field-area">${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha</span>
       </button>`;
@@ -441,24 +357,12 @@ async function loadFields(lat,lng,name){
   }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:13px">Error: ${e.message}</div>`;}
 }
 
-// ── FILTER FIELDS ──
-function filterFields(type,evt){
-  document.querySelectorAll('#field-list button[onclick^="filterFields"]').forEach(b=>{
-    b.style.background='var(--white)';b.style.color='var(--text)';
-  });
-  if(evt?.target){evt.target.style.background='var(--green)';evt.target.style.color='#fff';}
-  document.querySelectorAll('.field-btn').forEach(b=>{
-    if(type==='all'){b.style.display='flex';return;}
-    const c=b.querySelector('.field-crop')?.textContent||'';
-    b.style.display=(type==='grass'&&c.includes('🌱'))||(type==='tillage'&&c.includes('🌾'))||(type==='arable'&&c.includes('🥕'))?'flex':'none';
-  });
-}
-
-// ── PICK FIELD ──
 function pickField(i){
-  const f=villageParcels[i];if(!f)return;
+  const f=villageParcels[i];
+  if(!f) return;
   selectedParcel=f;
   const p=f.properties;
+  // Get centroid
   let lat=0,lng=0;
   if(f.geometry?.type==='Polygon'){
     const c=f.geometry.coordinates[0];
@@ -469,306 +373,144 @@ function pickField(i){
   const gl=p.GRASSLND==='Y',ti=p.TILLAGE==='Y',ar=p.ARABL_IND==='Y';
   document.getElementById('confirm-icon').textContent=gl?'🌱':ti?'🌾':ar?'🥕':'🏡';
   document.getElementById('confirm-crop').textContent=`Field ${i+1} — ${p.CROP||'Unknown'}`;
-  document.getElementById('confirm-meta').textContent=`${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha${p.OLR?' · '+p.OLR:''}${p.ECO==='Y'?' · ECO':''}${p.BISS==='Y'?' · BISS':''}`;
+  document.getElementById('confirm-meta').textContent=`${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha · ${p.OLR||''}${p.ECO==='Y'?' · ECO':''}${p.BISS==='Y'?' · BISS':''}`;
   document.getElementById('confirm-panel').classList.add('show');
   document.getElementById('btn-confirm').disabled=false;
+  // Highlight selected
   document.querySelectorAll('.field-btn').forEach((b,idx)=>{
     b.style.borderColor=idx===i?'var(--green)':'var(--border)';
     b.style.background=idx===i?'var(--green-pale)':'var(--white)';
   });
 }
 
-// ── CONFIRM FIELD ──
+let fieldMap=null;
 function confirmField(){
-  if(!selectedLatLng)return;
+  if(!selectedLatLng) return;
   showPage('intel');
   setTimeout(()=>{
     if(fieldMap){fieldMap.remove();fieldMap=null;}
-    const mapEl=document.getElementById('field-map');
-    mapEl.style.background='#1a1a1a';
-    document.getElementById('map-overlay').textContent='⏳ Loading...';
-
+    fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false});
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'}).addTo(fieldMap);
     if(selectedParcel?.geometry){
-      const coords=selectedParcel.geometry.coordinates[0];
-      const lngs=coords.map(c=>c[0]);
-      const lats=coords.map(c=>c[1]);
-      // Wide bbox for context
-      const minlng=Math.min(...lngs)-0.02;
-      const maxlng=Math.max(...lngs)+0.02;
-      const minlat=Math.min(...lats)-0.02;
-      const maxlat=Math.max(...lats)+0.02;
-
-      const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
-
-      // Set background image
-      mapEl.style.backgroundImage=`url(${imgUrl})`;
-      mapEl.style.backgroundSize='cover';
-      mapEl.style.backgroundPosition='center';
-      mapEl.style.backgroundRepeat='no-repeat';
-      document.getElementById('map-overlay').textContent='🛰 Sentinel-2 · May 2026';
-
-      // Add Leaflet on top for parcel boundary only
-      fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{opacity:0}).addTo(fieldMap);
-      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
-      fieldMap.fitBounds(l.getBounds(),{padding:[30,30]});
+      const l=L.geoJSON(selectedParcel,{style:{color:'#1a5c38',weight:2.5,fillColor:'#2d7a50',fillOpacity:0.3}}).addTo(fieldMap);
+      fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
     } else {
-      mapEl.style.background='#111';
-      document.getElementById('map-overlay').textContent='🛰 Sentinel-2';
+      fieldMap.setView([selectedLatLng.lat,selectedLatLng.lng],15);
     }
   },300);
   loadIntel(selectedLatLng.lat,selectedLatLng.lng);
 }
-// ── LOAD INTEL ──
+
 async function loadIntel(lat,lng){
   const scroll=document.getElementById('intel-scroll');
   try{
     const p=selectedParcel?.properties||{};
-    console.log('Sending parcel override:', p.CROP, p.CLAIM_AREA);
     const r=await fetch('https://cube-earth.onrender.com/field_profile',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-  lat,lng,year:2026,
-  parcel_override:{
-    crop:p.CROP,claim_area:parseFloat(p.CLAIM_AREA||0),
-    grassland:p.GRASSLND==='Y',tillage:p.TILLAGE==='Y',
-    arable:p.ARABL_IND==='Y',biss:p.BISS==='Y',
-    eco:p.ECO==='Y',olr:p.OLR,
-  }
-})
+        lat,lng,year:2026,
+        parcel_override:{
+          crop:p.CROP,claim_area:parseFloat(p.CLAIM_AREA||0),
+          grassland:p.GRASSLND==='Y',tillage:p.TILLAGE==='Y',
+          arable:p.ARABL_IND==='Y',biss:p.BISS==='Y',
+          eco:p.ECO==='Y',olr:p.OLR,
+        }
+      })
     });
     const d=await r.json();
-    if(!d.success){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${d.detail||'Failed to load'}</div>`;return;}
+    if(!d.success){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${d.detail||'Failed'}</div>`;return;}
     renderIntel(d);
   }catch(e){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${e.message}</div>`;}
 }
 
-// ── HELPERS ──
-const dot=a=>a==null?'gray':a<=3?'green':a<=14?'amber':'red';
-
+const dot=a=>a===null||a===undefined?'gray':a<=3?'green':a<=14?'amber':'red';
 const ndviLabel=v=>!v?'—':v>0.75?'Excellent':v>0.55?'High':v>0.35?'Moderate':v>0.20?'Low':'Very low';
-
 const smLabel=v=>!v?'—':v>0.35?'Wet':v>0.25?'Adequate':v>0.15?'Dry':'Very dry';
 
-// Corrected stage label — avoids contradictions with NDVI
-function correctStageLabel(label, ndvi, cropType){
-  if(!label) return label;
-  const isGrass = cropType==='Grassland';
-  if(label==='Peak Growth' || label==='Peak growth'){
-    if(ndvi && ndvi < 0.65){
-      if(ndvi > 0.50) return 'Active Growth';
-      if(ndvi > 0.35) return 'Recovering Pasture';
-      return 'Post-disturbance Recovery';
-    }
-  }
-  if(label==='Post-disturbance Field State' && ndvi && ndvi > 0.65){
-    return isGrass ? 'Active Growth' : 'Vegetative Growth';
-  }
-  return label;
-}
-
-// kg DM/ha from NDVI (Irish grassland formula)
-function calcDMha(ndvi){
-  if(!ndvi || ndvi < 0.15) return null;
-  return Math.round((ndvi - 0.15) * 8500);
-}
-
-// ── RENDER INTEL ──
 function renderIntel(d){
   const scroll=document.getElementById('intel-scroll');
-  const p=d.parcel||{}, v=d.vegetation||{}, ag=d.agronomic||{};
-  const sm=d.soil_moisture||{}, vt=d.vegetation_trend||{};
-  const conf=d.confidence||{}, fresh=d.freshness||{};
-  const pc=d.parcel_context||{};
+  const p=d.parcel||{},v=d.vegetation||{},ag=d.agronomic||{};
+  const sm=d.soil_moisture||{},vt=d.vegetation_trend||{};
+  const sar=d.sar||{},thermal=d.thermal||{};
+  const conf=d.confidence||{},fresh=d.freshness||{};
+  const modis=d.modis||{},pc=d.parcel_context||{};
 
-  // Header
   document.getElementById('intel-title').textContent=p.crop||'Field Intelligence';
   const dist=pc.match_distance_m;
   const badge=document.getElementById('match-badge');
-  if(dist!=null){
-    badge.textContent=dist<100?`✓ ${Math.round(dist)}m`:`~ ${Math.round(dist)}m`;
-    badge.className=dist<100?'match-exact':'match-near';
-  }
+  if(dist<100){badge.textContent=`✓ ${dist}m`;badge.className='match-exact';}
+  else{badge.textContent=`~ ${dist}m`;badge.className='match-near';}
 
-  // Core values
-  const gl=p.grassland, ti=p.tillage, ar=p.arable;
-  const cIcon=gl?'🌱':ti?'🌾':ar?'🥕':'🏡';
+  const gl=p.grassland,ti=p.tillage,ar=p.arable;
+  const cropIcon=gl?'🌱':ti?'🌾':ar?'🥕':'🏡';
   const cropType=gl?'Grassland':ti?'Tillage':ar?'Arable':'Field';
+  const stage=ag.crop_stage;
   const ndvi=v.ndvi;
   const smapVal=sm.smap?.sm_surface_m3;
-  const dmha=calcDMha(ndvi);
-
-  // Stage — corrected
-  const stageRaw=ag.crop_stage;
-  const stageLabel=correctStageLabel(stageRaw?.label, ndvi, cropType);
-  const stageAdvice=stageRaw?.advice||'';
-
-  // Trend
+  const grazing=ag.grazing_suitability||ag.grazing;
+  const machinery=ag.machinery_trafficability||ag.machinery;
   const trend=vt.long_trend||'stable';
   const tIcon=trend==='strong_increase'?'📈':trend==='increasing'?'↗️':trend==='stable'?'➡️':trend==='declining'?'↘️':'📉';
   const aPct=vt.seasonal?.anomaly_pct;
   const aClass=aPct>20?'a-pos':aPct<-20?'a-neg':'a-neu';
-  let tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable vegetation';
-  
-  if(aPct && aPct > 40) tLabel = gl ? 'Exceptional pasture growth — high biomass accumulation' : 'Exceptional canopy development';
-else if(aPct && aPct > 20) tLabel = gl ? 'Strong pasture growth — above seasonal average' : 'Strong canopy growth';
-  if(aPct!=null){
-    if((trend==='declining'||trend==='strong_decline')&&aPct>10)
-      tLabel=gl?'Pasture growth softening from above-average levels':'Canopy easing from above-average levels';
-    else if((trend==='declining'||trend==='strong_decline')&&aPct>0)
-      tLabel=gl?'Pasture slightly below recent peak':'Canopy below recent peak';
+  // Anomaly-aware trend label
+  let tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable';
+  if(aPct!==null&&aPct!==undefined){
+    const gl2=p.grassland;
+    if((trend==='declining'||trend==='strong_decline')&&aPct>10){
+      tLabel=gl2?'Pasture growth softening from above-average levels':'Canopy easing from above-average levels';
+    } else if((trend==='declining'||trend==='strong_decline')&&aPct>0){
+      tLabel=gl2?'Pasture slightly below recent peak — still near seasonal average':'Canopy below recent peak';
+    }
   }
-  const aLabel=aPct!=null?
+  // Anomaly label with context
+  const aLabel=aPct!==null&&aPct!==undefined?
     ((trend==='declining'||trend==='strong_decline')&&aPct>0?
-      `Remains +${aPct}% above seasonal baseline despite softening`:
+      `Remains ${aPct>0?'+':''}${aPct}% above seasonal baseline despite recent softening`:
       `${aPct>0?'+':''}${aPct}% vs seasonal baseline`):'';
-
-  // ACRES
-  const today=new Date();
-  const month=today.getMonth()+1;
-  const restrictedPeriod=month>=3&&month<=8;
-  const events=vt.events||[];
-  // Only flag violation if NDVI confirms disturbance
-const hasViolation=events.some(e=>
-  (e.type==='harvest_or_cut'||e.type==='bare_soil')&&
-  restrictedPeriod &&
-  ndvi && ndvi < 0.50  // Cannot be mowing if NDVI > 0.50
-);
-  const isACRESField=p.eco||p.acres||
-    (p.crop||'').toLowerCase().includes('riparian')||
-    (p.crop||'').toLowerCase().includes('extensive')||gl;
-  const acresStatus=hasViolation?'red':restrictedPeriod&&isACRESField?'amber':'green';
-  const acresEmoji=acresStatus==='red'?'🔴':acresStatus==='amber'?'🟡':'🟢';
-  const acresLabel=acresStatus==='red'?'At Risk — mowing event detected':
-                   acresStatus==='amber'?'Restricted period active — monitor field':
-                   'Compliant — no violations detected';
-  const acresBg=acresStatus==='red'?'#fee2e2':acresStatus==='amber'?'#fef3c7':'#d1fae5';
-  const acresColor=acresStatus==='red'?'#991b1b':acresStatus==='amber'?'#92400e':'#065f46';
-
-  // Confidence
   const score=conf.score||0;
   const C=2*Math.PI*28;
   const DO=C-(score/10)*C;
   const contribs=conf.contributions||{};
-
-  // Locked decisions text
-  const decText=gl?'Grazing · Slurry timing · Machinery · Pasture advice':
-                ti||ar?'Machinery · Harvest readiness · Moisture monitoring · Crop advice':
-                'Machinery · Field management · Crop advice';
+  const events=vt.events||[];
 
   scroll.innerHTML=`
-  <!-- SUMMARY -->
   <div class="summary-card" id="sec-overview">
-    <div class="summary-type">${cIcon} ${cropType}</div>
+    <div class="summary-type">${cropIcon} ${cropType}</div>
     <div class="summary-name">${p.crop||'Unknown'}</div>
-    <div class="summary-meta">${(p.claim_area||0).toFixed(1)} ha${p.olr?' · '+p.olr:''} · ${d.terrain?.elevation_m||'—'}m</div>
-    ${stageLabel?`<div class="summary-stage">📅 ${stageLabel}</div>`:''}
+    <div class="summary-meta">${(p.claim_area||0).toFixed(1)} ha · ${p.olr||''} · ${d.terrain?.elevation_m||'—'}m</div>
+    ${stage?`<div class="summary-stage">📅 ${stage.label}</div>`:''}
   </div>
 
-  <!-- FIELD OVERVIEW -->
   <div class="card">
     <div class="card-label">Field Overview</div>
     <div class="card-body">
       <div class="dec-grid">
-        <div class="dec-item">
-          <div class="dec-emoji">🌾</div>
-          <div class="dec-label">Crop Canopy</div>
-          <div class="dec-val">${ndviLabel(ndvi)}</div>
-          <div class="dec-sub">NDVI ${ndvi?.toFixed(3)||'—'}</div>
-        </div>
-        <div class="dec-item">
-          <div class="dec-emoji">💧</div>
-          <div class="dec-label">Soil Moisture</div>
-          <div class="dec-val">${smLabel(smapVal)}</div>
-          <div class="dec-sub">${smapVal?.toFixed(3)||'—'} m³/m³</div>
-        </div>
-        ${gl&&dmha?`
-        <div class="dec-item full" style="background:var(--green-pale)">
-          <div class="dm-label">🌱 Estimated Grass Cover</div>
-          <div class="dm-val">${dmha.toLocaleString()} <span style="font-size:14px;color:var(--muted)">kg DM/ha</span></div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">
-            ${dmha<1400?'Below grazing threshold':dmha<1800?'Approaching grazing threshold':dmha<3000?'Ready to graze':'Pre-grazing cover — consider topping'}
-          </div>
-        </div>`:''}
-        <div class="dec-item full locked" style="text-align:center;padding:16px">
+        <div class="dec-item"><div class="dec-emoji">🌾</div><div class="dec-label">Crop Canopy</div><div class="dec-val">${ndviLabel(ndvi)}</div><div class="dec-sub">NDVI ${ndvi?.toFixed(3)||'—'}</div></div>
+        <div class="dec-item"><div class="dec-emoji">💧</div><div class="dec-label">Soil Moisture</div><div class="dec-val">${smLabel(smapVal)}</div><div class="dec-sub">${smapVal?.toFixed(3)||'—'} m³/m³</div></div>
+        <div class="dec-item full locked" style="text-align:center;padding:14px">
           <div style="font-size:13px;font-weight:700;color:var(--green)">🔒 Full Field Decisions</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">${decText}</div>
-          <div style="font-size:12px;font-weight:700;color:var(--green);margin-top:8px">Unlock — €2.99</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">Machinery · Grazing · Slurry · Stage advice</div>
+          <div style="font-size:12px;font-weight:600;color:var(--green);margin-top:6px">Unlock — €2.99</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ACRES COMPLIANCE -->
-  <div class="card" id="sec-acres">
-    <div class="card-label">📋 ACRES Compliance</div>
-    <div class="card-body">
-      <div class="acres-status" style="background:${acresBg}">
-        <div class="acres-emoji">${acresEmoji}</div>
-        <div>
-          <div class="acres-label" style="color:${acresColor}">${acresLabel}</div>
-          <div class="acres-sub" style="color:${acresColor}">Based on satellite event detection · May 2026</div>
-        </div>
-      </div>
-      <div class="acres-actions">
-        ${gl||isACRESField?`
-        <div class="acres-action-row">
-          <div class="acres-dot ${hasViolation?'red':'green'}"></div>
-          <span>No mowing restriction: Mar 1 — Aug 31</span>
-          <span style="margin-left:auto;font-size:11px;font-weight:700;color:${hasViolation?'#991b1b':'#065f46'}">${hasViolation?'⚠️ Check':'✓ OK'}</span>
-        </div>`:''}
-        <div class="acres-action-row">
-          <div class="acres-dot ${acresStatus==='red'?'red':'green'}"></div>
-          <span>Satellite monitoring: Copernicus Sentinel</span>
-          <span style="margin-left:auto;font-size:11px;font-weight:700;color:#065f46">Active</span>
-        </div>
-        <div class="acres-action-row">
-          <div class="acres-dot green"></div>
-          <span>DAFM AMS colour code</span>
-          <span style="margin-left:auto;font-size:11px;font-weight:700;color:${acresColor}">${acresStatus==='red'?'🔴 Red':acresStatus==='amber'?'🟡 Yellow':'🟢 Green'}</span>
-        </div>
-      </div>
-      ${hasViolation?`
-      <div style="margin-top:12px;padding:10px 12px;background:#fff3f3;border-radius:10px;border-left:3px solid #ef4444">
-        <div style="font-size:12px;font-weight:700;color:#991b1b">⚠️ Recommended Action</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">Contact your ACRES advisor and submit geotagged photos to support your application. Do not delay.</div>
-      </div>`:''}
-    </div>
-  </div>
-
-  <!-- LIVE SENSORS -->
-  <div class="card">
+  <div class="card" id="sec-sensors">
     <div class="card-label">🛰 Live Sensors</div>
     <div class="card-body">
-      <div class="sensor-row">
-        <div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div>
-        <div class="s-name">Sentinel-2 NDVI</div>
-        <div class="s-val">${ndvi?.toFixed(3)||'—'}</div>
-        <div class="s-age">${fresh.sentinel2?.age_days||'—'}d · 10m</div>
-      </div>
-      <div class="sensor-row">
-        <div class="s-dot gray"></div>
-        <div class="s-name" style="color:var(--muted)">SMAP Soil Moisture</div>
-        <div class="s-lock">🔒</div>
-      </div>
-      <div class="sensor-row">
-        <div class="s-dot gray"></div>
-        <div class="s-name" style="color:var(--muted)">SAR Radar RVI</div>
-        <div class="s-lock">🔒</div>
-      </div>
-      <div class="sensor-row">
-        <div class="s-dot gray"></div>
-        <div class="s-name" style="color:var(--muted)">Thermal LST</div>
-        <div class="s-lock">🔒</div>
-      </div>
-      <div class="unlock-cta">
-        <div class="unlock-price">Unlock all 5 sensors — €2.99</div>
-        <button class="btn-unlock" onclick="alert('Coming soon — payment integration in progress')">Get Sensor Report →</button>
+      <div class="sensor-row"><div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div><div class="s-name">Sentinel-2 NDVI</div><div class="s-val">${ndvi?.toFixed(3)||'—'}</div><div class="s-age">${fresh.sentinel2?.age_days||'—'}d · 10m</div></div>
+      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SMAP Moisture</div><div class="s-lock">🔒</div></div>
+      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SAR Radar RVI</div><div class="s-lock">🔒</div></div>
+      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">Thermal LST</div><div class="s-lock">🔒</div></div>
+      <div style="text-align:center;padding:12px 0 4px;border-top:1px solid var(--border);margin-top:4px">
+        <div style="font-size:12px;font-weight:700;color:var(--green)">Unlock all sensors — €2.99</div>
+        <button onclick="alert('Coming soon')" style="margin-top:8px;padding:8px 20px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">Get Sensor Report →</button>
       </div>
     </div>
   </div>
 
-  <!-- VEGETATION TREND -->
   <div class="card">
     <div class="card-label">📈 Vegetation Trend</div>
     <div class="card-body">
@@ -780,39 +522,27 @@ const hasViolation=events.some(e=>
           ${aLabel?`<span class="trend-anomaly ${aClass}">${aLabel}</span>`:''}
         </div>
       </div>
-      ${events.length?`
-      <div style="margin-top:12px">
-        ${events.map(e=>`
-        <div class="event-row">
-          <div class="ev-emoji">${e.type==='harvest_or_cut'?'🌾':e.type==='bare_soil'?'🟤':'🌱'}</div>
-          <div>
-            <div class="ev-title">${e.label||e.type}</div>
-            <div class="ev-date">${e.date||''}</div>
-            <span class="ev-badge ${e.confidence==='high'?'b-high':'b-mod'}">${e.confidence||'moderate'}</span>
-          </div>
-        </div>`).join('')}
-      </div>`:
-      `<div style="margin-top:10px;font-size:12px;color:var(--muted)">✓ No significant events detected in 90-day window</div>`}
+      ${events.length?`<div style="margin-top:12px">${events.map(e=>`
+      <div class="event-row">
+        <div class="ev-emoji">${e.type==='harvest_or_cut'?'🌾':e.type==='bare_soil'?'🟤':'🌱'}</div>
+        <div><div class="ev-title">${e.label}</div><div class="ev-date">${e.date}</div><span class="ev-badge ${e.confidence==='high'?'b-high':'b-mod'}">${e.confidence}</span></div>
+      </div>`).join('')}</div>`:
+      `<div style="margin-top:10px;font-size:12px;color:var(--muted)">✓ No significant events detected</div>`}
     </div>
   </div>
 
-  <!-- DATA CONFIDENCE -->
   <div class="card" id="sec-score">
     <div class="card-label">🎯 Data Confidence</div>
     <div class="card-body">
       <div class="score-row">
         <div class="score-ring">
-          <svg width="76" height="76" viewBox="0 0 76 76">
-            <circle cx="38" cy="38" r="28" fill="none" stroke="#e5e7eb" stroke-width="7"/>
-            <circle cx="38" cy="38" r="28" fill="none" stroke="${score>=8?'#1a5c38':score>=6?'#f59e0b':'#ef4444'}" stroke-width="7" stroke-dasharray="${C}" stroke-dashoffset="${DO}" stroke-linecap="round"/>
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#e5e7eb" stroke-width="7"/>
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#1a5c38" stroke-width="7" stroke-dasharray="${C}" stroke-dashoffset="${DO}" stroke-linecap="round"/>
           </svg>
           <div class="score-num">${score}</div>
         </div>
-        <div>
-          <div class="score-level">${conf.level||'Operational'}</div>
-          <div class="score-sub">Uncertainty: ${score>=8?'Low':score>=6?'Moderate':'High'}</div>
-          <div class="score-sub">Agreement: ${d.agreement?.score?.toFixed(1)||'—'}/10</div>
-        </div>
+        <div><div class="score-level">${conf.level||'Operational'}</div><div class="score-sub">Uncertainty: ${conf.uncertainty_label||'Moderate'}</div><div class="score-sub">Agreement: ${d.agreement?.score?.toFixed(1)||'—'}/10</div></div>
       </div>
       ${Object.entries(contribs).filter(([k,v])=>(v.percent||0)>0).slice(0,5).map(([k,v])=>`
       <div class="bar-row">
@@ -823,20 +553,17 @@ const hasViolation=events.some(e=>
     </div>
   </div>
 
-  <!-- REPORT CTA -->
   <div class="report-cta" id="sec-report">
     <h3>Full Field Report</h3>
-    <p>Professional PDF with complete sensor analysis, ACRES compliance evidence and agronomic recommendations.</p>
+    <p>Professional PDF with complete sensor analysis, compliance evidence and agronomic recommendations.</p>
     <div class="report-grid">
       <button class="report-opt" onclick="alert('Coming soon')">Sensor Report<span class="price">€2.99</span></button>
       <button class="report-opt" onclick="alert('Coming soon')">Data Quality<span class="price">€2.99</span></button>
       <button class="report-opt report-full" onclick="alert('Coming soon')">Full PDF Field Report<span class="price">€7.99</span></button>
     </div>
-  </div>
-  <div style="height:20px"></div>`;
+  </div>`;
 }
 
-// ── EVENT LISTENERS ──
 document.getElementById('townland-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchTownland();});
 </script>
 </body>
