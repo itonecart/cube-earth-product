@@ -762,8 +762,6 @@ function renderIntel(d, f){
     document.getElementById('m-ndvi-note').textContent = ndvi>0.7?'Excellent':ndvi>0.55?'Good':ndvi>0.4?'Moderate':'Low';
   }
 
-  }
-
   // Moisture
   const smapVal = sm.smap?.sm_surface_m3;
   if(smapVal){
