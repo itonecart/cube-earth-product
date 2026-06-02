@@ -247,7 +247,15 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
     <h2 id="intel-title">Field Intelligence</h2>
     <span id="match-badge"></span>
   </div>
-  <div id="field-map"></div>
+  <div id="field-map" style="position:relative">
+    <div id="layer-switcher" style="position:absolute;top:8px;right:8px;z-index:1000;background:rgba(0,0,0,0.75);border-radius:10px;padding:8px 12px;backdrop-filter:blur(4px)">
+      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">🗺 Layers</div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#fff;cursor:pointer;padding:2px 0"><input type="radio" name="maplayer" value="0" style="accent-color:#00ff88" onchange="switchMapLayer(0)"> ESRI Imagery</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#fff;cursor:pointer;padding:2px 0"><input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88" onchange="switchMapLayer(1)"> Latest Sentinel RGB</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#fff;cursor:pointer;padding:2px 0"><input type="radio" name="maplayer" value="2" style="accent-color:#00ff88" onchange="switchMapLayer(2)"> NDVI</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#fff;cursor:pointer;padding:2px 0"><input type="radio" name="maplayer" value="3" style="accent-color:#00ff88" onchange="switchMapLayer(3)"> Variability Zones</label>
+    </div>
+  </div>
   <div class="intel-scroll" id="intel-scroll">
     <div style="text-align:center;padding:60px 20px;color:var(--muted)">
       <div style="font-size:48px;margin-bottom:12px">🛰</div>
