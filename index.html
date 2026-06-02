@@ -544,8 +544,8 @@ function goSetup2(){
 function initSetupMap(){
   if(setupMap) return;
   setupMap = L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
-  L.tileLayer('https://tiles.arcgis.com/tiles/nHpNKMnEv7NvAFJl/arcgis/rest/services/OSi_National_Orthophotography/MapServer/tile/{z}/{y}/{x}',{
-    maxZoom:20, attribution:'© OSI'
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+    maxZoom:20, attribution:'© Esri'
   }).addTo(setupMap);
 
   // If county selected, zoom to it
