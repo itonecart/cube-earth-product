@@ -359,12 +359,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     </div>
 
     <div class="metrics">
-      <div class="mc">
-        <div class="mc-label">🌱 Grass Cover</div>
-        <div class="mc-val" id="m-cover">—</div>
-        <div class="mc-unit">kg DM/ha</div>
-        <div class="mc-note note-g" id="m-cover-note">—</div>
-      </div>
+
       <div class="mc">
         <div class="mc-label">🌾 NDVI</div>
         <div class="mc-val" id="m-ndvi">—</div>
@@ -767,14 +762,6 @@ function renderIntel(d, f){
     document.getElementById('m-ndvi-note').textContent = ndvi>0.7?'Excellent':ndvi>0.55?'Good':ndvi>0.4?'Moderate':'Low';
   }
 
-  // Grass cover
-  if(ndvi && isGrass){
-    const h = Math.max(0,(ndvi-0.15)*18);
-    const cover = Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
-    document.getElementById('m-cover').textContent = cover.toLocaleString();
-    const note = cover>3000?'Consider topping':cover>1800?'Ready to graze':cover>1400?'Approaching':'Below threshold';
-    document.getElementById('m-cover-note').textContent = note;
-    document.getElementById('m-cover-note').className = 'mc-note '+(cover>1800?'note-g':cover>1400?'note-a':'note-r');
   }
 
   // Moisture
@@ -793,20 +780,20 @@ function renderIntel(d, f){
 
   // Decision
   const dec = document.getElementById('intel-decision');
-  const cover = parseInt(document.getElementById('m-cover').textContent.replace(/,/g,''))||0;
+  const cover = 0;
   if(isGrass){
-    if(cover>1800){
+    if(ndvi>0.65){
       dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
-      document.getElementById('intel-dec-action').textContent='✓ Graze Now';
-      document.getElementById('intel-dec-reason').textContent=`Cover at ${cover.toLocaleString()} kg DM/ha — optimal pre-grazing level. Move stock within 2 days.`;
-    } else if(cover>1200){
+      document.getElementById('intel-dec-action').textContent='✓ Strong Growth — Monitor for Grazing';
+      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — strong vegetation. Walk field to confirm grazing readiness.`;
+    } else if(ndvi>0.45){
       dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
-      document.getElementById('intel-dec-action').textContent='👁 Monitor — Not Ready Yet';
-      document.getElementById('intel-dec-reason').textContent=`Cover at ${cover.toLocaleString()} kg DM/ha — below grazing threshold. Check again in 3-5 days.`;
+      document.getElementById('intel-dec-action').textContent='👁 Monitor — Growth Building';
+      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — vegetation building. Check again in 3-5 days.`;
     } else {
       dec.style.background='linear-gradient(135deg,#7f1d1d,#dc2626)';
-      document.getElementById('intel-dec-action').textContent='⚠ Rest Field';
-      document.getElementById('intel-dec-reason').textContent=`Cover at ${cover.toLocaleString()} kg DM/ha — do not graze. Field needs recovery.`;
+      document.getElementById('intel-dec-action').textContent='⚠ Low Vegetation — Rest Field';
+      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — low vegetation index. Field needs recovery time.`;
     }
   } else {
     dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
