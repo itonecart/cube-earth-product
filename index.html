@@ -748,7 +748,12 @@ function openField(idx){
   document.getElementById('intel-title').textContent = `Field ${idx+1}`;
   const isGrass = currentField.crop.toLowerCase().includes('pasture')||currentField.crop.toLowerCase().includes('grass');
   document.getElementById('intel-type').textContent = isGrass?'🌱 Grassland':'🌾 Tillage/Arable';
-  document.getElementById('intel-crop').textContent = currentField.crop;
+  // Simplify crop label for display
+  let displayCrop = currentField.crop||'Unknown';
+  if(displayCrop.toLowerCase().includes('extensive')) displayCrop='Permanent Pasture';
+  if(displayCrop.toLowerCase().includes('rough grazing')) displayCrop='Rough Grazing / Hill Land';
+  if(displayCrop.toLowerCase().includes('commonage')) displayCrop='Commonage';
+  document.getElementById('intel-crop').textContent = displayCrop;
   document.getElementById('intel-meta').textContent = `${currentField.area} ha · ${currentField.olr||'Owned'}`;
   document.getElementById('intel-badge').textContent = currentField.status==='green'?'🟢':currentField.status==='amber'?'🟡':'🔴';
 
@@ -839,8 +844,8 @@ function renderIntel(d, f){
       document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — strong vegetation${improving?' with improving trend':''}. Walk field to confirm.`;
     } else if(ndvi>0.65 && declining){
       dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
-      document.getElementById('intel-dec-action').textContent='⚠ High Cover — Trend Declining';
-      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — strong cover but trend is softening. Monitor closely.`;
+      document.getElementById('intel-dec-action').textContent='✓ Excellent Cover — Growth Slowing';
+      document.getElementById('intel-dec-reason').textContent=`Cover is strong but declining. Monitor grazing pressure and rotate stock if needed.`;
     } else if(ndvi>0.45){
       dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
       document.getElementById('intel-dec-action').textContent='👁 Monitor — Growth Building';
