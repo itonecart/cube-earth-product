@@ -809,10 +809,17 @@ function renderIntel(d, f){
   const dec = document.getElementById('intel-decision');
   const cover = 0;
   if(isGrass){
-    if(ndvi>0.65){
+    const vtd = d.vegetation_trend;
+    const declining = vtd?.long_trend==='declining'||vtd?.long_trend==='strong_decline';
+    const improving = vtd?.long_trend==='increasing'||vtd?.long_trend==='strong_increase';
+    if(ndvi>0.65 && !declining){
       dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
-      document.getElementById('intel-dec-action').textContent='✓ Strong Growth — Monitor for Grazing';
-      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — strong vegetation. Walk field to confirm grazing readiness.`;
+      document.getElementById('intel-dec-action').textContent='✓ Good Condition — Monitor for Grazing';
+      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — strong vegetation${improving?' with improving trend':''}. Walk field to confirm.`;
+    } else if(ndvi>0.65 && declining){
+      dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
+      document.getElementById('intel-dec-action').textContent='⚠ High Cover — Trend Declining';
+      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — strong cover but trend is softening. Monitor closely.`;
     } else if(ndvi>0.45){
       dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
       document.getElementById('intel-dec-action').textContent='👁 Monitor — Growth Building';
@@ -820,7 +827,7 @@ function renderIntel(d, f){
     } else {
       dec.style.background='linear-gradient(135deg,#7f1d1d,#dc2626)';
       document.getElementById('intel-dec-action').textContent='⚠ Low Vegetation — Rest Field';
-      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — low vegetation index. Field needs recovery time.`;
+      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — low vegetation. Field needs recovery time.`;
     }
   } else {
     dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
@@ -913,7 +920,14 @@ function renderIntel(d, f){
     }
 
     // Latest
-    document.getElementById('trend-latest').textContent = vt.latest_date+' · NDVI '+vt.latest_ndvi;
+    // Use current NDVI if fresher than trend series
+    const trendDate = vt.latest_date||'';
+    const imgDateStr = fr.sentinel2?.date||v.granule_date?.substring(0,10)||'';
+    if(imgDateStr && ndvi && imgDateStr > trendDate){
+      document.getElementById('trend-latest').textContent = imgDateStr+' · NDVI '+ndvi.toFixed(3)+' (current)';
+    } else {
+      document.getElementById('trend-latest').textContent = trendDate+' · NDVI '+(vt.latest_ndvi||'—');
+    }
   }
 
   // Compliance — only show if real scheme data available
