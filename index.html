@@ -397,8 +397,8 @@ function confirmField(){
   showPage('intel');
   setTimeout(()=>{
     if(fieldMap){fieldMap.remove();fieldMap=null;}
-    fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false});
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'}).addTo(fieldMap);
+    fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
+    // No base tile layer — switchMapLayer handles all layers
     if(selectedParcel?.geometry){
       const l=L.geoJSON(selectedParcel,{style:{color:'#1a5c38',weight:2.5,fillColor:'#2d7a50',fillOpacity:0.3}}).addTo(fieldMap);
       fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
