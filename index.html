@@ -400,6 +400,54 @@ function confirmField(){
   loadIntel(selectedLatLng.lat,selectedLatLng.lng);
 }
 
+function switchMapLayer(idx){
+  const mapEl=document.getElementById('field-map');
+  if(!selectedParcel?.geometry) return;
+  const coords=selectedParcel.geometry.coordinates[0];
+  const lngs=coords.map(c=>c[0]);
+  const lats=coords.map(c=>c[1]);
+  const pad=0.012;
+  const minlng=Math.min(...lngs)-pad;
+  const maxlng=Math.max(...lngs)+pad;
+  const minlat=Math.min(...lats)-pad;
+  const maxlat=Math.max(...lats)+pad;
+
+  if(idx===0){
+    // ESRI Imagery
+    mapEl.style.backgroundImage='url(https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/15/'+Math.floor((1-(Math.log(Math.tan((minlat+maxlat)/2*Math.PI/180)+1/Math.cos((minlat+maxlat)/2*Math.PI/180))/Math.PI)/2)*Math.pow(2,15))+'/'+Math.floor((minlng+maxlng)/2/360+0.5)*Math.pow(2,15)+'.png)';
+    mapEl.style.backgroundImage='none';
+    mapEl.style.background='#1a1a2e';
+    document.getElementById('map-overlay').textContent='🗺 ESRI Imagery — loading...';
+    // Use Leaflet ESRI
+    if(fieldMap){
+      fieldMap.eachLayer(l=>{if(l._url||l.options?.url) fieldMap.removeLayer(l);});
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'}).addTo(fieldMap);
+    }
+    mapEl.style.backgroundImage='';
+    document.getElementById('map-overlay').textContent='🗺 ESRI Satellite Imagery';
+  } else if(idx===1){
+    // Sentinel RGB
+    const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
+    mapEl.style.backgroundImage=`url(${imgUrl})`;
+    mapEl.style.backgroundSize='cover';
+    mapEl.style.backgroundPosition='center';
+    document.getElementById('map-overlay').textContent='🛰 Sentinel-2 RGB · May 2026';
+    if(fieldMap) fieldMap.eachLayer(l=>{if(l._url) fieldMap.removeLayer(l);});
+  } else if(idx===2){
+    // NDVI — green gradient
+    const ndviUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&layer=NDVI`;
+    mapEl.style.backgroundImage=`url(${ndviUrl})`;
+    mapEl.style.backgroundSize='cover';
+    mapEl.style.backgroundPosition='center';
+    document.getElementById('map-overlay').textContent='🌱 NDVI Layer · May 2026';
+  } else if(idx===3){
+    // Variability zones — show coloured overlay
+    mapEl.style.backgroundImage='none';
+    mapEl.style.background='linear-gradient(135deg,#166534,#16a34a,#d97706,#dc2626)';
+    document.getElementById('map-overlay').textContent='🗺 Variability Zones';
+  }
+}
+
 async function loadIntel(lat,lng){
   const scroll=document.getElementById('intel-scroll');
   try{
