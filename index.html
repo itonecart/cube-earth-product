@@ -411,7 +411,8 @@ function confirmField(){
 
 function switchMapLayer(idx){
   const mapEl=document.getElementById('field-map');
-  if(!selectedParcel?.geometry) return;
+  if(!selectedParcel?.geometry||!fieldMap) return;
+
   const coords=selectedParcel.geometry.coordinates[0];
   const lngs=coords.map(c=>c[0]);
   const lats=coords.map(c=>c[1]);
@@ -421,39 +422,63 @@ function switchMapLayer(idx){
   const minlat=Math.min(...lats)-pad;
   const maxlat=Math.max(...lats)+pad;
 
+  // Remove background image first
+  mapEl.style.backgroundImage='none';
+  mapEl.style.background='#111';
+
+  // Remove existing tile layers
+  fieldMap.eachLayer(l=>{
+    if(l instanceof L.TileLayer || l instanceof L.ImageOverlay) fieldMap.removeLayer(l);
+  });
+
   if(idx===0){
-    // ESRI Imagery
-    mapEl.style.backgroundImage='url(https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/15/'+Math.floor((1-(Math.log(Math.tan((minlat+maxlat)/2*Math.PI/180)+1/Math.cos((minlat+maxlat)/2*Math.PI/180))/Math.PI)/2)*Math.pow(2,15))+'/'+Math.floor((minlng+maxlng)/2/360+0.5)*Math.pow(2,15)+'.png)';
-    mapEl.style.backgroundImage='none';
-    mapEl.style.background='#1a1a2e';
-    document.getElementById('map-overlay').textContent='🗺 ESRI Imagery — loading...';
-    // Use Leaflet ESRI
-    if(fieldMap){
-      fieldMap.eachLayer(l=>{if(l._url||l.options?.url) fieldMap.removeLayer(l);});
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'}).addTo(fieldMap);
-    }
-    mapEl.style.backgroundImage='';
+    // ESRI Imagery via Leaflet tile layer
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+      attribution:'© Esri',maxZoom:19
+    }).addTo(fieldMap);
     document.getElementById('map-overlay').textContent='🗺 ESRI Satellite Imagery';
+
   } else if(idx===1){
-    // Sentinel RGB
+    // Latest Sentinel RGB via backend proxy
     const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
     mapEl.style.backgroundImage=`url(${imgUrl})`;
     mapEl.style.backgroundSize='cover';
     mapEl.style.backgroundPosition='center';
     document.getElementById('map-overlay').textContent='🛰 Sentinel-2 RGB · May 2026';
-    if(fieldMap) fieldMap.eachLayer(l=>{if(l._url) fieldMap.removeLayer(l);});
+
   } else if(idx===2){
-    // NDVI — green gradient
-    const ndviUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&layer=NDVI`;
+    // NDVI evalscript via backend proxy
+    const ndviUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=ndvi`;
     mapEl.style.backgroundImage=`url(${ndviUrl})`;
     mapEl.style.backgroundSize='cover';
     mapEl.style.backgroundPosition='center';
-    document.getElementById('map-overlay').textContent='🌱 NDVI Layer · May 2026';
+    document.getElementById('map-overlay').textContent='🌱 NDVI Vegetation · May 2026';
+
   } else if(idx===3){
-    // Variability zones — show coloured overlay
-    mapEl.style.backgroundImage='none';
-    mapEl.style.background='linear-gradient(135deg,#166534,#16a34a,#d97706,#dc2626)';
+    // Variability zones — colour-coded canvas overlay
+    const za=window._lastZoneAnalysis;
+    if(za){
+      const canvas=document.createElement('canvas');
+      canvas.width=mapEl.offsetWidth||300;
+      canvas.height=mapEl.offsetHeight||200;
+      const ctx=canvas.getContext('2d');
+      // Draw zone gradient
+      const grad=ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+      grad.addColorStop(0,'rgba(22,163,74,0.7)');
+      grad.addColorStop(0.4,'rgba(22,163,74,0.5)');
+      grad.addColorStop(0.6,'rgba(217,119,6,0.5)');
+      grad.addColorStop(1,'rgba(220,38,38,0.7)');
+      ctx.fillStyle=grad;
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      mapEl.style.backgroundImage=`url(${canvas.toDataURL()})`;
+      mapEl.style.backgroundSize='cover';
+    }
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
+  }
+
+  // Re-add parcel boundary on top
+  if(selectedParcel?.geometry){
+    L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
   }
 }
 
