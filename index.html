@@ -329,7 +329,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <div class="ls-title">🗺 Layers</div>
         <label class="ls-label">
           <input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
-          <div><div class="ls-label-text">ESRI Aerial</div><div class="ls-label-sub">Archive imagery</div></div>
+          <div><div class="ls-label-text">OSI Orthophoto</div><div class="ls-label-sub">Irish national imagery</div></div>
         </label>
         <label class="ls-label">
           <input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
@@ -540,8 +540,8 @@ function goSetup2(){
 function initSetupMap(){
   if(setupMap) return;
   setupMap = L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
-  L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
-    maxZoom:20, attribution:'© Google'
+  L.tileLayer('https://tiles.arcgis.com/tiles/nHpNKMnEv7NvAFJl/arcgis/rest/services/OSi_National_Orthophotography/MapServer/tile/{z}/{y}/{x}',{
+    maxZoom:20, attribution:'© OSI'
   }).addTo(setupMap);
 
   // If county selected, zoom to it
@@ -1039,8 +1039,10 @@ function switchMapLayer(idx){
   const maxlat = Math.max(...lats)+pad;
 
   if(idx===0){
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
-    document.getElementById('map-overlay').textContent='🗺 ESRI Aerial Imagery';
+    L.tileLayer('https://tiles.arcgis.com/tiles/nHpNKMnEv7NvAFJl/arcgis/rest/services/OSi_National_Orthophotography/MapServer/tile/{z}/{y}/{x}',{
+      attribution:'© Ordnance Survey Ireland',maxZoom:20
+    }).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent='🗺 OSI National Orthophoto';
   } else if(idx===1){
     const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
     mapEl.style.backgroundImage=`url(${imgUrl})`;
