@@ -518,6 +518,8 @@ const ndviLabel=v=>!v?'—':v>0.75?'Excellent':v>0.55?'High':v>0.35?'Moderate':v
 const smLabel=v=>!v?'—':v>0.35?'Wet':v>0.25?'Adequate':v>0.15?'Dry':'Very dry';
 
 function renderIntel(d){
+  // Store zone analysis for map layer switcher
+  window._lastZoneAnalysis = d.vegetation?.zone_analysis || null;
   const scroll=document.getElementById('intel-scroll');
   const p=d.parcel||{},v=d.vegetation||{},ag=d.agronomic||{};
   const sm=d.soil_moisture||{},vt=d.vegetation_trend||{};
