@@ -455,8 +455,8 @@ function switchMapLayer(idx){
     document.getElementById('map-overlay').textContent='🌱 NDVI Vegetation · May 2026';
 
   } else if(idx===3){
-    // Variability zones — NDVI image as base + zone overlay
-    const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=ndvi`;
+    // Variability zones — higher contrast NDVI with zone stats overlay
+    const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=zones`;
     mapEl.style.backgroundImage=`url(${imgUrl})`;
     mapEl.style.backgroundSize='cover';
     mapEl.style.backgroundPosition='center';
