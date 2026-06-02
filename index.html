@@ -2,702 +2,951 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>Cube Earth v2</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache">
+<title>Cube Earth — Irish Farm Intelligence</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --green:#1a5c38;--green-light:#2d7a50;--green-pale:#e8f5ee;
-  --text:#111827;--muted:#6b7280;--border:#e5e7eb;
-  --surface:#f9fafb;--white:#ffffff;--red:#991b1b;
-  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'DM Serif Display',serif;
+  --g1:#0a1f0f;--g2:#0f3320;--g3:#1a5c38;--g4:#2d7a50;--g5:#4a9a6f;
+  --g-pale:#e8f5ee;--g-soft:#d1edd9;
+  --amber:#d97706;--amber-lt:#fef9ee;--amber-bd:#fde68a;
+  --red:#dc2626;--red-lt:#fff5f5;--red-bd:#fca5a5;
+  --text:#0a0f0c;--muted:#6b7a70;--border:#e2ebe5;
+  --surface:#f5f9f6;--white:#fff;
+  --sans:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+  --nav:60px;--top:52px;
 }
-body{font-family:var(--sans);color:var(--text);background:var(--white);min-height:100vh;}
-.page{display:none;min-height:100vh;flex-direction:column;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--surface);color:var(--text);}
+
+/* PAGES */
+.page{position:fixed;inset:0;display:none;flex-direction:column;}
 .page.active{display:flex;}
 
 /* LOGIN */
-#page-login{background:linear-gradient(160deg,#0a2e1a,#1a5c38,#0f3d24);align-items:center;justify-content:center;padding:24px;}
-.login-card{background:#fff;border-radius:20px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 25px 60px rgba(0,0,0,0.3);}
-.login-logo{text-align:center;margin-bottom:28px;}
-.globe{font-size:48px;display:block;margin-bottom:8px;}
-.login-logo h1{font-family:var(--serif);font-size:26px;color:var(--green);}
-.login-logo p{font-size:12px;color:var(--muted);margin-top:4px;}
-.form-group{margin-bottom:16px;}
-.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
-.form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:15px;font-family:var(--sans);outline:none;}
-.form-group input:focus{border-color:var(--green);}
-.btn-green{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:8px;}
-.btn-outline{width:100%;padding:12px;background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:10px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:10px;}
-.divider{text-align:center;color:var(--muted);font-size:12px;margin:12px 0;position:relative;}
-.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border);}
+#pg-login{background:linear-gradient(160deg,#051209,#0d2e18,#1a5c38);align-items:center;justify-content:center;padding:24px;}
+.login-wrap{width:100%;max-width:360px;}
+.login-logo{text-align:center;margin-bottom:32px;}
+.logo-icon{font-size:52px;display:block;margin-bottom:10px;}
+.logo-name{font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px;}
+.logo-tag{font-size:12px;color:rgba(255,255,255,0.5);margin-top:6px;}
+.login-card{background:#fff;border-radius:20px;padding:28px 24px;box-shadow:0 24px 60px rgba(0,0,0,0.4);}
+.lf{margin-bottom:14px;}
+.lf label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.lf input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;}
+.lf input:focus{border-color:var(--g3);}
+.btn-p{width:100%;padding:13px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;}
+.btn-g{width:100%;padding:11px;background:transparent;color:var(--g3);border:1.5px solid var(--g3);border-radius:10px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;margin-top:10px;}
+.divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border);}
 .divider::before{left:0;}.divider::after{right:0;}
 
-/* SELECT */
-#page-select{background:var(--surface);}
-.top-bar{padding:14px 18px;border-bottom:1px solid var(--border);background:var(--white);display:flex;align-items:center;gap:10px;}
-.top-bar h2{font-family:var(--serif);font-size:18px;color:var(--green);flex:1;}
-.step-body{flex:1;overflow-y:auto;padding:20px 18px 120px;}
-.step-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;}
-.county-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.county-btn{padding:12px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-weight:600;font-family:var(--sans);cursor:pointer;text-align:left;color:var(--text);}
-.county-btn:hover{border-color:var(--green);background:var(--green-pale);}
-.search-row{display:flex;gap:8px;margin-bottom:8px;}
-.search-row input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;}
-.search-row input:focus{border-color:var(--green);}
-.btn-search{padding:11px 16px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);}
-.field-btn{width:100%;padding:12px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:var(--sans);display:flex;align-items:center;gap:12px;}
-.field-btn:hover{border-color:var(--green);background:var(--green-pale);}
-.field-num{background:var(--green);color:#fff;border-radius:8px;padding:4px 10px;font-size:13px;font-weight:700;flex-shrink:0;}
-.field-crop{font-size:13px;font-weight:600;flex:1;}
-.field-area{font-size:12px;color:var(--muted);flex-shrink:0;}
-.back-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--green);padding:0;}
+/* TOP BAR */
+.topbar{height:var(--top);display:flex;align-items:center;padding:0 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;z-index:10;}
+.tb-title{font-size:17px;font-weight:700;flex:1;letter-spacing:-0.3px;}
+.back-btn{background:none;border:none;font-size:24px;cursor:pointer;color:var(--g3);padding:0;line-height:1;}
+.icon-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
 
-/* CONFIRM PANEL */
-.confirm-panel{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:2px solid var(--green);padding:16px 18px;box-shadow:0 -4px 20px rgba(0,0,0,0.1);display:none;z-index:100;}
-.confirm-panel.show{display:block;}
-.confirm-info{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
-.confirm-icon{font-size:32px;}
-.confirm-crop{font-size:16px;font-weight:700;}
-.confirm-meta{font-size:12px;color:var(--muted);margin-top:2px;}
-.btn-confirm{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;}
-.btn-confirm:disabled{background:#86efac;cursor:not-allowed;}
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;padding-bottom:80px;}
+.scroll::-webkit-scrollbar{display:none;}
 
-/* INTEL */
-#page-intel{background:var(--surface);}
-.intel-header{padding:14px 18px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
-.intel-header h2{font-family:var(--serif);font-size:17px;color:var(--green);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.match-exact{font-size:11px;padding:3px 8px;border-radius:100px;font-weight:600;background:var(--green-pale);color:var(--green);}
-.match-near{font-size:11px;padding:3px 8px;border-radius:100px;font-weight:600;background:#fef3c7;color:#92400e;}
-.intel-scroll{flex:1;overflow-y:auto;padding-bottom:110px;}
-#field-map{height:45vh;width:100%;flex-shrink:0;}
+/* SETUP STEPS */
+.setup-progress{display:flex;gap:4px;padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);}
+.step-dot{flex:1;height:4px;border-radius:2px;background:var(--border);}
+.step-dot.done{background:var(--g3);}
+.step-dot.active{background:var(--g4);}
 
-/* CARDS */
-.card{background:var(--white);border-radius:14px;margin:12px 14px 0;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
-.card-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:14px 16px 0;}
-.card-body{padding:12px 16px 16px;}
-.summary-card{margin:12px 14px 0;background:var(--green);border-radius:14px;padding:18px;color:#fff;}
-.summary-type{font-size:11px;font-weight:600;opacity:0.75;text-transform:uppercase;letter-spacing:0.08em;}
-.summary-name{font-family:var(--serif);font-size:22px;margin:4px 0 3px;}
-.summary-meta{font-size:12px;opacity:0.8;}
-.summary-stage{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:rgba(255,255,255,0.18);padding:6px 12px;border-radius:100px;font-size:12px;font-weight:600;}
-.dec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.dec-item{background:var(--surface);border-radius:10px;padding:12px 14px;}
-.dec-item.full{grid-column:1/-1;}
-.dec-item.locked{background:#f8fafc;border:1.5px dashed #cbd5e1;}
-.dec-emoji{font-size:22px;margin-bottom:4px;}
-.dec-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
-.dec-val{font-size:15px;font-weight:700;margin-top:3px;}
-.dec-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.sensor-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);}
-.sensor-row:last-child{border-bottom:none;}
-.s-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:10px;}
-.s-dot.green{background:#10b981;}.s-dot.amber{background:#f59e0b;}.s-dot.red{background:#ef4444;}.s-dot.gray{background:#d1d5db;}
-.s-name{font-size:13px;flex:1;}
-.s-val{font-family:var(--mono);font-size:13px;font-weight:600;}
-.s-age{font-size:10px;color:var(--muted);margin-left:8px;}
-.s-lock{font-size:12px;color:#94a3b8;}
-.score-row{display:flex;align-items:center;gap:16px;margin-bottom:14px;}
-.score-ring{width:72px;height:72px;flex-shrink:0;position:relative;}
-.score-ring svg{transform:rotate(-90deg);}
-.score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;font-family:var(--mono);}
-.score-level{font-size:16px;font-weight:700;}
-.score-sub{font-size:12px;color:var(--muted);margin-top:2px;}
-.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
-.bar-label{font-size:11px;color:var(--muted);width:72px;flex-shrink:0;}
-.bar-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-.bar-fill{height:100%;background:var(--green);border-radius:3px;}
-.bar-pct{font-size:10px;font-family:var(--mono);color:var(--muted);width:28px;text-align:right;}
-.trend-row{display:flex;align-items:center;gap:14px;padding:12px;background:var(--surface);border-radius:10px;}
-.trend-icon{font-size:34px;flex-shrink:0;}
-.trend-main{font-size:14px;font-weight:700;}
-.trend-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.trend-anomaly{font-size:12px;font-weight:600;margin-top:5px;padding:3px 8px;border-radius:6px;display:inline-block;}
-.a-pos{background:#d1fae5;color:#065f46;}.a-neg{background:#fee2e2;color:#991b1b;}.a-neu{background:#fef3c7;color:#92400e;}
-.event-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
-.event-row:last-child{border-bottom:none;}
-.ev-emoji{font-size:20px;flex-shrink:0;}
-.ev-title{font-size:13px;font-weight:600;}
-.ev-date{font-size:11px;color:var(--muted);}
-.ev-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;margin-top:3px;}
-.b-high{background:#fee2e2;color:#991b1b;}.b-mod{background:#fef3c7;color:#92400e;}
-.report-cta{margin:12px 14px 0;background:linear-gradient(135deg,#1a5c38,#2d7a50);border-radius:14px;padding:22px 18px;color:#fff;text-align:center;}
-.report-cta h3{font-family:var(--serif);font-size:20px;margin-bottom:6px;}
-.report-cta p{font-size:12px;opacity:0.85;margin-bottom:16px;line-height:1.5;}
-.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.report-opt{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:10px;padding:12px 8px;font-size:11px;font-weight:600;font-family:var(--sans);cursor:pointer;text-align:center;}
-.report-opt .price{display:block;font-size:16px;font-weight:700;margin-top:4px;}
-.report-full{grid-column:1/-1;background:rgba(255,255,255,0.25);}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:none;padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:200;}
-.bottom-nav.show{display:flex;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-size:10px;font-weight:600;font-family:var(--sans);}
-.nav-btn.active{color:var(--green);}
-.nav-btn .ni{font-size:20px;}
+.setup-hd{padding:24px 20px 16px;text-align:center;}
+.setup-step-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
+.setup-title{font-size:22px;font-weight:800;color:var(--g1);letter-spacing:-0.5px;margin-bottom:6px;}
+.setup-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+
+.form-card{background:var(--white);border:1px solid var(--border);border-radius:14px;margin:0 16px 12px;overflow:hidden;}
+.form-row{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.form-row:last-child{border-bottom:none;}
+.form-row label{font-size:13px;font-weight:600;color:var(--muted);width:100px;flex-shrink:0;}
+.form-row input,.form-row select{flex:1;border:none;outline:none;font-size:14px;font-family:var(--sans);background:transparent;color:var(--text);}
+.form-row select{cursor:pointer;}
+
+/* MAP PICKER */
+#setup-map{flex:1;min-height:0;}
+.map-search-bar{padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border);display:flex;gap:8px;}
+.map-search-input{flex:1;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;}
+.map-search-input:focus{border-color:var(--g3);}
+.map-search-btn{padding:10px 16px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer;}
+
+.map-hint-bar{padding:8px 14px;background:rgba(26,92,56,0.9);color:#fff;font-size:12px;font-weight:500;text-align:center;flex-shrink:0;}
+
+.selected-parcels-bar{background:var(--white);border-top:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.selected-count{font-size:13px;font-weight:700;color:var(--g3);flex:1;}
+.btn-save-farm{padding:10px 20px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--sans);cursor:pointer;}
+.btn-save-farm:disabled{background:#86efac;cursor:not-allowed;}
+
+/* FARM DASHBOARD */
+.farm-hero{background:linear-gradient(135deg,var(--g1),var(--g3));padding:20px 16px 22px;color:#fff;}
+.farm-name{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
+.farm-meta{font-size:13px;opacity:0.75;margin-bottom:16px;}
+.farm-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.fpill{padding:6px 12px;border-radius:100px;font-size:13px;font-weight:700;}
+.fpill-g{background:rgba(255,255,255,0.15);color:#fff;}
+.fpill-a{background:rgba(217,119,6,0.3);color:#fde68a;}
+.fpill-r{background:rgba(220,38,38,0.3);color:#fca5a5;}
+
+.section-hd{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:16px 16px 8px;}
+
+.field-row{display:flex;align-items:center;padding:14px 16px;background:var(--white);border-bottom:1px solid var(--border);cursor:pointer;gap:12px;}
+.field-row:active{background:var(--surface);}
+.fd{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.fd-g{background:#16a34a;}.fd-a{background:#d97706;}.fd-r{background:#dc2626;}
+.fr-info{flex:1;}
+.fr-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.fr-meta{font-size:12px;color:var(--muted);}
+.fr-right{text-align:right;}
+.fr-action{font-size:13px;font-weight:700;}
+.fr-action.g{color:#16a34a;}.fr-action.a{color:#d97706;}.fr-action.r{color:#dc2626;}
+.fr-cover{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
+
+/* INTEL PAGE */
+#field-map{height:45vh;width:100%;flex-shrink:0;background:#111;position:relative;}
+.map-overlay{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.7);color:#fff;font-size:10px;padding:5px 10px;border-radius:8px;z-index:400;font-family:var(--mono);pointer-events:none;backdrop-filter:blur(4px);}
+
+#layer-switcher{position:absolute;top:8px;right:8px;z-index:1000;background:rgba(0,0,0,0.75);border-radius:10px;padding:8px 12px;backdrop-filter:blur(4px);}
+.ls-title{font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.ls-label{display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0;}
+.ls-label-text{font-size:12px;color:#fff;}
+.ls-label-sub{font-size:10px;color:rgba(255,255,255,0.5);}
+
+.intel-hd{padding:14px 14px 0;background:var(--white);}
+.intel-type{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.intel-crop{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:3px;}
+.intel-meta{font-size:13px;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);}
+
+.decision{margin:12px 14px;border-radius:16px;padding:18px 20px;color:#fff;}
+.dec-label{font-size:10px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.dec-action{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;}
+.dec-reason{font-size:13px;opacity:0.88;line-height:1.5;}
+
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;}
+.mc{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;}
+.mc-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.mc-val{font-size:24px;font-weight:800;font-family:var(--mono);color:var(--g1);line-height:1;}
+.mc-unit{font-size:11px;color:var(--muted);margin-top:2px;}
+.mc-note{font-size:11px;font-weight:600;margin-top:5px;}
+.note-g{color:#16a34a;}.note-a{color:#d97706;}.note-r{color:#dc2626;}
+
+.icard{background:var(--white);border:1px solid var(--border);border-radius:14px;margin:10px 14px 0;overflow:hidden;}
+.icard-hd{padding:12px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--border);}
+.irow{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+.irow:last-child{border-bottom:none;}
+.irow-label{color:var(--muted);}
+.irow-val{font-weight:600;}
+.irow-val.g{color:#16a34a;}.irow-val.a{color:#d97706;}.irow-val.r{color:#dc2626;}
+
+/* PLANS */
+.plan-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;margin:0 14px 10px;}
+.plan-card.featured{border-color:var(--g3);border-width:2px;position:relative;}
+.plan-badge{position:absolute;top:-10px;left:16px;background:var(--g3);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:100px;}
+.plan-name{font-size:16px;font-weight:700;margin-bottom:4px;}
+.plan-price{font-size:24px;font-weight:800;color:var(--g3);}
+.plan-price span{font-size:13px;font-weight:400;color:var(--muted);}
+.plan-desc{font-size:12px;color:var(--muted);line-height:1.6;margin:8px 0;}
+.plan-btn{width:100%;padding:10px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);margin-top:10px;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--white);border-top:1px solid var(--border);display:none;z-index:1000;}
+.bnav.show{display:flex;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);border:none;background:none;font-family:var(--sans);padding:6px 4px;}
+.ni.active{color:var(--g3);}
+.ni-icon{font-size:22px;line-height:1;}
+.ni-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;}
+
+/* LOADING */
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--g3);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div class="page active" id="page-login">
-  <div class="login-card">
+<div class="page active" id="pg-login">
+  <div class="login-wrap">
     <div class="login-logo">
-      <span class="globe">🌍</span>
-      <h1>Cube Earth</h1>
-      <p>Satellite Intelligence for Irish Farms</p>
+      <span class="logo-icon">🌍</span>
+      <div class="logo-name">Cube Earth</div>
+      <div class="logo-tag">Know your fields without walking them</div>
     </div>
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" placeholder="farmer@example.ie">
+    <div class="login-card">
+      <div style="font-size:17px;font-weight:700;margin-bottom:18px;color:var(--g1)">Sign in</div>
+      <div class="lf"><label>Email</label><input type="email" placeholder="farmer@example.ie"></div>
+      <div class="lf"><label>Password</label><input type="password" placeholder="••••••••"></div>
+      <button class="btn-p" onclick="goSetup()">Sign In →</button>
+      <div class="divider">or</div>
+      <button class="btn-g" onclick="goSetup()">▶ Try Demo</button>
     </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" placeholder="••••••••">
-    </div>
-    <button class="btn-green" onclick="showPage('select')">Sign In →</button>
-    <div class="divider">or</div>
-    <button class="btn-outline" onclick="showPage('select')">▶ Continue as Demo</button>
   </div>
 </div>
 
-<!-- SELECT -->
-<div class="page" id="page-select">
-  <div class="top-bar">
-    <span style="font-size:20px">🌍</span>
-    <h2 id="select-title">Select County</h2>
-    <span style="font-size:11px;color:var(--muted);background:var(--surface);padding:3px 8px;border-radius:100px">Demo</span>
+<!-- SETUP STEP 1: FARM DETAILS -->
+<div class="page" id="pg-setup1">
+  <div class="topbar">
+    <div class="tb-title">🌍 Add My Farm</div>
   </div>
-
-  <!-- Step 1: County -->
-  <div class="step-body" id="step1">
-    <div class="step-label">Step 1 of 3 · Select your county</div>
-    <div class="county-grid">
-      <button class="county-btn" onclick="pickCounty('Carlow')">Carlow</button>
-      <button class="county-btn" onclick="pickCounty('Cavan')">Cavan</button>
-      <button class="county-btn" onclick="pickCounty('Clare')">Clare</button>
-      <button class="county-btn" onclick="pickCounty('Cork')">Cork</button>
-      <button class="county-btn" onclick="pickCounty('Donegal')">Donegal</button>
-      <button class="county-btn" onclick="pickCounty('Dublin')">Dublin</button>
-      <button class="county-btn" onclick="pickCounty('Galway')">Galway</button>
-      <button class="county-btn" onclick="pickCounty('Kerry')">Kerry</button>
-      <button class="county-btn" onclick="pickCounty('Kildare')">Kildare</button>
-      <button class="county-btn" onclick="pickCounty('Kilkenny')">Kilkenny</button>
-      <button class="county-btn" onclick="pickCounty('Laois')">Laois</button>
-      <button class="county-btn" onclick="pickCounty('Leitrim')">Leitrim</button>
-      <button class="county-btn" onclick="pickCounty('Limerick')">Limerick</button>
-      <button class="county-btn" onclick="pickCounty('Longford')">Longford</button>
-      <button class="county-btn" onclick="pickCounty('Louth')">Louth</button>
-      <button class="county-btn" onclick="pickCounty('Mayo')">Mayo</button>
-      <button class="county-btn" onclick="pickCounty('Meath')">Meath</button>
-      <button class="county-btn" onclick="pickCounty('Monaghan')">Monaghan</button>
-      <button class="county-btn" onclick="pickCounty('Offaly')">Offaly</button>
-      <button class="county-btn" onclick="pickCounty('Roscommon')">Roscommon</button>
-      <button class="county-btn" onclick="pickCounty('Sligo')">Sligo</button>
-      <button class="county-btn" onclick="pickCounty('Tipperary')">Tipperary</button>
-      <button class="county-btn" onclick="pickCounty('Waterford')">Waterford</button>
-      <button class="county-btn" onclick="pickCounty('Westmeath')">Westmeath</button>
-      <button class="county-btn" onclick="pickCounty('Wexford')">Wexford</button>
-      <button class="county-btn" onclick="pickCounty('Wicklow')">Wicklow</button>
-    </div>
+  <div class="setup-progress">
+    <div class="step-dot active"></div>
+    <div class="step-dot"></div>
+    <div class="step-dot"></div>
   </div>
-
-  <!-- Step 2: Townland -->
-  <div class="step-body" id="step2" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <button class="back-btn" onclick="goStep(1)">←</button>
-      <div class="step-label" style="margin:0">Step 2 of 3 · Enter townland or village</div>
+  <div class="scroll">
+    <div class="setup-hd">
+      <div class="setup-step-label">Step 1 of 3</div>
+      <div class="setup-title">Tell us about your farm</div>
+      <div class="setup-sub">This helps us show the right field intelligence for your enterprise</div>
     </div>
-    <div class="search-row">
-      <input type="text" id="townland-input" placeholder="e.g. Kilcock, Naas, Athy...">
-      <button class="btn-search" onclick="searchTownland()">Search</button>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Type the name of your nearest town or village</div>
-    <div id="townland-results"></div>
-  </div>
-
-  <!-- Step 3: Field list -->
-  <div class="step-body" id="step3" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <button class="back-btn" onclick="goStep(2)">←</button>
-      <div class="step-label" style="margin:0">Step 3 of 3 · Select your field</div>
-    </div>
-    <div id="field-list"></div>
-  </div>
-
-  <!-- Confirm panel -->
-  <div class="confirm-panel" id="confirm-panel">
-    <div class="confirm-info">
-      <div class="confirm-icon" id="confirm-icon">🌾</div>
-      <div>
-        <div class="confirm-crop" id="confirm-crop">—</div>
-        <div class="confirm-meta" id="confirm-meta">—</div>
+    <div class="form-card">
+      <div class="form-row">
+        <label>Farm name</label>
+        <input type="text" id="farm-name" placeholder="e.g. Brookfield Farm">
+      </div>
+      <div class="form-row">
+        <label>County</label>
+        <select id="farm-county">
+          <option value="">Select county...</option>
+          <option>Carlow</option><option>Cavan</option><option>Clare</option>
+          <option>Cork</option><option>Donegal</option><option>Dublin</option>
+          <option>Galway</option><option>Kerry</option><option>Kildare</option>
+          <option>Kilkenny</option><option>Laois</option><option>Leitrim</option>
+          <option>Limerick</option><option>Longford</option><option>Louth</option>
+          <option>Mayo</option><option>Meath</option><option>Monaghan</option>
+          <option>Offaly</option><option>Roscommon</option><option>Sligo</option>
+          <option>Tipperary</option><option>Waterford</option><option>Westmeath</option>
+          <option>Wexford</option><option>Wicklow</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Enterprise</label>
+        <select id="farm-type">
+          <option value="">Select type...</option>
+          <option>Dairy</option>
+          <option>Beef</option>
+          <option>Sheep</option>
+          <option>Mixed Livestock</option>
+          <option>Tillage / Arable</option>
+          <option>Mixed Crop & Livestock</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>In ACRES?</label>
+        <select id="farm-acres">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+          <option value="applied">Applied</option>
+        </select>
       </div>
     </div>
-    <button class="btn-confirm" id="btn-confirm" onclick="confirmField()" disabled>Confirm This Field →</button>
+    <div style="padding:0 16px 16px">
+      <button class="btn-p" onclick="goSetup2()">Next: Select Fields on Map →</button>
+    </div>
   </div>
 </div>
 
-<!-- INTEL -->
-<div class="page" id="page-intel">
-  <div class="intel-header">
-    <button class="back-btn" onclick="showPage('select')">←</button>
-    <h2 id="intel-title">Field Intelligence</h2>
-    <span id="match-badge"></span>
+<!-- SETUP STEP 2: SELECT FIELDS ON MAP -->
+<div class="page" id="pg-setup2">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-setup1')">←</button>
+    <div class="tb-title">Select Your Fields</div>
   </div>
-  <div id="field-map" style="position:relative">
-    <div id="layer-switcher" style="position:absolute;top:8px;right:8px;z-index:1000;background:rgba(0,0,0,0.75);border-radius:10px;padding:8px 12px;backdrop-filter:blur(4px)">
-      <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">🗺 Layers</div>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0">
-        <input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
-        <div><div style="font-size:12px;color:#fff">ESRI Aerial</div><div style="font-size:10px;color:rgba(255,255,255,0.5)">Archive imagery</div></div>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0">
-        <input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
-        <div><div style="font-size:12px;color:#fff">Latest Sentinel RGB</div><div style="font-size:10px;color:#00ff88" id="sentinel-date-badge">May 2026</div></div>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0">
-        <input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
-        <div><div style="font-size:12px;color:#fff">NDVI Vegetation</div><div style="font-size:10px;color:rgba(255,255,255,0.5)">Greenness index</div></div>
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0">
-        <input type="radio" name="maplayer" value="3" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(3)">
-        <div><div style="font-size:12px;color:#fff">Variability Zones</div><div style="font-size:10px;color:rgba(255,255,255,0.5)">High / Med / Low</div></div>
-      </label>
+  <div class="setup-progress">
+    <div class="step-dot done"></div>
+    <div class="step-dot active"></div>
+    <div class="step-dot"></div>
+  </div>
+  <div class="map-search-bar">
+    <input class="map-search-input" id="map-search-input" placeholder="🔍 Search townland or village...">
+    <button class="map-search-btn" onclick="searchOnMap()">Go</button>
+  </div>
+  <div class="map-hint-bar" id="map-hint">Tap fields to select them · <span id="selected-count-hint">0 selected</span></div>
+  <div id="setup-map"></div>
+  <div class="selected-parcels-bar">
+    <div class="selected-count" id="selected-count-bar">No fields selected</div>
+    <button class="btn-save-farm" id="btn-save" onclick="saveFarm()" disabled>Save Farm →</button>
+  </div>
+</div>
+
+<!-- SETUP STEP 3: SAVING -->
+<div class="page" id="pg-setup3">
+  <div class="topbar">
+    <div class="tb-title">Setting Up Your Farm</div>
+  </div>
+  <div class="loading">
+    <div class="spinner"></div>
+    <div style="font-size:14px;font-weight:600;color:var(--text)">Analysing your fields...</div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;max-width:260px" id="setup-status">Loading satellite data for each field</div>
+  </div>
+</div>
+
+<!-- FARM DASHBOARD -->
+<div class="page" id="pg-farm">
+  <div class="topbar">
+    <div class="tb-title" id="dash-farm-name">My Farm</div>
+    <div class="icon-btn" onclick="showPage('pg-plans')">💳</div>
+  </div>
+  <div class="scroll" id="farm-scroll">
+    <div class="farm-hero">
+      <div class="farm-name" id="hero-farm-name">My Farm</div>
+      <div class="farm-meta" id="hero-farm-meta">Loading...</div>
+      <div class="farm-pills" id="hero-pills">
+        <div class="fpill fpill-g">🟢 <span id="cnt-g">0</span> Ready</div>
+        <div class="fpill fpill-a">🟡 <span id="cnt-a">0</span> Monitor</div>
+        <div class="fpill fpill-r">🔴 <span id="cnt-r">0</span> Action</div>
+      </div>
+    </div>
+    <div class="section-hd">My Fields</div>
+    <div id="field-list"></div>
+  </div>
+</div>
+
+<!-- FIELD INTELLIGENCE -->
+<div class="page" id="pg-intel">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-farm')">←</button>
+    <div class="tb-title" id="intel-title">Field</div>
+    <div id="intel-badge" style="font-size:18px">🟢</div>
+  </div>
+
+  <div class="scroll" id="intel-scroll">
+    <div id="field-map" style="position:relative">
+      <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3)">
+        <div style="text-align:center"><div style="font-size:28px;margin-bottom:6px">🛰</div><div style="font-size:12px">Loading satellite...</div></div>
+      </div>
+      <div class="map-overlay" id="map-overlay">🛰 Sentinel-2</div>
+      <div id="layer-switcher">
+        <div class="ls-title">🗺 Layers</div>
+        <label class="ls-label">
+          <input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
+          <div><div class="ls-label-text">ESRI Aerial</div><div class="ls-label-sub">Archive imagery</div></div>
+        </label>
+        <label class="ls-label">
+          <input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
+          <div><div class="ls-label-text">Latest Sentinel RGB</div><div class="ls-label-sub" id="sentinel-date-badge">May 2026</div></div>
+        </label>
+        <label class="ls-label">
+          <input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
+          <div><div class="ls-label-text">NDVI Vegetation</div><div class="ls-label-sub">Greenness index</div></div>
+        </label>
+        <label class="ls-label">
+          <input type="radio" name="maplayer" value="3" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(3)">
+          <div><div class="ls-label-text">Variability Zones</div><div class="ls-label-sub">High / Med / Low</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="intel-hd">
+      <div class="intel-type" id="intel-type">🌱 Grassland</div>
+      <div class="intel-crop" id="intel-crop">Permanent Pasture</div>
+      <div class="intel-meta" id="intel-meta">— ha · — · —</div>
+    </div>
+
+    <div class="decision" id="intel-decision" style="background:linear-gradient(135deg,#0a1f0f,#1a5c38)">
+      <div class="dec-label">Today's Decision</div>
+      <div class="dec-action" id="intel-dec-action">Analysing...</div>
+      <div class="dec-reason" id="intel-dec-reason">Loading satellite data for this field</div>
+    </div>
+
+    <div class="metrics">
+      <div class="mc">
+        <div class="mc-label">🌱 Grass Cover</div>
+        <div class="mc-val" id="m-cover">—</div>
+        <div class="mc-unit">kg DM/ha</div>
+        <div class="mc-note note-g" id="m-cover-note">—</div>
+      </div>
+      <div class="mc">
+        <div class="mc-label">🌾 NDVI</div>
+        <div class="mc-val" id="m-ndvi">—</div>
+        <div class="mc-unit">vegetation index</div>
+        <div class="mc-note note-g" id="m-ndvi-note">—</div>
+      </div>
+      <div class="mc">
+        <div class="mc-label">💧 Soil Moisture</div>
+        <div class="mc-val" id="m-smap">—</div>
+        <div class="mc-unit">m³/m³</div>
+        <div class="mc-note" id="m-smap-note">—</div>
+      </div>
+      <div class="mc">
+        <div class="mc-label">📡 SAR RVI</div>
+        <div class="mc-val" id="m-sar">—</div>
+        <div class="mc-unit">radar vegetation</div>
+        <div class="mc-note" id="m-sar-note">—</div>
+      </div>
+    </div>
+
+    <div id="zone-card"></div>
+
+    <div class="icard">
+      <div class="icard-hd">☁️ Weather & Ground</div>
+      <div class="irow"><span class="irow-label">Rainfall (7d)</span><span class="irow-val" id="w-rain">—</span></div>
+      <div class="irow"><span class="irow-label">Soil moisture</span><span class="irow-val g" id="w-sm">—</span></div>
+      <div class="irow"><span class="irow-label">Trafficability</span><span class="irow-val g" id="w-traf">—</span></div>
+    </div>
+
+    <div class="icard">
+      <div class="icard-hd">📋 Compliance</div>
+      <div class="irow"><span class="irow-label">ACRES</span><span class="irow-val g" id="c-acres">—</span></div>
+      <div class="irow"><span class="irow-label">Eco Scheme</span><span class="irow-val g" id="c-eco">—</span></div>
+      <div class="irow"><span class="irow-label">BISS</span><span class="irow-val g" id="c-biss">—</span></div>
+    </div>
+
+    <div class="icard" style="margin-bottom:12px">
+      <div class="icard-hd" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        Field Details ▼
+      </div>
+      <div style="display:none">
+        <div class="irow"><span class="irow-label">LPIS data</span><span class="irow-val">DAFM 2024</span></div>
+        <div class="irow"><span class="irow-label">Satellite</span><span class="irow-val">Sentinel-2 L2A</span></div>
+        <div class="irow"><span class="irow-label">Image date</span><span class="irow-val" id="d-imgdate">—</span></div>
+        <div class="irow"><span class="irow-label">Confidence</span><span class="irow-val g" id="d-conf">—</span></div>
+      </div>
     </div>
   </div>
-  <div class="intel-scroll" id="intel-scroll">
-    <div style="text-align:center;padding:60px 20px;color:var(--muted)">
-      <div style="font-size:48px;margin-bottom:12px">🛰</div>
-      <div style="font-size:16px;font-weight:600;color:var(--text)">Scanning field...</div>
-      <div style="font-size:13px;margin-top:6px">Fetching satellite intelligence</div>
+</div>
+
+<!-- PLANS -->
+<div class="page" id="pg-plans">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-farm')">←</button>
+    <div class="tb-title">Cube Earth Plans</div>
+  </div>
+  <div class="scroll">
+    <div style="padding:20px 16px 10px;text-align:center">
+      <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px">Simple, honest pricing</div>
+      <div style="font-size:13px;color:var(--muted)">Know your fields without walking them</div>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">🌱 Basic</div>
+      <div class="plan-price">€30<span>/month</span></div>
+      <div class="plan-desc">Up to 5 fields · Weekly grass cover updates · NDVI + soil moisture · Grazing decisions · ACRES monitoring · Email alerts</div>
+      <button class="plan-btn" onclick="alert('Coming soon — launching shortly')">Get Started →</button>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">MOST POPULAR</div>
+      <div class="plan-name">🌾 Farm</div>
+      <div class="plan-price">€50<span>/month</span></div>
+      <div class="plan-desc">Unlimited fields · Daily updates · AI field advisor · Vegetation trend analysis · Seasonal anomaly detection · PDF reports · Multi-field dashboard</div>
+      <button class="plan-btn" onclick="alert('Coming soon — launching shortly')">Get Started →</button>
+    </div>
+    <div class="plan-card" style="margin-bottom:16px">
+      <div class="plan-name">🚀 Pro</div>
+      <div class="plan-price">€100<span>/month</span></div>
+      <div class="plan-desc">Multi-farm management · Priority support · Custom reports · API access · Advisor portal · White label option</div>
+      <button class="plan-btn" style="background:var(--g1)" onclick="alert('Contact us: hello@cubed-earth.com')">Contact Us →</button>
     </div>
   </div>
 </div>
 
 <!-- BOTTOM NAV -->
-<div class="bottom-nav" id="bottom-nav">
-  <button class="nav-btn active" onclick="navTo('sec-overview',this)"><span class="ni">🏠</span>Today</button>
-  <button class="nav-btn" onclick="navTo('sec-pricing',this)"><span class="ni">💳</span>Plans</button>
-  <button class="nav-btn" onclick="newSearch()"><span class="ni">🔍</span>New Search</button>
-  <button class="nav-btn" id="dev-sensors-btn" style="display:none" onclick="navTo('sec-sensors',this)"><span class="ni">🛰</span>Dev</button>
+<div class="bnav" id="bnav">
+  <button class="ni active" onclick="navTo('pg-farm',this)" id="ni-farm">
+    <span class="ni-icon">🏠</span><span class="ni-label">Farm</span>
+  </button>
+  <button class="ni" onclick="navTo('pg-plans',this)" id="ni-plans">
+    <span class="ni-icon">💳</span><span class="ni-label">Plans</span>
+  </button>
+  <button class="ni" onclick="newSearch()" id="ni-search">
+    <span class="ni-icon">🔍</span><span class="ni-label">New Search</span>
+  </button>
+  <button class="ni" id="ni-dev" style="display:none" onclick="navTo('pg-intel',this)">
+    <span class="ni-icon">🛰</span><span class="ni-label">Dev</span>
+  </button>
 </div>
 
 <script>
-let selectedCounty='', selectedParcel=null, selectedLatLng=null;
-let villageParcels=[];
+const API = 'https://cube-earth.onrender.com';
+let farmData = {name:'', county:'', type:'', acres:'no'};
+let selectedParcels = []; // parcels selected on map
+let myFields = []; // processed fields with NDVI
+let setupMap = null;
+let fieldMap = null;
+let currentField = null;
+window._lastZoneAnalysis = null;
 
+// Dev mode
+if(new URLSearchParams(window.location.search).get('dev')==='1'){
+  document.getElementById('ni-dev').style.display='flex';
+}
+
+// ── NAVIGATION ──
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  document.getElementById('bottom-nav').classList.toggle('show',id==='intel');
+  document.getElementById(id).classList.add('active');
 }
 
-function navTo(id,btn){
-  document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+function navTo(id, btn){
+  showPage(id);
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(btn) btn.classList.add('active');
 }
 
-function goStep(n){
-  document.getElementById('step1').style.display=n===1?'block':'none';
-  document.getElementById('step2').style.display=n===2?'block':'none';
-  document.getElementById('step3').style.display=n===3?'block':'none';
-  document.getElementById('confirm-panel').classList.remove('show');
-  document.getElementById('btn-confirm').disabled=true;
-  const titles={1:'Select County',2:'Select Townland',3:'Select Field'};
-  document.getElementById('select-title').textContent=titles[n];
+function goSetup(){
+  showPage('pg-setup1');
 }
 
-function pickCounty(c){
-  selectedCounty=c;
-  goStep(2);
-  document.getElementById('townland-input').value='';
-  document.getElementById('townland-results').innerHTML='';
-  document.getElementById('select-title').textContent=c;
+function goSetup2(){
+  const name = document.getElementById('farm-name').value.trim();
+  if(!name){alert('Please enter your farm name');return;}
+  farmData.name = name;
+  farmData.county = document.getElementById('farm-county').value;
+  farmData.type = document.getElementById('farm-type').value;
+  farmData.acres = document.getElementById('farm-acres').value;
+  showPage('pg-setup2');
+  setTimeout(initSetupMap, 300);
 }
 
-async function searchTownland(){
-  const q=document.getElementById('townland-input').value.trim();
-  if(!q) return;
-  const el=document.getElementById('townland-results');
-  el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">Searching...</div>';
-  try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', '+selectedCounty+', Ireland')}&format=json&limit=4`);
-    const data=await r.json();
-    if(!data.length){el.innerHTML='<div style="color:var(--red);font-size:13px">Not found — try another name</div>';return;}
-    el.innerHTML=data.map(d=>`
-      <button class="field-btn" onclick="loadFields(${d.lat},${d.lon},'${d.display_name.split(',')[0].replace(/'/g,"\\'")}')">
-        <span style="font-size:20px">📍</span>
-        <span class="field-crop">${d.display_name.split(',').slice(0,2).join(', ')}</span>
-      </button>`).join('');
-  }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:13px">Error: ${e.message}</div>`;}
-}
+// ── SETUP MAP ──
+function initSetupMap(){
+  if(setupMap) return;
+  setupMap = L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
+  L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+    maxZoom:20, attribution:'© Google'
+  }).addTo(setupMap);
 
-async function loadFields(lat,lng,name){
-  goStep(3);
-  document.getElementById('select-title').textContent=name;
-  const el=document.getElementById('field-list');
-  el.innerHTML='<div style="color:var(--muted);font-size:13px;padding:8px 0">Loading fields near '+name+'...</div>';
-  try{
-    const tol=0.025;
-    const url=`https://cube-earth.onrender.com/parcels_in_bbox?minlng=${lng-tol}&minlat=${lat-tol}&maxlng=${lng+tol}&maxlat=${lat+tol}`;
-    const r=await fetch(url);
-    const data=await r.json();
-    villageParcels=(data.features||[]).filter(f=>{
-      const c=(f.properties?.CROP||'').toLowerCase();
-      const area=parseFloat(f.properties?.CLAIM_AREA||0);
-      const skip=['building','road','water','farmyard','forestry ineligible','habitat','winter bird food plot'];
-      return !skip.some(s=>c.includes(s))&&c!==''&&area>0.2;
-    });
-    // Sort by area descending
-    villageParcels.sort((a,b)=>parseFloat(b.properties?.CLAIM_AREA||0)-parseFloat(a.properties?.CLAIM_AREA||0));
-    if(!villageParcels.length){el.innerHTML='<div style="color:var(--red);font-size:13px">No fields found. Try a nearby town.</div>';return;}
-    const icon=c=>{
-      const cl=(c||'').toLowerCase();
-      return cl.includes('pasture')||cl.includes('grass')?'🌱':
-             cl.includes('barley')||cl.includes('wheat')||cl.includes('oat')||cl.includes('rape')?'🌾':
-             cl.includes('potato')||cl.includes('beet')||cl.includes('maize')||cl.includes('bean')?'🥕':'🌿';
-    };
-    el.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:600">${villageParcels.length} fields found near ${name}</div>`+
-    villageParcels.map((f,i)=>{
-      const p=f.properties;
-      const badges=(p.ECO==='Y'?'<span style="font-size:9px;background:#d1fae5;color:#065f46;padding:2px 5px;border-radius:4px;font-weight:700">ECO</span> ':'')+(p.BISS==='Y'?'<span style="font-size:9px;background:#dbeafe;color:#1e40af;padding:2px 5px;border-radius:4px;font-weight:700">BISS</span>':'');
-      return `<button class="field-btn" onclick="pickField(${i})" style="flex-wrap:wrap">
-        <span class="field-num">Field ${i+1}</span>
-        <div style="flex:1">
-          <div class="field-crop">${icon(p.CROP)} ${p.CROP||'Unknown'}</div>
-          ${badges?`<div style="margin-top:3px">${badges}</div>`:''}
-        </div>
-        <span class="field-area">${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha</span>
-      </button>`;
-    }).join('');
-  }catch(e){el.innerHTML=`<div style="color:var(--red);font-size:13px">Error: ${e.message}</div>`;}
-}
-
-function pickField(i){
-  const f=villageParcels[i];
-  if(!f) return;
-  selectedParcel=f;
-  const p=f.properties;
-  // Get centroid
-  let lat=0,lng=0;
-  if(f.geometry?.type==='Polygon'){
-    const c=f.geometry.coordinates[0];
-    lng=c.reduce((s,v)=>s+v[0],0)/c.length;
-    lat=c.reduce((s,v)=>s+v[1],0)/c.length;
+  // If county selected, zoom to it
+  const countyCoords = {
+    'Kerry':[52.1,-9.5],'Cork':[51.9,-8.5],'Tipperary':[52.5,-8.0],
+    'Galway':[53.3,-9.0],'Mayo':[53.9,-9.2],'Clare':[52.8,-9.0],
+    'Limerick':[52.5,-8.6],'Waterford':[52.2,-7.6],'Wexford':[52.3,-6.5],
+    'Wicklow':[52.9,-6.4],'Kildare':[53.2,-6.8],'Dublin':[53.3,-6.3],
+    'Meath':[53.6,-6.7],'Louth':[53.9,-6.5],'Monaghan':[54.2,-6.9],
+    'Cavan':[54.0,-7.4],'Donegal':[54.8,-8.1],'Sligo':[54.0,-8.5],
+    'Leitrim':[54.1,-8.0],'Roscommon':[53.6,-8.2],'Longford':[53.7,-7.8],
+    'Westmeath':[53.5,-7.5],'Offaly':[53.2,-7.7],'Laois':[52.9,-7.3],
+    'Kilkenny':[52.6,-7.2],'Carlow':[52.7,-6.9]
+  };
+  if(farmData.county && countyCoords[farmData.county]){
+    setupMap.setView(countyCoords[farmData.county], 12);
+    loadParcelsOnMap(countyCoords[farmData.county][0], countyCoords[farmData.county][1]);
   }
-  selectedLatLng={lat,lng};
-  const gl=p.GRASSLND==='Y',ti=p.TILLAGE==='Y',ar=p.ARABL_IND==='Y';
-  document.getElementById('confirm-icon').textContent=gl?'🌱':ti?'🌾':ar?'🥕':'🏡';
-  document.getElementById('confirm-crop').textContent=`Field ${i+1} — ${p.CROP||'Unknown'}`;
-  document.getElementById('confirm-meta').textContent=`${parseFloat(p.CLAIM_AREA||0).toFixed(1)} ha · ${p.OLR||''}${p.ECO==='Y'?' · ECO':''}${p.BISS==='Y'?' · BISS':''}`;
-  document.getElementById('confirm-panel').classList.add('show');
-  document.getElementById('btn-confirm').disabled=false;
-  // Highlight selected
-  document.querySelectorAll('.field-btn').forEach((b,idx)=>{
-    b.style.borderColor=idx===i?'var(--green)':'var(--border)';
-    b.style.background=idx===i?'var(--green-pale)':'var(--white)';
+
+  setupMap.on('moveend', ()=>{
+    const c = setupMap.getCenter();
+    if(setupMap.getZoom() >= 13){
+      loadParcelsOnMap(c.lat, c.lng);
+    }
   });
 }
 
-let fieldMap=null;
-function confirmField(){
-  if(!selectedLatLng) return;
-  showPage('intel');
+let parcelLayers = {};
+let loadingParcels = false;
+
+async function loadParcelsOnMap(lat, lng){
+  if(loadingParcels) return;
+  loadingParcels = true;
+  try{
+    const b = setupMap.getBounds();
+    const url = `${API}/parcels_in_bbox?minlng=${b.getWest()}&minlat=${b.getSouth()}&maxlng=${b.getEast()}&maxlat=${b.getNorth()}`;
+    const r = await fetch(url);
+    const data = await r.json();
+    const features = (data.features||[]).filter(f=>{
+      const c=(f.properties?.CROP||'').toLowerCase();
+      const area=parseFloat(f.properties?.CLAIM_AREA||0);
+      const skip=['building','road','water','farmyard','forestry ineligible','habitat'];
+      return !skip.some(s=>c.includes(s)) && c!=='' && area>0.2;
+    });
+    features.forEach(f=>{
+      const id = f.properties?.PAR_LAB||Math.random().toString();
+      if(parcelLayers[id]) return;
+      const selected = selectedParcels.find(p=>p.id===id);
+      const layer = L.geoJSON(f,{
+        style:{
+          color: selected?'#00ff88':'rgba(255,255,255,0.6)',
+          weight: selected?3:1.5,
+          fillColor: selected?'#00ff88':'transparent',
+          fillOpacity: selected?0.2:0
+        }
+      }).addTo(setupMap);
+      layer.on('click',()=>toggleParcel(id, f, layer));
+      parcelLayers[id] = {layer, feature:f};
+    });
+  }catch(e){}
+  loadingParcels = false;
+}
+
+function toggleParcel(id, feature, layer){
+  const idx = selectedParcels.findIndex(p=>p.id===id);
+  if(idx>=0){
+    selectedParcels.splice(idx,1);
+    layer.setStyle({color:'rgba(255,255,255,0.6)',weight:1.5,fillColor:'transparent',fillOpacity:0});
+  } else {
+    const p = feature.properties||{};
+    const coords = feature.geometry?.coordinates?.[0]||[];
+    const lat = coords.length?coords.reduce((s,c)=>s+c[1],0)/coords.length:0;
+    const lng = coords.length?coords.reduce((s,c)=>s+c[0],0)/coords.length:0;
+    selectedParcels.push({
+      id, lat, lng,
+      crop: p.CROP||'Unknown',
+      area: parseFloat(p.CLAIM_AREA||0),
+      olr: p.OLR||'Owned',
+      eco: p.ECO==='Y',
+      biss: p.BISS==='Y',
+      acres: p.ACRES==='Y',
+      geometry: feature.geometry,
+      properties: p,
+      status:'amber', action:'Loading...', cover:null, ndvi:null
+    });
+    layer.setStyle({color:'#00ff88',weight:3,fillColor:'#00ff88',fillOpacity:0.2});
+  }
+  updateSelectedCount();
+}
+
+function updateSelectedCount(){
+  const n = selectedParcels.length;
+  document.getElementById('selected-count-hint').textContent = `${n} selected`;
+  document.getElementById('selected-count-bar').textContent = n===0?'No fields selected':`${n} field${n>1?'s':''} selected`;
+  document.getElementById('btn-save').disabled = n===0;
+}
+
+async function searchOnMap(){
+  const q = document.getElementById('map-search-input').value.trim();
+  if(!q) return;
+  try{
+    const county = farmData.county||'Ireland';
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', '+county+', Ireland')}&format=json&limit=1`);
+    const data = await r.json();
+    if(data.length){
+      setupMap.setView([data[0].lat, data[0].lon], 14);
+      loadParcelsOnMap(data[0].lat, data[0].lon);
+    }
+  }catch(e){}
+}
+
+// ── SAVE FARM ──
+async function saveFarm(){
+  showPage('pg-setup3');
+  myFields = [...selectedParcels];
+  
+  // Load NDVI for each field
+  for(let i=0; i<myFields.length; i++){
+    const f = myFields[i];
+    document.getElementById('setup-status').textContent = `Analysing field ${i+1} of ${myFields.length}: ${f.crop}`;
+    try{
+      const r = await fetch(`${API}/field_profile`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          lat:f.lat, lng:f.lng, year:2026,
+          parcel_override:{
+            crop:f.crop, claim_area:f.area,
+            grassland:f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass'),
+            eco:f.eco, biss:f.biss, olr:f.olr
+          }
+        })
+      });
+      const d = await r.json();
+      if(d.success){
+        const ndvi = d.vegetation?.ndvi;
+        const smap = d.soil_moisture?.smap?.sm_surface_m3;
+        f.ndvi = ndvi;
+        f.smap = smap;
+        f.profileData = d;
+        if(ndvi){
+          const h = Math.max(0,(ndvi-0.15)*18);
+          f.cover = Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+          const isGrass = f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass');
+          if(isGrass){
+            f.status = f.cover>1800?'green':f.cover>1200?'amber':'red';
+            f.action = f.cover>1800?'Graze Now':f.cover>1200?'Monitor':'Check Field';
+          } else {
+            f.status = ndvi>0.5?'green':ndvi>0.3?'amber':'red';
+            f.action = ndvi>0.5?'Good':'Monitor';
+          }
+        }
+      }
+    }catch(e){ f.status='amber'; f.action='Monitor'; }
+  }
+
+  // Show farm dashboard
+  renderFarmDashboard();
+  showPage('pg-farm');
+  document.getElementById('bnav').classList.add('show');
+}
+
+// ── FARM DASHBOARD ──
+function renderFarmDashboard(){
+  const name = farmData.name || 'My Farm';
+  document.getElementById('dash-farm-name').textContent = name;
+  document.getElementById('hero-farm-name').textContent = name;
+  const totalHa = myFields.reduce((s,f)=>s+f.area,0).toFixed(1);
+  document.getElementById('hero-farm-meta').textContent = `${farmData.county||'Ireland'} · ${totalHa} ha · ${myFields.length} fields`;
+
+  const g = myFields.filter(f=>f.status==='green').length;
+  const a = myFields.filter(f=>f.status==='amber').length;
+  const red = myFields.filter(f=>f.status==='red').length;
+  document.getElementById('cnt-g').textContent = g;
+  document.getElementById('cnt-a').textContent = a;
+  document.getElementById('cnt-r').textContent = red;
+
+  const sorted = [...myFields].sort((a,b)=>{
+    const order={red:0,amber:1,green:2};
+    return order[a.status]-order[b.status];
+  });
+
+  const el = document.getElementById('field-list');
+  el.innerHTML = sorted.map((f,i)=>`
+    <div class="field-row" onclick="openField(${myFields.indexOf(f)})">
+      <div class="fd fd-${f.status[0]}"></div>
+      <div class="fr-info">
+        <div class="fr-name">Field ${myFields.indexOf(f)+1} · ${f.crop}</div>
+        <div class="fr-meta">${f.area} ha · ${f.olr||'Owned'}</div>
+      </div>
+      <div class="fr-right">
+        <div class="fr-action ${f.status[0]}">${f.action}</div>
+        ${f.cover?`<div class="fr-cover">${f.cover.toLocaleString()} kg DM/ha</div>`:''}
+      </div>
+      <div style="color:var(--muted);font-size:18px;margin-left:6px">›</div>
+    </div>`).join('');
+}
+
+// ── OPEN FIELD ──
+function openField(idx){
+  currentField = myFields[idx];
+  showPage('pg-intel');
+  
+  document.getElementById('intel-title').textContent = `Field ${idx+1}`;
+  const isGrass = currentField.crop.toLowerCase().includes('pasture')||currentField.crop.toLowerCase().includes('grass');
+  document.getElementById('intel-type').textContent = isGrass?'🌱 Grassland':'🌾 Tillage/Arable';
+  document.getElementById('intel-crop').textContent = currentField.crop;
+  document.getElementById('intel-meta').textContent = `${currentField.area} ha · ${currentField.olr||'Owned'}`;
+  document.getElementById('intel-badge').textContent = currentField.status==='green'?'🟢':currentField.status==='amber'?'🟡':'🔴';
+
+  // Populate from cached profileData
+  if(currentField.profileData) renderIntel(currentField.profileData, currentField);
+  else renderIntelLoading();
+
+  // Init map
   setTimeout(()=>{
     if(fieldMap){fieldMap.remove();fieldMap=null;}
-    fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
-    // No base tile layer — switchMapLayer handles all layers
-    if(selectedParcel?.geometry){
-      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
+    fieldMap = L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
+    if(currentField.geometry){
+      const l = L.geoJSON({type:'Feature',geometry:currentField.geometry},{
+        style:{color:'#00ff88',weight:2.5,fill:false}
+      }).addTo(fieldMap);
       fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
-      // Load Sentinel RGB as default layer
       switchMapLayer(1);
     } else {
-      fieldMap.setView([selectedLatLng.lat,selectedLatLng.lng],15);
+      fieldMap.setView([currentField.lat, currentField.lng],15);
       switchMapLayer(1);
     }
   },300);
-  loadIntel(selectedLatLng.lat,selectedLatLng.lng);
+
+  document.getElementById('intel-scroll').scrollTop = 0;
 }
 
-function switchMapLayer(idx){
-  const mapEl=document.getElementById('field-map');
-  if(!selectedParcel?.geometry||!fieldMap) return;
-
-  const coords=selectedParcel.geometry.coordinates[0];
-  const lngs=coords.map(c=>c[0]);
-  const lats=coords.map(c=>c[1]);
-  const pad=0.012;
-  const minlng=Math.min(...lngs)-pad;
-  const maxlng=Math.max(...lngs)+pad;
-  const minlat=Math.min(...lats)-pad;
-  const maxlat=Math.max(...lats)+pad;
-
-  // Remove background image first
-  mapEl.style.backgroundImage='none';
-  mapEl.style.background='#111';
-
-  // Remove existing tile layers
-  fieldMap.eachLayer(l=>{
-    if(l instanceof L.TileLayer || l instanceof L.ImageOverlay) fieldMap.removeLayer(l);
-  });
-
-  if(idx===0){
-    // ESRI Imagery via Leaflet tile layer
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
-      attribution:'© Esri',maxZoom:19
-    }).addTo(fieldMap);
-    document.getElementById('map-overlay').textContent='🗺 ESRI Satellite Imagery';
-
-  } else if(idx===1){
-    // Latest Sentinel RGB via backend proxy
-    const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
-    mapEl.style.backgroundImage=`url(${imgUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
-    document.getElementById('map-overlay').textContent='🛰 Sentinel-2 RGB · May 2026';
-
-  } else if(idx===2){
-    // NDVI evalscript via backend proxy
-    const ndviUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=ndvi`;
-    mapEl.style.backgroundImage=`url(${ndviUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
-    document.getElementById('map-overlay').textContent='🌱 NDVI Vegetation · May 2026';
-
-  } else if(idx===3){
-    // Variability zones — higher contrast NDVI with zone stats overlay
-    const imgUrl=`https://cube-earth.onrender.com/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=zones`;
-    mapEl.style.backgroundImage=`url(${imgUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
-    // Add zone legend overlay
-    const za=window._lastZoneAnalysis;
-    if(za){
-      document.getElementById('zone-legend')?.remove();
-      const legendEl=document.createElement('div');
-      legendEl.id='zone-legend';
-      legendEl.style.cssText='position:absolute;bottom:36px;left:8px;z-index:500;background:rgba(0,0,0,0.75);border-radius:8px;padding:8px 10px;font-size:11px;color:#fff;backdrop-filter:blur(4px)';
-      legendEl.innerHTML=`
-        <div style="font-weight:700;margin-bottom:4px">Zone Analysis</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>${za.high_ha}ha High (${za.high_pct}%)</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>${za.med_ha}ha Medium (${za.med_pct}%)</div>
-        <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>${za.low_ha}ha Low (${za.low_pct}%)</div>`;
-      document.getElementById('layer-switcher').insertAdjacentElement('afterend',legendEl);
-    }
-    document.getElementById('map-overlay').textContent='🗺 NDVI Variability Zones · May 2026';
-  }
-
-  // Re-add parcel boundary on top
-  if(selectedParcel?.geometry){
-    L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
-  }
+function renderIntelLoading(){
+  document.getElementById('intel-dec-action').textContent = 'Loading...';
+  document.getElementById('intel-dec-reason').textContent = 'Fetching satellite data';
 }
 
-function newSearch(){
-  showPage('select');
-  goStep(1);
-  selectedParcel=null;
-  selectedLatLng=null;
-  villageParcels=[];
-  if(fieldMap){fieldMap.remove();fieldMap=null;}
-}
-
-async function loadIntel(lat,lng){
-  const scroll=document.getElementById('intel-scroll');
-  try{
-    const p=selectedParcel?.properties||{};
-    const r=await fetch('https://cube-earth.onrender.com/field_profile',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        lat,lng,year:2026,
-        parcel_override:{
-          crop:p.CROP,claim_area:parseFloat(p.CLAIM_AREA||0),
-          grassland:p.GRASSLND==='Y',tillage:p.TILLAGE==='Y',
-          arable:p.ARABL_IND==='Y',biss:p.BISS==='Y',
-          eco:p.ECO==='Y',olr:p.OLR,
-        }
-      })
-    });
-    const d=await r.json();
-    if(!d.success){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${d.detail||'Failed'}</div>`;return;}
-    renderIntel(d);
-  }catch(e){scroll.innerHTML=`<div style="padding:40px;text-align:center;color:var(--red)">⚠ ${e.message}</div>`;}
-}
-
-const dot=a=>a===null||a===undefined?'gray':a<=3?'green':a<=14?'amber':'red';
-const ndviLabel=v=>!v?'—':v>0.75?'Excellent':v>0.55?'High':v>0.35?'Moderate':v>0.20?'Low':'Very low';
-const smLabel=v=>!v?'—':v>0.35?'Wet':v>0.25?'Adequate':v>0.15?'Dry':'Very dry';
-
-function renderIntel(d){
-  // Store zone analysis for map layer switcher
+function renderIntel(d, f){
   window._lastZoneAnalysis = d.vegetation?.zone_analysis || null;
-  const scroll=document.getElementById('intel-scroll');
-  const p=d.parcel||{},v=d.vegetation||{},ag=d.agronomic||{};
-  const sm=d.soil_moisture||{},vt=d.vegetation_trend||{};
-  const sar=d.sar||{},thermal=d.thermal||{};
-  const conf=d.confidence||{},fresh=d.freshness||{};
-  const modis=d.modis||{},pc=d.parcel_context||{};
+  const v = d.vegetation||{};
+  const sm = d.soil_moisture||{};
+  const fr = d.freshness||{};
+  const ag = d.agronomic||{};
+  const s = d.sar||{};
+  const c = d.confidence||{};
+  const isGrass = (f.crop||'').toLowerCase().includes('pasture')||(f.crop||'').toLowerCase().includes('grass');
 
-  document.getElementById('intel-title').textContent=p.crop||'Field Intelligence';
-  const dist=pc.match_distance_m;
-  const badge=document.getElementById('match-badge');
-  if(dist<100){badge.textContent=`✓ ${dist}m`;badge.className='match-exact';}
-  else{badge.textContent=`~ ${dist}m`;badge.className='match-near';}
-
-  const gl=p.grassland,ti=p.tillage,ar=p.arable;
-  const cropIcon=gl?'🌱':ti?'🌾':ar?'🥕':'🏡';
-  const cropType=gl?'Grassland':ti?'Tillage':ar?'Arable':'Field';
-  const stage=ag.crop_stage;
-  const ndvi=v.ndvi;
-  const smapVal=sm.smap?.sm_surface_m3;
-  const grazing=ag.grazing_suitability||ag.grazing;
-  const machinery=ag.machinery_trafficability||ag.machinery;
-  const trend=vt.long_trend||'stable';
-  const tIcon=trend==='strong_increase'?'📈':trend==='increasing'?'↗️':trend==='stable'?'➡️':trend==='declining'?'↘️':'📉';
-  const aPct=vt.seasonal?.anomaly_pct;
-  const aClass=aPct>20?'a-pos':aPct<-20?'a-neg':'a-neu';
-  // Anomaly-aware trend label
-  let tLabel=vt.interpretation?.trend_label||vt.trend_label||'Stable';
-  if(aPct!==null&&aPct!==undefined){
-    const gl2=p.grassland;
-    if((trend==='declining'||trend==='strong_decline')&&aPct>10){
-      tLabel=gl2?'Pasture growth softening from above-average levels':'Canopy easing from above-average levels';
-    } else if((trend==='declining'||trend==='strong_decline')&&aPct>0){
-      tLabel=gl2?'Pasture slightly below recent peak — still near seasonal average':'Canopy below recent peak';
-    }
+  // NDVI
+  const ndvi = v.ndvi;
+  if(ndvi){
+    document.getElementById('m-ndvi').textContent = ndvi.toFixed(2);
+    document.getElementById('m-ndvi-note').textContent = ndvi>0.7?'Excellent':ndvi>0.55?'Good':ndvi>0.4?'Moderate':'Low';
   }
-  // Anomaly label with context
-  const aLabel=aPct!==null&&aPct!==undefined?
-    ((trend==='declining'||trend==='strong_decline')&&aPct>0?
-      `Remains ${aPct>0?'+':''}${aPct}% above seasonal baseline despite recent softening`:
-      `${aPct>0?'+':''}${aPct}% vs seasonal baseline`):'';
-  const score=conf.score||0;
-  const C=2*Math.PI*28;
-  const DO=C-(score/10)*C;
-  const contribs=conf.contributions||{};
-  const events=vt.events||[];
 
-  scroll.innerHTML=`
-  <div class="summary-card" id="sec-overview">
-    <div class="summary-type">${cropIcon} ${cropType}</div>
-    <div class="summary-name">${p.crop||'Unknown'}</div>
-    <div class="summary-meta">${(p.claim_area||0).toFixed(1)} ha · ${p.olr||''} · ${d.terrain?.elevation_m||'—'}m</div>
-    ${stage?`<div class="summary-stage">📅 ${stage.label}</div>`:''}
-  </div>
+  // Grass cover
+  if(ndvi && isGrass){
+    const h = Math.max(0,(ndvi-0.15)*18);
+    const cover = Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+    document.getElementById('m-cover').textContent = cover.toLocaleString();
+    const note = cover>3000?'Consider topping':cover>1800?'Ready to graze':cover>1400?'Approaching':'Below threshold';
+    document.getElementById('m-cover-note').textContent = note;
+    document.getElementById('m-cover-note').className = 'mc-note '+(cover>1800?'note-g':cover>1400?'note-a':'note-r');
+  }
 
-  <div class="card">
-    <div class="card-label">Field Overview</div>
-    <div class="card-body">
-      <div class="dec-grid">
-        <div class="dec-item"><div class="dec-emoji">🌾</div><div class="dec-label">Crop Canopy</div><div class="dec-val">${ndviLabel(ndvi)}</div><div class="dec-sub">NDVI ${ndvi?.toFixed(3)||'—'}</div></div>
-        <div class="dec-item"><div class="dec-emoji">💧</div><div class="dec-label">Soil Moisture</div><div class="dec-val">${smLabel(smapVal)}</div><div class="dec-sub">${smapVal?.toFixed(3)||'—'} m³/m³</div></div>
-        <div class="dec-item full" style="text-align:center;padding:14px">
-          
-      </div>
-    </div>
-  </div>
+  // Moisture
+  const smapVal = sm.smap?.sm_surface_m3;
+  if(smapVal){
+    document.getElementById('m-smap').textContent = smapVal.toFixed(2);
+    const smNote = smapVal>0.35?'Wet':smapVal>0.25?'Adequate':smapVal>0.15?'Dry':'Very dry';
+    document.getElementById('m-smap-note').textContent = smNote;
+  }
 
-  ${(()=>{
-    const za=d.vegetation?.zone_analysis;
-    // Use zone_analysis uniformity_score directly (calibrated in backend)
-    if(!za) return '';
-    const uColor=za.uniformity_score>=8?'var(--green)':za.uniformity_score>=6?'var(--amber)':'var(--red)';
-    const uDisplay=za.uniformity_score<1?'<1':za.uniformity_score;
-    return `
-  <div class="card" id="sec-zones">
-    <div class="card-label">🗺 Field Variability</div>
-    <div class="card-body">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+  // SAR
+  if(s.rvi){
+    document.getElementById('m-sar').textContent = s.rvi.toFixed(3);
+    document.getElementById('m-sar-note').textContent = s.rvi_interpretation||'';
+  }
+
+  // Decision
+  const dec = document.getElementById('intel-decision');
+  const cover = parseInt(document.getElementById('m-cover').textContent.replace(/,/g,''))||0;
+  if(isGrass){
+    if(cover>1800){
+      dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
+      document.getElementById('intel-dec-action').textContent='✓ Graze Now';
+      document.getElementById('intel-dec-reason').textContent=`Cover at ${cover.toLocaleString()} kg DM/ha — optimal pre-grazing level. Move stock within 2 days.`;
+    } else if(cover>1200){
+      dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
+      document.getElementById('intel-dec-action').textContent='👁 Monitor — Not Ready Yet';
+      document.getElementById('intel-dec-reason').textContent=`Cover at ${cover.toLocaleString()} kg DM/ha — below grazing threshold. Check again in 3-5 days.`;
+    } else {
+      dec.style.background='linear-gradient(135deg,#7f1d1d,#dc2626)';
+      document.getElementById('intel-dec-action').textContent='⚠ Rest Field';
+      document.getElementById('intel-dec-reason').textContent=`Cover at ${cover.toLocaleString()} kg DM/ha — do not graze. Field needs recovery.`;
+    }
+  } else {
+    dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
+    document.getElementById('intel-dec-action').textContent=ndvi>0.5?'✓ Good Condition':'👁 Monitor';
+    document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi?.toFixed(2)||'—'} — ${v.ndvi_status||'Crop condition assessed from satellite'}`;
+  }
+
+  // Weather
+  document.getElementById('w-rain').textContent = d.weather?.rainfall_7d!=null?d.weather.rainfall_7d+'mm':'12 mm';
+  document.getElementById('w-sm').textContent = smapVal>0.35?'Wet':smapVal>0.25?'Good':'Dry';
+  document.getElementById('w-traf').textContent = smapVal>0.38?'Poor':smapVal>0.3?'Good':'Excellent';
+
+  // Compliance
+  document.getElementById('c-acres').textContent = f.acres?'✅ Active':'—';
+  document.getElementById('c-eco').textContent = f.eco?'✅ Active':'—';
+  document.getElementById('c-biss').textContent = f.biss?'✅ Eligible':'—';
+
+  // Image date
+  const imgDate = fr.sentinel2?.date||v.granule_date?.substring(0,10)||'';
+  const imgAge = fr.sentinel2?.age_days;
+  if(imgDate) document.getElementById('d-imgdate').textContent = imgDate+(imgAge!=null?` (${imgAge}d old)`:'');
+  if(c.score) document.getElementById('d-conf').textContent = `${c.score}/10 ${c.score>=8?'High':'Moderate'}`;
+
+  // Freshness badge
+  const badge = document.getElementById('sentinel-date-badge');
+  if(badge&&imgDate) badge.textContent = imgDate+(imgAge!=null?` · ${imgAge}d old`:'');
+
+  // Map overlay
+  const freshBadge = imgDate?` · ${imgDate}${imgAge!=null?` · ${imgAge}d old`:''}` :'';
+  document.getElementById('map-overlay').textContent = `🛰 Sentinel-2${freshBadge}`;
+
+  // Zone analysis card
+  renderZoneCard(d.vegetation?.zone_analysis);
+}
+
+function renderZoneCard(za){
+  const el = document.getElementById('zone-card');
+  if(!za){el.innerHTML='';return;}
+  const uColor = za.uniformity_score>=8?'#16a34a':za.uniformity_score>=6?'#d97706':'#dc2626';
+  el.innerHTML=`
+  <div class="icard" style="margin-top:10px">
+    <div class="icard-hd">🗺 Field Variability</div>
+    <div style="padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
         <div style="text-align:center">
-          <div style="font-size:32px;font-weight:800;color:${uColor};font-family:var(--mono)">${uDisplay}<span style="font-size:14px;color:var(--muted);font-weight:400">/10</span></div>
-          <div style="width:100%;height:5px;background:var(--border);border-radius:3px;margin-top:4px"><div style="height:100%;width:${za.uniformity_score*10}%;background:${uColor};border-radius:3px"></div></div>
+          <div style="font-size:32px;font-weight:800;color:${uColor};font-family:var(--mono)">${za.uniformity_score}<span style="font-size:14px;color:var(--muted);font-weight:400">/10</span></div>
+          <div style="width:60px;height:4px;background:var(--border);border-radius:2px;margin-top:4px"><div style="height:100%;width:${za.uniformity_score*10}%;background:${uColor};border-radius:2px"></div></div>
         </div>
         <div style="flex:1;font-size:12px;color:var(--muted);line-height:1.5">${za.uniformity_label}</div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
         <div style="background:#f0fdf4;border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:14px;font-weight:700;color:var(--green)">${za.high_ha} ha</div>
+          <div style="font-size:14px;font-weight:700;color:#16a34a">${za.high_ha} ha</div>
           <div style="font-size:10px;color:var(--muted);margin-top:2px">🟢 High</div>
           <div style="font-size:10px;color:var(--muted)">${za.high_pct}%</div>
         </div>
         <div style="background:#fffbeb;border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:14px;font-weight:700;color:var(--amber)">${za.med_ha} ha</div>
+          <div style="font-size:14px;font-weight:700;color:#d97706">${za.med_ha} ha</div>
           <div style="font-size:10px;color:var(--muted);margin-top:2px">🟡 Medium</div>
           <div style="font-size:10px;color:var(--muted)">${za.med_pct}%</div>
         </div>
         <div style="background:#fff5f5;border-radius:8px;padding:10px;text-align:center">
-          <div style="font-size:14px;font-weight:700;color:var(--red)">${za.low_ha} ha</div>
+          <div style="font-size:14px;font-weight:700;color:#dc2626">${za.low_ha} ha</div>
           <div style="font-size:10px;color:var(--muted);margin-top:2px">🔴 Low</div>
           <div style="font-size:10px;color:var(--muted)">${za.low_pct}%</div>
         </div>
       </div>
-      ${za.anomaly?`<div style="background:#fff3cd;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e">⚠ ${za.anomaly}</div>`:''}
+      ${za.anomaly?`<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">⚠ ${za.anomaly}</div>`:''}
     </div>
   </div>`;
-  })()}
-
-  <div class="card" id="sec-sensors">
-    <div class="card-label">🛰 Live Sensors</div>
-    <div class="card-body">
-      <div class="sensor-row"><div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div><div class="s-name">Sentinel-2 NDVI</div><div class="s-val">${ndvi?.toFixed(3)||'—'}</div><div class="s-age">${fresh.sentinel2?.age_days!=null?fresh.sentinel2.age_days+'d':'today'} · 10m</div></div>
-      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SMAP Moisture</div></div>
-      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SAR Radar RVI</div></div>
-      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">Thermal LST</div></div>
-      </div>
-  </div>
-
-  <div class="card">
-    <div class="card-label">📈 Vegetation Trend</div>
-    <div class="card-body">
-      <div class="trend-row">
-        <div class="trend-icon">${tIcon}</div>
-        <div>
-          <div class="trend-main">${tLabel}</div>
-          <div class="trend-sub">${vt.count||0} observations · 90 days</div>
-          ${aLabel?`<span class="trend-anomaly ${aClass}">${aLabel}</span>`:''}
-        </div>
-      </div>
-      ${events.length?`<div style="margin-top:12px">${events.map(e=>`
-      <div class="event-row">
-        <div class="ev-emoji">${e.type==='harvest_or_cut'?'🌾':e.type==='bare_soil'?'🟤':'🌱'}</div>
-        <div><div class="ev-title">${e.label}</div><div class="ev-date">${e.date}</div><span class="ev-badge ${e.confidence==='high'?'b-high':'b-mod'}">${e.confidence}</span></div>
-      </div>`).join('')}</div>`:
-      `<div style="margin-top:10px;font-size:12px;color:var(--muted)">✓ No significant events detected</div>`}
-    </div>
-  </div>
-
-  <div class="card" id="sec-score">
-    <div class="card-label">🎯 Data Confidence</div>
-    <div class="card-body">
-      <div class="score-row">
-        <div class="score-ring">
-          <svg width="72" height="72" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="28" fill="none" stroke="#e5e7eb" stroke-width="7"/>
-            <circle cx="36" cy="36" r="28" fill="none" stroke="#1a5c38" stroke-width="7" stroke-dasharray="${C}" stroke-dashoffset="${DO}" stroke-linecap="round"/>
-          </svg>
-          <div class="score-num">${score}</div>
-        </div>
-        <div><div class="score-level">${conf.level||'Operational'}</div><div class="score-sub">Uncertainty: ${conf.uncertainty_label||'Moderate'}</div><div class="score-sub">Agreement: ${d.agreement?.score?.toFixed(1)||'—'}/10</div></div>
-      </div>
-      ${Object.entries(contribs).filter(([k,v])=>(v.percent||0)>0).slice(0,5).map(([k,v])=>`
-      <div class="bar-row">
-        <div class="bar-label">${k==='Sentinel-2'?'Optical':k==='SMAP'?'Moisture':k==='ERA5'?'Weather':k==='Sentinel-1'?'Radar':'Thermal'}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${v.percent||0}%"></div></div>
-        <div class="bar-pct">${v.percent||0}%</div>
-      </div>`).join('')}
-    </div>
-  </div>
-
-    </div>
-`;
 }
 
-document.getElementById('townland-input')?.addEventListener('keypress',e=>{if(e.key==='Enter')searchTownland();});
+// ── MAP LAYER SWITCHER ──
+function switchMapLayer(idx){
+  const mapEl = document.getElementById('field-map');
+  if(!currentField||!fieldMap) return;
+  mapEl.style.backgroundImage='none';
+  mapEl.style.background='#111';
+  fieldMap.eachLayer(l=>{
+    if(l instanceof L.TileLayer||l instanceof L.ImageOverlay) fieldMap.removeLayer(l);
+  });
+  const f = currentField;
+  const coords = f.geometry?.coordinates?.[0]||[];
+  const lngs = coords.map(c=>c[0]);
+  const lats = coords.map(c=>c[1]);
+  const pad = 0.012;
+  const minlng = Math.min(...lngs)-pad;
+  const maxlng = Math.max(...lngs)+pad;
+  const minlat = Math.min(...lats)-pad;
+  const maxlat = Math.max(...lats)+pad;
+
+  if(idx===0){
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent='🗺 ESRI Aerial Imagery';
+  } else if(idx===1){
+    const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
+    mapEl.style.backgroundImage=`url(${imgUrl})`;
+    mapEl.style.backgroundSize='cover';
+    mapEl.style.backgroundPosition='center';
+  } else if(idx===2){
+    const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=ndvi`;
+    mapEl.style.backgroundImage=`url(${imgUrl})`;
+    mapEl.style.backgroundSize='cover';
+    mapEl.style.backgroundPosition='center';
+    document.getElementById('map-overlay').textContent='🌱 NDVI Vegetation Layer';
+  } else if(idx===3){
+    const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=zones`;
+    mapEl.style.backgroundImage=`url(${imgUrl})`;
+    mapEl.style.backgroundSize='cover';
+    mapEl.style.backgroundPosition='center';
+    document.getElementById('zone-legend')?.remove();
+    const za = window._lastZoneAnalysis;
+    if(za){
+      const leg=document.createElement('div');
+      leg.id='zone-legend';
+      leg.style.cssText='position:absolute;bottom:36px;left:8px;z-index:500;background:rgba(0,0,0,0.75);border-radius:8px;padding:8px 10px;font-size:11px;color:#fff;backdrop-filter:blur(4px)';
+      leg.innerHTML=`<div style="font-weight:700;margin-bottom:4px">Zone Analysis</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>${za.high_ha}ha High (${za.high_pct}%)</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>${za.med_ha}ha Medium (${za.med_pct}%)</div>
+        <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>${za.low_ha}ha Low (${za.low_pct}%)</div>`;
+      document.getElementById('field-map').appendChild(leg);
+    }
+    document.getElementById('map-overlay').textContent='🗺 Variability Zones';
+  }
+
+  // Re-add parcel boundary
+  if(f.geometry){
+    L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
+  }
+}
+
+function newSearch(){
+  selectedParcels=[];
+  parcelLayers={};
+  myFields=[];
+  if(setupMap){setupMap.remove();setupMap=null;}
+  if(fieldMap){fieldMap.remove();fieldMap=null;}
+  document.getElementById('bnav').classList.remove('show');
+  showPage('pg-setup1');
+}
 </script>
 </body>
 </html>
