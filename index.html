@@ -463,6 +463,7 @@ function switchMapLayer(idx){
     // Add zone legend overlay
     const za=window._lastZoneAnalysis;
     if(za){
+      document.getElementById('zone-legend')?.remove();
       const legendEl=document.createElement('div');
       legendEl.id='zone-legend';
       legendEl.style.cssText='position:absolute;bottom:36px;left:8px;z-index:500;background:rgba(0,0,0,0.75);border-radius:8px;padding:8px 10px;font-size:11px;color:#fff;backdrop-filter:blur(4px)';
