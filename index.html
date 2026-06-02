@@ -398,6 +398,26 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="irow"><span class="irow-label">Machinery</span><span class="irow-val" id="w-mach">—</span></div>
     </div>
 
+    <div class="icard" id="trend-card" style="display:none">
+      <div class="icard-hd">📈 Vegetation Health Trend</div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div>
+            <div style="font-size:22px;font-weight:800" id="trend-arrow-val">—</div>
+            <div style="font-size:12px;color:var(--muted)" id="trend-label-val">—</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:var(--muted)">90-day change</div>
+            <div style="font-size:18px;font-weight:700" id="trend-diff-val">—</div>
+          </div>
+        </div>
+        <div id="trend-bars" style="display:flex;gap:3px;align-items:flex-end;height:40px"></div>
+      </div>
+      <div class="irow"><span class="irow-label">14-day change</span><span class="irow-val" id="trend-14d">—</span></div>
+      <div class="irow"><span class="irow-label">vs seasonal baseline</span><span class="irow-val" id="trend-seasonal">—</span></div>
+      <div class="irow"><span class="irow-label">Latest observation</span><span class="irow-val" id="trend-latest">—</span></div>
+    </div>
+
     <div class="icard" id="compliance-card" style="display:none">
       <div class="icard-hd">📋 Compliance</div>
       <div class="irow"><span class="irow-label">ACRES</span><span class="irow-val g" id="c-acres">—</span></div>
@@ -842,6 +862,57 @@ function renderIntel(d, f){
     // Colour
     const trafEl = document.getElementById('w-traf');
     trafEl.className = smapVal>0.38?'irow-val r':smapVal>0.32?'irow-val a':'irow-val g';
+  }
+
+  // Vegetation trend card
+  const vt = d.vegetation_trend||{};
+  if(vt.available && vt.series && vt.series.length>=2){
+    document.getElementById('trend-card').style.display='block';
+    
+    // Arrow and label
+    const trendColor = vt.long_trend==='increasing'||vt.long_trend==='strong_increase'?'#16a34a':
+                       vt.long_trend==='stable'?'#6b7a70':'#dc2626';
+    const trendArrow = vt.long_trend==='strong_increase'?'📈 Strong Growth':
+                       vt.long_trend==='increasing'?'↗ Improving':
+                       vt.long_trend==='stable'?'→ Stable':
+                       vt.long_trend==='declining'?'↘ Softening':'📉 Declining';
+    document.getElementById('trend-arrow-val').textContent = trendArrow;
+    document.getElementById('trend-arrow-val').style.color = trendColor;
+    document.getElementById('trend-label-val').textContent = vt.interpretation?.trend_label||'';
+    
+    const diffSign = vt.long_diff>0?'+':'';
+    document.getElementById('trend-diff-val').textContent = diffSign+vt.long_diff.toFixed(3)+' NDVI';
+    document.getElementById('trend-diff-val').style.color = trendColor;
+
+    // Mini bar chart
+    const bars = document.getElementById('trend-bars');
+    const maxNdvi = Math.max(...vt.series.map(s=>s.ndvi));
+    bars.innerHTML = vt.series.map(s=>{
+      const h = Math.round((s.ndvi/maxNdvi)*36);
+      const c = s.ndvi>0.6?'#16a34a':s.ndvi>0.4?'#d97706':'#dc2626';
+      return `<div style="flex:1;height:${h}px;background:${c};border-radius:2px 2px 0 0;min-width:6px" title="${s.date}: ${s.ndvi}"></div>`;
+    }).join('');
+
+    // 14-day change
+    const recent = vt.series.slice(-3);
+    if(recent.length>=2){
+      const change14 = recent[recent.length-1].ndvi - recent[0].ndvi;
+      const s14 = change14>0.05?'Growing fast':change14>0?'Improving':change14<-0.05?'Declining fast':'Stable';
+      const c14 = change14>0?'g':change14<-0.02?'r':'';
+      document.getElementById('trend-14d').textContent = (change14>=0?'+':'')+change14.toFixed(3)+' ('+s14+')';
+      document.getElementById('trend-14d').className = 'irow-val '+(change14>0?'g':change14<0?'r':'');
+    }
+
+    // Seasonal
+    const seasonal = vt.seasonal;
+    if(seasonal?.available){
+      const sPct = seasonal.anomaly_pct;
+      document.getElementById('trend-seasonal').textContent = (sPct>0?'+':'')+sPct+'% '+seasonal.anomaly_label;
+      document.getElementById('trend-seasonal').className = 'irow-val '+(sPct>5?'g':sPct<-5?'r':'');
+    }
+
+    // Latest
+    document.getElementById('trend-latest').textContent = vt.latest_date+' · NDVI '+vt.latest_ndvi;
   }
 
   // Compliance — only show if real scheme data available
