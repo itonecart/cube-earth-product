@@ -260,9 +260,10 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottom-nav">
   <button class="nav-btn active" onclick="navTo('sec-overview',this)"><span class="ni">🏠</span>Today</button>
-  <button class="nav-btn" onclick="navTo('sec-sensors',this)"><span class="ni">🛰</span>Sensors</button>
   <button class="nav-btn" onclick="navTo('sec-score',this)"><span class="ni">🎯</span>Score</button>
+  <button class="nav-btn" onclick="navTo('sec-pricing',this)"><span class="ni">💳</span>Plans</button>
   <button class="nav-btn" onclick="navTo('sec-report',this)"><span class="ni">📄</span>Report</button>
+  <button class="nav-btn" id="dev-sensors-btn" style="display:none" onclick="navTo('sec-sensors',this)"><span class="ni">🛰</span>Dev</button>
 </div>
 
 <script>
@@ -488,7 +489,7 @@ function renderIntel(d){
       <div class="dec-grid">
         <div class="dec-item"><div class="dec-emoji">🌾</div><div class="dec-label">Crop Canopy</div><div class="dec-val">${ndviLabel(ndvi)}</div><div class="dec-sub">NDVI ${ndvi?.toFixed(3)||'—'}</div></div>
         <div class="dec-item"><div class="dec-emoji">💧</div><div class="dec-label">Soil Moisture</div><div class="dec-val">${smLabel(smapVal)}</div><div class="dec-sub">${smapVal?.toFixed(3)||'—'} m³/m³</div></div>
-        <div class="dec-item full locked" style="text-align:center;padding:14px">
+        <div class="dec-item full" style="text-align:center;padding:14px">
           
       </div>
     </div>
@@ -535,14 +536,10 @@ function renderIntel(d){
     <div class="card-label">🛰 Live Sensors</div>
     <div class="card-body">
       <div class="sensor-row"><div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div><div class="s-name">Sentinel-2 NDVI</div><div class="s-val">${ndvi?.toFixed(3)||'—'}</div><div class="s-age">${fresh.sentinel2?.age_days||'—'}d · 10m</div></div>
-      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SMAP Moisture</div><div class="s-lock">🔒</div></div>
-      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SAR Radar RVI</div><div class="s-lock">🔒</div></div>
-      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">Thermal LST</div><div class="s-lock">🔒</div></div>
-      <div style="text-align:center;padding:12px 0 4px;border-top:1px solid var(--border);margin-top:4px">
-        <div style="font-size:12px;font-weight:700;color:var(--green)">Unlock all sensors — €2.99</div>
-        <button onclick="alert('Coming soon')" style="margin-top:8px;padding:8px 20px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">Get Sensor Report →</button>
+      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SMAP Moisture</div></div>
+      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SAR Radar RVI</div></div>
+      <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">Thermal LST</div></div>
       </div>
-    </div>
   </div>
 
   <div class="card">
@@ -588,12 +585,45 @@ function renderIntel(d){
   </div>
 
   <div class="report-cta" id="sec-report">
-    <h3>Full Field Report</h3>
-    <p>Professional PDF with complete sensor analysis, compliance evidence and agronomic recommendations.</p>
+    <h3>Field Report</h3>
+    <p>Download a professional PDF report with full satellite analysis and agronomic recommendations.</p>
     <div class="report-grid">
-      <button class="report-opt" onclick="alert('Coming soon')">Sensor Report<span class="price">€2.99</span></button>
-      <button class="report-opt" onclick="alert('Coming soon')">Data Quality<span class="price">€2.99</span></button>
-      <button class="report-opt report-full" onclick="alert('Coming soon')">Full PDF Field Report<span class="price">€7.99</span></button>
+      <button class="report-opt report-full" onclick="alert('Coming soon — launching shortly')">📄 Download Field Report<span class="price" style="font-size:13px;font-weight:500;color:var(--muted)">Coming soon</span></button>
+    </div>
+  </div>
+
+  <div class="card" id="sec-pricing" style="margin:12px 14px 0">
+    <div class="card-label" style="padding:14px 16px 0;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Cube Earth Plans</div>
+    <div style="padding:12px 16px 16px">
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:16px;font-weight:700">🌱 Basic</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green)">€30<span style="font-size:12px;font-weight:400;color:var(--muted)">/month</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Up to 5 fields · Weekly grass cover · NDVI + moisture · Grazing decisions · ACRES monitoring</div>
+        <button onclick="alert('Coming soon')" style="margin-top:10px;width:100%;padding:10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Get Started →</button>
+      </div>
+
+      <div style="background:var(--surface);border:2px solid var(--green);border-radius:12px;padding:16px;margin-bottom:10px;position:relative">
+        <div style="position:absolute;top:-10px;left:16px;background:var(--green);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:100px">MOST POPULAR</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:16px;font-weight:700">🌾 Farm</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green)">€50<span style="font-size:12px;font-weight:400;color:var(--muted)">/month</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Unlimited fields · Daily updates · AI field advisor · Vegetation trend · Seasonal anomaly · PDF reports</div>
+        <button onclick="alert('Coming soon')" style="margin-top:10px;width:100%;padding:10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Get Started →</button>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="font-size:16px;font-weight:700">🚀 Pro</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green)">€100<span style="font-size:12px;font-weight:400;color:var(--muted)">/month</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">Multi-farm · Priority support · Custom reports · API access · Advisor portal · White label</div>
+        <button onclick="alert('Coming soon')" style="margin-top:10px;width:100%;padding:10px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Contact Us →</button>
+      </div>
+
     </div>
   </div>`;
 }
