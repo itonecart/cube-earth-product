@@ -378,6 +378,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <div class="mc-unit">radar vegetation</div>
         <div class="mc-note" id="m-sar-note">—</div>
       </div>
+      <div class="mc" id="veg-area-card" style="display:none">
+        <div class="mc-label">🌿 Vegetated Area</div>
+        <div class="mc-val" id="m-grass-ha">—</div>
+        <div class="mc-unit">of <span id="m-total-ha">—</span> ha total</div>
+        <div class="mc-note note-g" id="m-veg-pct">—</div>
+      </div>
     </div>
 
     <div id="zone-card"></div>
@@ -797,6 +803,20 @@ function renderIntel(d, f){
     document.getElementById('m-smap').textContent = smapVal.toFixed(2);
     const smNote = smapVal>0.35?'Wet':smapVal>0.25?'Adequate':smapVal>0.15?'Dry':'Very dry';
     document.getElementById('m-smap-note').textContent = smNote;
+  }
+
+  // Grass area
+  const vegPct = v.veg_pct;
+  const grassHa = v.grass_ha;
+  if(vegPct && grassHa){
+    document.getElementById('veg-area-card').style.display='block';
+    document.getElementById('m-grass-ha').textContent = grassHa.toFixed(1)+' ha';
+    document.getElementById('m-total-ha').textContent = currentField?.area||'—';
+    document.getElementById('m-veg-pct').textContent = vegPct+'% vegetated';
+    if(vegPct < 85){
+      document.getElementById('m-veg-pct').className = 'mc-note note-a';
+      document.getElementById('m-veg-pct').textContent = vegPct+'% — mixed land use detected';
+    }
   }
 
   // SAR
