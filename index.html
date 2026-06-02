@@ -581,7 +581,7 @@ function renderIntel(d){
   <div class="card" id="sec-sensors">
     <div class="card-label">🛰 Live Sensors</div>
     <div class="card-body">
-      <div class="sensor-row"><div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div><div class="s-name">Sentinel-2 NDVI</div><div class="s-val">${ndvi?.toFixed(3)||'—'}</div><div class="s-age">${fresh.sentinel2?.age_days||'—'}d · 10m</div></div>
+      <div class="sensor-row"><div class="s-dot ${dot(fresh.sentinel2?.age_days)}"></div><div class="s-name">Sentinel-2 NDVI</div><div class="s-val">${ndvi?.toFixed(3)||'—'}</div><div class="s-age">${fresh.sentinel2?.age_days!=null?fresh.sentinel2.age_days+'d':'today'} · 10m</div></div>
       <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SMAP Moisture</div></div>
       <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">SAR Radar RVI</div></div>
       <div class="sensor-row"><div class="s-dot gray"></div><div class="s-name" style="color:var(--muted)">Thermal LST</div></div>
