@@ -820,19 +820,6 @@ function renderIntel(d, f){
   }
 
   // Grass area
-  const vegPctVal = v.veg_pct;
-  const grassHa = v.grass_ha;
-  if(vegPctVal && grassHa){
-    document.getElementById('veg-area-card').style.display='block';
-    document.getElementById('m-grass-ha').textContent = grassHa.toFixed(1)+' ha';
-    document.getElementById('m-total-ha').textContent = currentField?.area||'—';
-    document.getElementById('m-veg-pct').textContent = vegPctVal+'% vegetated';
-    if(vegPctVal < 85){
-      document.getElementById('m-veg-pct').className = 'mc-note note-a';
-      document.getElementById('m-veg-pct').textContent = vegPctVal+'% — mixed land use detected';
-    }
-  }
-
   // SAR
   if(s.rvi){
     document.getElementById('m-sar').textContent = s.rvi.toFixed(3);
