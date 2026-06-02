@@ -261,6 +261,7 @@ body{font-family:var(--sans);color:var(--text);background:var(--white);min-heigh
 <div class="bottom-nav" id="bottom-nav">
   <button class="nav-btn active" onclick="navTo('sec-overview',this)"><span class="ni">🏠</span>Today</button>
   <button class="nav-btn" onclick="navTo('sec-pricing',this)"><span class="ni">💳</span>Plans</button>
+  <button class="nav-btn" onclick="newSearch()"><span class="ni">🔍</span>New Search</button>
   <button class="nav-btn" id="dev-sensors-btn" style="display:none" onclick="navTo('sec-sensors',this)"><span class="ni">🛰</span>Dev</button>
 </div>
 
@@ -446,6 +447,15 @@ function switchMapLayer(idx){
     mapEl.style.background='linear-gradient(135deg,#166534,#16a34a,#d97706,#dc2626)';
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
   }
+}
+
+function newSearch(){
+  showPage('select');
+  goStep(1);
+  selectedParcel=null;
+  selectedLatLng=null;
+  villageParcels=[];
+  if(fieldMap){fieldMap.remove();fieldMap=null;}
 }
 
 async function loadIntel(lat,lng){
