@@ -389,7 +389,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="irow"><span class="irow-label">Trafficability</span><span class="irow-val g" id="w-traf">—</span></div>
     </div>
 
-    <div class="icard">
+    <div class="icard" id="compliance-card" style="display:none">
       <div class="icard-hd">📋 Compliance</div>
       <div class="irow"><span class="irow-label">ACRES</span><span class="irow-val g" id="c-acres">—</span></div>
       <div class="irow"><span class="irow-label">Eco Scheme</span><span class="irow-val g" id="c-eco">—</span></div>
@@ -804,10 +804,13 @@ function renderIntel(d, f){
   document.getElementById('w-sm').textContent = smapVal>0.35?'Wet':smapVal>0.25?'Good':'Dry';
   document.getElementById('w-traf').textContent = smapVal>0.38?'Poor':smapVal>0.3?'Good':'Excellent';
 
-  // Compliance
-  document.getElementById('c-acres').textContent = f.acres?'✅ Active':'—';
-  document.getElementById('c-eco').textContent = f.eco?'✅ Active':'—';
-  document.getElementById('c-biss').textContent = f.biss?'✅ Eligible':'—';
+  // Compliance — only show if real scheme data available
+  if(f.acres||f.eco||f.biss){
+    document.getElementById('c-acres').textContent = f.acres?'✅ Active':'Not active';
+    document.getElementById('c-eco').textContent = f.eco?'✅ Active':'Not active';
+    document.getElementById('c-biss').textContent = f.biss?'✅ Eligible':'Not eligible';
+    document.getElementById('compliance-card').style.display='block';
+  }
 
   // Image date
   const imgDate = fr.sentinel2?.date||v.granule_date?.substring(0,10)||'';
