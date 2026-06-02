@@ -400,10 +400,13 @@ function confirmField(){
     fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
     // No base tile layer — switchMapLayer handles all layers
     if(selectedParcel?.geometry){
-      const l=L.geoJSON(selectedParcel,{style:{color:'#1a5c38',weight:2.5,fillColor:'#2d7a50',fillOpacity:0.3}}).addTo(fieldMap);
+      const l=L.geoJSON(selectedParcel,{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
       fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
+      // Load Sentinel RGB as default layer
+      switchMapLayer(1);
     } else {
       fieldMap.setView([selectedLatLng.lat,selectedLatLng.lng],15);
+      switchMapLayer(1);
     }
   },300);
   loadIntel(selectedLatLng.lat,selectedLatLng.lng);
