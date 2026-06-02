@@ -589,6 +589,18 @@ function renderIntel(d){
 
   ${(()=>{
     const za=d.vegetation?.zone_analysis;
+    // Recalculate uniformity from p25/p75 if score is 0
+    if(za && za.uniformity_score===0){
+      const p25=d.vegetation?.ndvi_p25;
+      const p75=d.vegetation?.ndvi_p75;
+      if(p25&&p75){
+        const spread=p75-p25;
+        za.uniformity_score=Math.max(1,Math.round(10-(spread*20)));
+        za.uniformity_label=za.uniformity_score>=8?'Very uniform — even grazing recommended':
+          za.uniformity_score>=6?'Mostly uniform — minor variation':
+          za.uniformity_score>=4?'Variable — check low-cover zones':'Highly variable — patchy field';
+      }
+    }
     if(!za) return '';
     const uColor=za.uniformity_score>=8?'var(--green)':za.uniformity_score>=6?'var(--amber)':'var(--red)';
     const uDisplay=za.uniformity_score<1?'<1':za.uniformity_score;
