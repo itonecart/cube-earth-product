@@ -866,6 +866,7 @@ function renderIntel(d, f){
 
   // Vegetation trend card
   const vt = d.vegetation_trend||{};
+  console.log('VT available:', vt.available, 'series:', vt.series?.length);
   if(vt.available && vt.series && vt.series.length>=2){
     document.getElementById('trend-card').style.display='block';
     
