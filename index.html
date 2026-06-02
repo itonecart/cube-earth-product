@@ -382,11 +382,20 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 
     <div id="zone-card"></div>
 
-    <div class="icard">
-      <div class="icard-hd">☁️ Weather & Ground</div>
-      <div class="irow"><span class="irow-label">Rainfall (7d)</span><span class="irow-val" id="w-rain">—</span></div>
-      <div class="irow"><span class="irow-label">Soil moisture</span><span class="irow-val g" id="w-sm">—</span></div>
-      <div class="irow"><span class="irow-label">Trafficability</span><span class="irow-val g" id="w-traf">—</span></div>
+    <div class="icard" id="traf-card">
+      <div class="icard-hd">🚜 Trafficability & Ground</div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:36px" id="traf-icon">—</div>
+          <div>
+            <div style="font-size:18px;font-weight:800" id="w-traf">—</div>
+            <div style="font-size:12px;color:var(--muted)" id="traf-sub">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="irow"><span class="irow-label">Soil moisture</span><span class="irow-val" id="w-sm">—</span></div>
+      <div class="irow"><span class="irow-label">Wetness risk</span><span class="irow-val" id="w-wet">—</span></div>
+      <div class="irow"><span class="irow-label">Machinery</span><span class="irow-val" id="w-mach">—</span></div>
     </div>
 
     <div class="icard" id="compliance-card" style="display:none">
@@ -800,9 +809,40 @@ function renderIntel(d, f){
   }
 
   // Weather
-  document.getElementById('w-rain').textContent = d.weather?.rainfall_7d!=null?d.weather.rainfall_7d+'mm':'12 mm';
-  document.getElementById('w-sm').textContent = smapVal>0.35?'Wet':smapVal>0.25?'Good':'Dry';
-  document.getElementById('w-traf').textContent = smapVal>0.38?'Poor':smapVal>0.3?'Good':'Excellent';
+  // Trafficability assessment
+  if(smapVal){
+    let trafStatus, trafIcon, trafSub, wetRisk, machNote;
+    const sarRVI = s.rvi||0;
+    
+    if(smapVal > 0.38){
+      trafStatus='Poor'; trafIcon='🔴';
+      trafSub='Ground saturated — avoid heavy machinery';
+      wetRisk='High'; machNote='Not recommended';
+    } else if(smapVal > 0.32){
+      trafStatus='Moderate'; trafIcon='🟡';
+      trafSub='Ground wet — light machinery only';
+      wetRisk='Moderate'; machNote='Light machinery only';
+    } else if(smapVal > 0.25){
+      trafStatus='Good'; trafIcon='🟢';
+      trafSub='Ground conditions suitable';
+      wetRisk='Low'; machNote='Suitable';
+    } else {
+      trafStatus='Excellent'; trafIcon='🟢';
+      trafSub='Firm ground — all machinery suitable';
+      wetRisk='Very low'; machNote='All machinery suitable';
+    }
+
+    document.getElementById('traf-icon').textContent = trafIcon;
+    document.getElementById('w-traf').textContent = trafStatus;
+    document.getElementById('traf-sub').textContent = trafSub;
+    document.getElementById('w-sm').textContent = smapVal.toFixed(3)+' m³/m³';
+    document.getElementById('w-wet').textContent = wetRisk;
+    document.getElementById('w-mach').textContent = machNote;
+    
+    // Colour
+    const trafEl = document.getElementById('w-traf');
+    trafEl.className = smapVal>0.38?'irow-val r':smapVal>0.32?'irow-val a':'irow-val g';
+  }
 
   // Compliance — only show if real scheme data available
   if(f.acres||f.eco||f.biss){
