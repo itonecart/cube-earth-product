@@ -327,22 +327,20 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="map-overlay" id="map-overlay">🛰 Sentinel-2</div>
       <div id="layer-switcher">
         <div class="ls-title">🗺 Layers</div>
-        <label class="ls-label">
-          <input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
-          <div><div class="ls-label-text">Aerial Imagery</div><div class="ls-label-sub">High-res · ~2022</div></div>
-        </label>
-        <label class="ls-label">
-          <input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
-          <div><div class="ls-label-text">Latest Sentinel RGB</div><div class="ls-label-sub" id="sentinel-date-badge">May 2026</div></div>
-        </label>
-        <label class="ls-label">
-          <input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
-          <div><div class="ls-label-text">NDVI Vegetation</div><div class="ls-label-sub">Greenness index</div></div>
-        </label>
-        <label class="ls-label">
-          <input type="radio" name="maplayer" value="3" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(3)">
-          <div><div class="ls-label-text">Variability Zones</div><div class="ls-label-sub">High / Med / Low</div></div>
-        </label>
+        <label class="ls-label"><input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
+          <div><div class="ls-label-text">Aerial Imagery</div><div class="ls-label-sub">High-res · ~2022</div></div></label>
+        <label class="ls-label"><input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
+          <div><div class="ls-label-text">True Colour</div><div class="ls-label-sub" id="sentinel-date-badge">Sentinel-2 · fresh</div></div></label>
+        <label class="ls-label"><input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
+          <div><div class="ls-label-text">Agriculture</div><div class="ls-label-sub">Crop health · NIR</div></div></label>
+        <label class="ls-label"><input type="radio" name="maplayer" value="3" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(3)">
+          <div><div class="ls-label-text">NDVI · Vegetation</div><div class="ls-label-sub">Greenness index</div></div></label>
+        <label class="ls-label"><input type="radio" name="maplayer" value="4" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(4)">
+          <div><div class="ls-label-text">Moisture Index</div><div class="ls-label-sub">Soil wetness</div></div></label>
+        <label class="ls-label"><input type="radio" name="maplayer" value="5" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(5)">
+          <div><div class="ls-label-text">NDWI · Water</div><div class="ls-label-sub">Waterlogging risk</div></div></label>
+        <label class="ls-label"><input type="radio" name="maplayer" value="6" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(6)">
+          <div><div class="ls-label-text">Chlorophyll Edge</div><div class="ls-label-sub">Crop nitrogen</div></div></label>
 
       </div>
     </div>
@@ -1084,6 +1082,21 @@ function switchMapLayer(idx){
       document.getElementById('field-map').appendChild(leg);
     }
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
+  }
+
+  } else if(idx===4||idx===5||idx===6){
+    // Sentinel Hub analytical layers
+    const shLayers = {4:'MOISTURE_INDEX', 5:'NDWI', 6:'CHL_RED_EDGE'};
+    const shLabels = {4:'💧 Moisture Index', 5:'🌊 NDWI Water', 6:'🌿 Chlorophyll Edge'};
+    const today3=new Date();
+    const tTo3=today3.toISOString().split('T')[0];
+    const tFrom3=new Date(today3-60*24*60*60*1000).toISOString().split('T')[0];
+    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9',{
+      tileSize:256, layers:shLayers[idx], format:'image/jpeg',
+      version:'1.1.1', maxcc:20, time:`${tFrom3}/${tTo3}`,
+      maxZoom:20, attribution:'© Copernicus/ESA'
+    }).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent=`${shLabels[idx]} · Sentinel-2`;
   }
 
   // Re-add parcel boundary
