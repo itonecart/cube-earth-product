@@ -1018,12 +1018,14 @@ function renderZoneCard(za){
 function switchMapLayer(idx){
   const mapEl=document.getElementById('field-map');
   if(!currentField||!fieldMap) return;
+
+  // Clear previous layers
   mapEl.style.backgroundImage='none';
-  mapEl.style.background='#111';
   fieldMap.eachLayer(l=>{
     if(l instanceof L.TileLayer||l instanceof L.ImageOverlay) fieldMap.removeLayer(l);
   });
   document.getElementById('zone-legend')?.remove();
+
   const f=currentField;
   const coords=f.geometry?.coordinates?.[0]||[];
   const lngs=coords.length?coords.map(c=>c[0]):[f.lng];
@@ -1037,27 +1039,32 @@ function switchMapLayer(idx){
   const tTo=today.toISOString().split('T')[0];
   const tFrom=new Date(today-60*24*60*60*1000).toISOString().split('T')[0];
   const SH='https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9';
-  const shOpts={tileSize:256,format:'image/jpeg',version:'1.1.1',maxcc:20,time:`${tFrom}/${tTo}`,maxZoom:20,attribution:'© Copernicus/ESA'};
+  const shOpts={tileSize:256,format:'image/jpeg',version:'1.1.1',maxcc:20,time:`${tFrom}/${tTo}`,maxZoom:20,attribution:'© Copernicus/ESA',uppercase:true};
+  const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
   if(idx===0){
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
+    // Aerial Imagery
+    L.tileLayer(ESRI,{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
     document.getElementById('map-overlay').textContent='🗺 Aerial Imagery';
+
   } else if(idx===1){
+    // NDVI Vegetation
     L.tileLayer.wms(SH,{...shOpts,layers:'NDVI'}).addTo(fieldMap);
     document.getElementById('map-overlay').textContent=`🌱 NDVI · ${tTo}`;
+
   } else if(idx===2){
-    // Relative variability zones from backend
-    // Aerial base + zone PNG overlay via CSS
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
+    // Variability Zones — ESRI base + zone overlay
+    L.tileLayer(ESRI,{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
     const zoneUrl=`${API}/zone_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=${tFrom}/${tTo}`;
-    mapEl.style.backgroundImage=`url(${zoneUrl})`;
-    mapEl.style.backgroundSize='100% 100%';
-    mapEl.style.backgroundPosition='center';
-    mapEl.style.backgroundRepeat='no-repeat';
-    // ESRI base + zone overlay
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
-    mapEl.style.backgroundImage=`url(${zoneUrl})`;
-    mapEl.style.backgroundSize='100% 100%';
-    mapEl.style.backgroundPosition='center';
+    const img=new window.Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      mapEl.style.backgroundImage=`url(${zoneUrl})`;
+      mapEl.style.backgroundSize='100% 100%';
+      mapEl.style.backgroundPosition='center';
+      mapEl.style.backgroundRepeat='no-repeat';
+    };
+    img.src=zoneUrl;
     const za=window._lastZoneAnalysis;
     if(za){
       const leg=document.createElement('div');
@@ -1072,15 +1079,15 @@ function switchMapLayer(idx){
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
 
   } else if(idx===3){
-    // Sentinel RGB via CDSE WMS
-    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9',{
-      tileSize:256,layers:'TRUE_COLOR',format:'image/jpeg',
-      version:'1.1.1',maxcc:10,time:`${tFrom}/${tTo}`,
-      maxZoom:20,attribution:'© Copernicus/ESA'
-    }).addTo(fieldMap);
+    // Sentinel RGB
+    const rgbUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=${tFrom}/${tTo}`;
+    mapEl.style.backgroundImage=`url(${rgbUrl})`;
+    mapEl.style.backgroundSize='cover';
+    mapEl.style.backgroundPosition='center';
     document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
   }
 
+  // Always redraw parcel boundary on top
   if(f.geometry){
     L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
   }
