@@ -752,9 +752,31 @@ function openField(idx){
   document.getElementById('intel-meta').textContent = `${currentField.area} ha · ${currentField.olr||'Owned'}`;
   document.getElementById('intel-badge').textContent = currentField.status==='green'?'🟢':currentField.status==='amber'?'🟡':'🔴';
 
-  // Populate from cached profileData
-  if(currentField.profileData) renderIntel(currentField.profileData, currentField);
-  else renderIntelLoading();
+  // Populate from cached profileData or fetch fresh
+  if(currentField.profileData){
+    renderIntel(currentField.profileData, currentField);
+  } else {
+    renderIntelLoading();
+    // Fetch fresh data
+    fetch(`${API}/field_profile`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        lat:currentField.lat, lng:currentField.lng, year:2026,
+        parcel_override:{
+          crop:currentField.crop,
+          claim_area:currentField.area,
+          grassland:currentField.crop?.toLowerCase().includes('pasture')||currentField.crop?.toLowerCase().includes('grass'),
+          eco:currentField.eco, biss:currentField.biss, olr:currentField.olr
+        }
+      })
+    }).then(r=>r.json()).then(d=>{
+      if(d.success){
+        currentField.profileData=d;
+        renderIntel(d, currentField);
+      }
+    }).catch(e=>console.log('Intel fetch error:',e));
+  }
 
   // Init map
   setTimeout(()=>{
