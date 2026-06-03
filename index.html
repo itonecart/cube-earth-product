@@ -329,7 +329,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <div class="ls-title">🗺 Layers</div>
         <label class="ls-label">
           <input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
-          <div><div class="ls-label-text">OSI Orthophoto</div><div class="ls-label-sub">Irish national imagery</div></div>
+          <div><div class="ls-label-text">Aerial Imagery</div><div class="ls-label-sub">High-res · ~2022</div></div>
         </label>
         <label class="ls-label">
           <input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
@@ -1040,10 +1040,10 @@ function switchMapLayer(idx){
   const maxlat = Math.max(...lats)+pad;
 
   if(idx===0){
-    L.tileLayer('https://tiles.arcgis.com/tiles/nHpNKMnEv7NvAFJl/arcgis/rest/services/OSi_National_Orthophotography/MapServer/tile/{z}/{y}/{x}',{
-      attribution:'© Ordnance Survey Ireland',maxZoom:20
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+      attribution:'© Esri',maxZoom:19
     }).addTo(fieldMap);
-    document.getElementById('map-overlay').textContent='🗺 OSI National Orthophoto';
+    document.getElementById('map-overlay').textContent='🗺 Aerial Imagery';
   } else if(idx===1){
     const today2=new Date();
     const tTo=today2.toISOString().split('T')[0];
