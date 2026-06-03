@@ -1079,10 +1079,8 @@ function switchMapLayer(idx){
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
 
   } else if(idx===3){
-    // Sentinel RGB — proper XYZ tiles, no blurring
-    L.tileLayer(`${API}/rgb_xyz/{z}/{x}/{y}.jpg`,{
-      maxZoom:18, attribution:'© Copernicus/ESA · Sentinel-2'
-    }).addTo(fieldMap);
+    // Sentinel RGB — Sentinel Hub WMS direct
+    L.tileLayer.wms(SH,{...shOpts,layers:'TRUE_COLOR',maxcc:20}).addTo(fieldMap);
     document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
   }
 
