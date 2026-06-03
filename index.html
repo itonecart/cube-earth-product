@@ -332,8 +332,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <label class="ls-label"><input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
           <div><div class="ls-label-text">🌱 NDVI Vegetation</div><div class="ls-label-sub" id="sentinel-date-badge">Grass vigor · fresh</div></div></label>
         <label class="ls-label"><input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
-          <div><div class="ls-label-text">💧 Moisture Index</div><div class="ls-label-sub">Wet / dry areas</div></div></label>
-        <label class="ls-label"><input type="radio" name="maplayer" value="3" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(3)">
           <div><div class="ls-label-text">🗺 Variability Zones</div><div class="ls-label-sub">High / Med / Low</div></div></label>
 
       </div>
@@ -1043,9 +1041,6 @@ function switchMapLayer(idx){
     L.tileLayer.wms(SH,{...shOpts,layers:'NDVI'}).addTo(fieldMap);
     document.getElementById('map-overlay').textContent=`🌱 NDVI · ${tTo}`;
   } else if(idx===2){
-    L.tileLayer.wms(SH,{...shOpts,layers:'MOISTURE_INDEX'}).addTo(fieldMap);
-    document.getElementById('map-overlay').textContent=`💧 Moisture · ${tTo}`;
-  } else if(idx===3){
     // Relative variability zones from backend
     const zoneUrl=`${API}/zone_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=${tFrom}/${tTo}`;
     // ESRI base + zone overlay
