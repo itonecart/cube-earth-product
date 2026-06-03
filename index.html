@@ -1102,11 +1102,10 @@ function switchMapLayer(idx){
 
   } else if(idx===3){
     // Sentinel RGB — Sentinel Hub WMS direct
-    // Backend wms_tile handles OAuth + fresh date automatically
-    const rgbUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}`;
-    mapEl.style.backgroundImage=`url(${rgbUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
+    // Proper XYZ tiling via authenticated proxy
+    L.tileLayer(`${API}/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR`,{
+      maxZoom:18, attribution:'© Copernicus/ESA · Sentinel-2'
+    }).addTo(fieldMap);
     document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
   }
 
