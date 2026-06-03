@@ -1046,7 +1046,13 @@ function switchMapLayer(idx){
     L.tileLayer.wms(SH,{...shOpts,layers:'MOISTURE_INDEX'}).addTo(fieldMap);
     document.getElementById('map-overlay').textContent=`💧 Moisture · ${tTo}`;
   } else if(idx===3){
-    L.tileLayer.wms(SH,{...shOpts,layers:'NDVI'}).addTo(fieldMap);
+    // Relative variability zones from backend
+    const zoneUrl=`${API}/zone_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=${tFrom}/${tTo}`;
+    // ESRI base + zone overlay
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
+    mapEl.style.backgroundImage=`url(${zoneUrl})`;
+    mapEl.style.backgroundSize='100% 100%';
+    mapEl.style.backgroundPosition='center';
     const za=window._lastZoneAnalysis;
     if(za){
       const leg=document.createElement('div');
