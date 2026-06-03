@@ -328,19 +328,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div id="layer-switcher">
         <div class="ls-title">🗺 Layers</div>
         <label class="ls-label"><input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
-          <div><div class="ls-label-text">Aerial Imagery</div><div class="ls-label-sub">High-res · ~2022</div></div></label>
+          <div><div class="ls-label-text">🗺 Aerial Imagery</div><div class="ls-label-sub">High-res · field reference</div></div></label>
         <label class="ls-label"><input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
-          <div><div class="ls-label-text">True Colour</div><div class="ls-label-sub" id="sentinel-date-badge">Sentinel-2 · fresh</div></div></label>
+          <div><div class="ls-label-text">🌱 NDVI Vegetation</div><div class="ls-label-sub" id="sentinel-date-badge">Grass vigor · fresh</div></div></label>
         <label class="ls-label"><input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
-          <div><div class="ls-label-text">Agriculture</div><div class="ls-label-sub">Crop health · NIR</div></div></label>
+          <div><div class="ls-label-text">💧 Moisture Index</div><div class="ls-label-sub">Wet / dry areas</div></div></label>
         <label class="ls-label"><input type="radio" name="maplayer" value="3" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(3)">
-          <div><div class="ls-label-text">NDVI · Vegetation</div><div class="ls-label-sub">Greenness index</div></div></label>
-        <label class="ls-label"><input type="radio" name="maplayer" value="4" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(4)">
-          <div><div class="ls-label-text">Moisture Index</div><div class="ls-label-sub">Soil wetness</div></div></label>
-        <label class="ls-label"><input type="radio" name="maplayer" value="5" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(5)">
-          <div><div class="ls-label-text">NDWI · Water</div><div class="ls-label-sub">Waterlogging risk</div></div></label>
-        <label class="ls-label"><input type="radio" name="maplayer" value="6" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(6)">
-          <div><div class="ls-label-text">Chlorophyll Edge</div><div class="ls-label-sub">Crop nitrogen</div></div></label>
+          <div><div class="ls-label-text">🗺 Variability Zones</div><div class="ls-label-sub">High / Med / Low</div></div></label>
 
       </div>
     </div>
@@ -1020,85 +1014,52 @@ function renderZoneCard(za){
 
 // ── MAP LAYER SWITCHER ──
 function switchMapLayer(idx){
-  const mapEl = document.getElementById('field-map');
+  const mapEl=document.getElementById('field-map');
   if(!currentField||!fieldMap) return;
   mapEl.style.backgroundImage='none';
   mapEl.style.background='#111';
   fieldMap.eachLayer(l=>{
     if(l instanceof L.TileLayer||l instanceof L.ImageOverlay) fieldMap.removeLayer(l);
   });
-  const f = currentField;
-  const coords = f.geometry?.coordinates?.[0]||[];
-  const lngs = coords.map(c=>c[0]);
-  const lats = coords.map(c=>c[1]);
-  const pad = 0.012;
-  const minlng = Math.min(...lngs)-pad;
-  const maxlng = Math.max(...lngs)+pad;
-  const minlat = Math.min(...lats)-pad;
-  const maxlat = Math.max(...lats)+pad;
-
+  document.getElementById('zone-legend')?.remove();
+  const f=currentField;
+  const coords=f.geometry?.coordinates?.[0]||[];
+  const lngs=coords.length?coords.map(c=>c[0]):[f.lng];
+  const lats=coords.length?coords.map(c=>c[1]):[f.lat];
+  const pad=0.012;
+  const minlng=Math.min(...lngs)-pad;
+  const maxlng=Math.max(...lngs)+pad;
+  const minlat=Math.min(...lats)-pad;
+  const maxlat=Math.max(...lats)+pad;
+  const today=new Date();
+  const tTo=today.toISOString().split('T')[0];
+  const tFrom=new Date(today-60*24*60*60*1000).toISOString().split('T')[0];
+  const SH='https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9';
+  const shOpts={tileSize:256,format:'image/jpeg',version:'1.1.1',maxcc:20,time:`${tFrom}/${tTo}`,maxZoom:20,attribution:'© Copernicus/ESA'};
   if(idx===0){
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
-      attribution:'© Esri',maxZoom:19
-    }).addTo(fieldMap);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
     document.getElementById('map-overlay').textContent='🗺 Aerial Imagery';
   } else if(idx===1){
-    // CDSE WMS with instance ID — direct, no proxy needed
-    const today2=new Date();
-    const tTo=today2.toISOString().split('T')[0];
-    const tFrom=new Date(today2-60*24*60*60*1000).toISOString().split('T')[0];
-    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9',{
-      tileSize:256,
-      layers:'TRUE_COLOR',
-      format:'image/jpeg',
-      version:'1.1.1',
-      maxcc:10,
-      time:`${tFrom}/${tTo}`,
-      maxZoom:20,
-      crs: L.CRS.EPSG3857,
-      attribution:'© Copernicus/ESA · Sentinel-2'
-    }).addTo(fieldMap);
+    L.tileLayer.wms(SH,{...shOpts,layers:'NDVI'}).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent=`🌱 NDVI · ${tTo}`;
   } else if(idx===2){
-    const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=ndvi`;
-    mapEl.style.backgroundImage=`url(${imgUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
-    document.getElementById('map-overlay').textContent='🌱 NDVI Vegetation Layer';
+    L.tileLayer.wms(SH,{...shOpts,layers:'MOISTURE_INDEX'}).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent=`💧 Moisture · ${tTo}`;
   } else if(idx===3){
-    const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=zones`;
-    mapEl.style.backgroundImage=`url(${imgUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
-    document.getElementById('zone-legend')?.remove();
-    const za = window._lastZoneAnalysis;
+    L.tileLayer.wms(SH,{...shOpts,layers:'NDVI'}).addTo(fieldMap);
+    const za=window._lastZoneAnalysis;
     if(za){
       const leg=document.createElement('div');
       leg.id='zone-legend';
       leg.style.cssText='position:absolute;bottom:36px;left:8px;z-index:500;background:rgba(0,0,0,0.75);border-radius:8px;padding:8px 10px;font-size:11px;color:#fff;backdrop-filter:blur(4px)';
-      leg.innerHTML=`<div style="font-weight:700;margin-bottom:4px">Zone Analysis</div>
+      leg.innerHTML=`<div style="font-weight:700;margin-bottom:4px">Variability Zones</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>${za.high_ha}ha High (${za.high_pct}%)</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>${za.med_ha}ha Medium (${za.med_pct}%)</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>${za.med_ha}ha Med (${za.med_pct}%)</div>
         <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>${za.low_ha}ha Low (${za.low_pct}%)</div>`;
       document.getElementById('field-map').appendChild(leg);
     }
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
-
-  } else if(idx===4||idx===5||idx===6){
-    // Sentinel Hub analytical layers
-    const shLayers = {4:'MOISTURE_INDEX', 5:'NDWI', 6:'CHL_RED_EDGE'};
-    const shLabels = {4:'💧 Moisture Index', 5:'🌊 NDWI Water', 6:'🌿 Chlorophyll Edge'};
-    const today3=new Date();
-    const tTo3=today3.toISOString().split('T')[0];
-    const tFrom3=new Date(today3-60*24*60*60*1000).toISOString().split('T')[0];
-    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9',{
-      tileSize:256, layers:shLayers[idx], format:'image/jpeg',
-      version:'1.1.1', maxcc:20, time:`${tFrom3}/${tTo3}`,
-      maxZoom:20, attribution:'© Copernicus/ESA'
-    }).addTo(fieldMap);
-    document.getElementById('map-overlay').textContent=`${shLabels[idx]} · Sentinel-2`;
   }
-
-  // Re-add parcel boundary
   if(f.geometry){
     L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
   }
