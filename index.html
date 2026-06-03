@@ -1045,14 +1045,20 @@ function switchMapLayer(idx){
     }).addTo(fieldMap);
     document.getElementById('map-overlay').textContent='🗺 Aerial Imagery';
   } else if(idx===1){
-    // Use backend wms_tile — custom evalscript, 2048px, gamma corrected
+    // CDSE WMS with instance ID — direct, no proxy needed
     const today2=new Date();
     const tTo=today2.toISOString().split('T')[0];
     const tFrom=new Date(today2-60*24*60*60*1000).toISOString().split('T')[0];
-    const sentinelUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=${tFrom}/${tTo}`;
-    mapEl.style.backgroundImage=`url(${sentinelUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
+    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9',{
+      tileSize:256,
+      layers:'TRUE_COLOR',
+      format:'image/jpeg',
+      version:'1.3.0',
+      maxcc:10,
+      time:`${tFrom}/${tTo}`,
+      maxZoom:20,
+      attribution:'© Copernicus/ESA · Sentinel-2'
+    }).addTo(fieldMap);
   } else if(idx===2){
     const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=ndvi`;
     mapEl.style.backgroundImage=`url(${imgUrl})`;
