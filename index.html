@@ -1104,7 +1104,8 @@ function switchMapLayer(idx){
     // Sentinel RGB — Sentinel Hub WMS direct
     // Proper XYZ tiling via authenticated proxy
     L.tileLayer(`${API}/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR`,{
-      maxZoom:18, attribution:'© Copernicus/ESA · Sentinel-2'
+      minZoom:10, maxZoom:16, maxNativeZoom:15,
+      tileSize:256, attribution:'© Copernicus/ESA · Sentinel-2 10m'
     }).addTo(fieldMap);
     document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
   }
