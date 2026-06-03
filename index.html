@@ -1045,10 +1045,13 @@ function switchMapLayer(idx){
     }).addTo(fieldMap);
     document.getElementById('map-overlay').textContent='🗺 OSI National Orthophoto';
   } else if(idx===1){
-    const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31`;
-    mapEl.style.backgroundImage=`url(${imgUrl})`;
-    mapEl.style.backgroundSize='cover';
-    mapEl.style.backgroundPosition='center';
+    const today2=new Date();
+    const tTo=today2.toISOString().split('T')[0];
+    const tFrom=new Date(today2-60*24*60*60*1000).toISOString().split('T')[0];
+    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9',{
+      tileSize:512,layers:'TRUE_COLOR',format:'image/jpeg',version:'1.3.0',
+      maxcc:20,time:`${tFrom}/${tTo}`,maxZoom:18,attribution:'© Copernicus/ESA'
+    }).addTo(fieldMap);
   } else if(idx===2){
     const imgUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=2026-05-01/2026-05-31&style=ndvi`;
     mapEl.style.backgroundImage=`url(${imgUrl})`;
