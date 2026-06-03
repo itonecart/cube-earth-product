@@ -1102,8 +1102,8 @@ function switchMapLayer(idx){
 
   } else if(idx===3){
     // Sentinel RGB — Sentinel Hub WMS direct
-    // Use backend wms_tile for RGB — avoids WMS auth issues
-    const rgbUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=${tFrom}/${tTo}`;
+    // Backend wms_tile handles OAuth + fresh date automatically
+    const rgbUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}`;
     mapEl.style.backgroundImage=`url(${rgbUrl})`;
     mapEl.style.backgroundSize='cover';
     mapEl.style.backgroundPosition='center';
