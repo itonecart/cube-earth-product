@@ -1105,6 +1105,7 @@ function switchMapLayer(idx){
     L.tileLayer(`${API}/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR&time=${tFrom}/${tTo}`,{
       tileSize:256,
       maxZoom:18,
+      maxNativeZoom:14,
       attribution:'© Copernicus/ESA · Sentinel-2 10m'
     }).addTo(fieldMap);
     document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
