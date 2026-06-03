@@ -1101,12 +1101,11 @@ function switchMapLayer(idx){
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
 
   } else if(idx===3){
-    // Sentinel RGB — Sentinel Hub WMS direct
-    // Proper XYZ tiling via authenticated proxy
-    L.tileLayer(`${API}/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR`,{
-      minZoom:10, maxZoom:16, maxNativeZoom:15,
-      tileSize:256, attribution:'© Copernicus/ESA · Sentinel-2 10m'
-    }).addTo(fieldMap);
+    // Sentinel RGB — backend wms_tile 2048px
+    const rgbUrl=`${API}/wms_tile?minlng=${minlng}&minlat=${minlat}&maxlng=${maxlng}&maxlat=${maxlat}&time=${tFrom}/${tTo}`;
+    mapEl.style.backgroundImage=`url(${rgbUrl})`;
+    mapEl.style.backgroundSize='cover';
+    mapEl.style.backgroundPosition='center';
     document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
   }
 
