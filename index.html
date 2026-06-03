@@ -1066,6 +1066,16 @@ function switchMapLayer(idx){
     }
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
   }
+  } else if(idx===3){
+    // Sentinel RGB via CDSE WMS
+    L.tileLayer.wms('https://sh.dataspace.copernicus.eu/ogc/wms/bfba5ae1-06b9-41d1-b2eb-771c247f9ac9',{
+      tileSize:256,layers:'TRUE_COLOR',format:'image/jpeg',
+      version:'1.1.1',maxcc:10,time:`${tFrom}/${tTo}`,
+      maxZoom:20,attribution:'© Copernicus/ESA'
+    }).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
+  }
+
   if(f.geometry){
     L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
   }
