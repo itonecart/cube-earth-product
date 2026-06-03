@@ -331,7 +331,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <div class="ls-title">🗺 Layers</div>
         <label class="ls-label"><input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
           <div><div class="ls-label-text">🗺 Aerial Imagery</div><div class="ls-label-sub">High-res · field reference</div></div></label>
-        <label class="ls-label"><input type="radio" name="maplayer" value="1" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(1)">
+        <label class="ls-label"><input type="radio" name="maplayer" value="0" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
           <div><div class="ls-label-text">🌱 NDVI Vegetation</div><div class="ls-label-sub" id="sentinel-date-badge">Grass vigor · fresh</div></div></label>
         <label class="ls-label"><input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
           <div><div class="ls-label-text">🗺 Variability Zones</div><div class="ls-label-sub">High / Med / Low</div></div></label>
@@ -765,10 +765,10 @@ function openField(idx){
         style:{color:'#00ff88',weight:2.5,fill:false}
       }).addTo(fieldMap);
       fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
-      switchMapLayer(1);
+      switchMapLayer(0);
     } else {
       fieldMap.setView([currentField.lat, currentField.lng],15);
-      switchMapLayer(1);
+      switchMapLayer(0);
     }
   },300);
 
