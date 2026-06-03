@@ -343,10 +343,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
           <input type="radio" name="maplayer" value="3" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(3)">
           <div><div class="ls-label-text">Variability Zones</div><div class="ls-label-sub">High / Med / Low</div></div>
         </label>
-        <label class="ls-label">
-          <input type="radio" name="maplayer" value="4" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(4)">
-          <div><div class="ls-label-text">MODIS Daily</div><div class="ls-label-sub">NASA · today's imagery</div></div>
-        </label>
+
       </div>
     </div>
 
@@ -1076,18 +1073,6 @@ function switchMapLayer(idx){
       document.getElementById('field-map').appendChild(leg);
     }
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
-
-  } else if(idx===4){
-    // MODIS Terra Daily — NASA GIBS
-    const today = new Date();
-    const modisDate = today.toISOString().split('T')[0];
-    L.tileLayer(
-      `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_Bands367/default/${modisDate}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpeg`,
-      {attribution:'© NASA EOSDIS / GIBS', maxZoom:9, minZoom:1}
-    ).addTo(fieldMap);
-    // Zoom to county level for MODIS 250m view
-    if(currentField) fieldMap.setView([currentField.lat, currentField.lng], 9);
-    document.getElementById('map-overlay').textContent=`🛰 MODIS Terra · ${modisDate} · 250m regional`;
   }
 
   // Re-add parcel boundary
