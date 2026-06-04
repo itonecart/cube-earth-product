@@ -1108,7 +1108,12 @@ function switchMapLayer(idx){
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>${za.high_ha}ha High (${za.high_pct}%)</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>${za.med_ha}ha Med (${za.med_pct}%)</div>
         <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>${za.low_ha}ha Low (${za.low_pct}%)</div>`;
-      document.getElementById('field-map').appendChild(leg);
+      // Remove old legend first
+      document.getElementById('zone-legend')?.remove();
+      // Add to map container with high z-index
+      const mapContainer=document.getElementById('field-map');
+      mapContainer.style.position='relative';
+      mapContainer.appendChild(leg);
     }
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
 
