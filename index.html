@@ -1064,37 +1064,40 @@ function switchMapLayer(idx){
     document.getElementById('map-overlay').textContent='🗺 Aerial Imagery';
 
   } else if(idx===1){
-    // Variability Zones — ESRI base + parcel quadrant colours
+    // Variability Zones — colours INSIDE parcel only
     L.tileLayer(ESRI,{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
     const za=window._lastZoneAnalysis;
     const quad=za?.quad_ndvi;
-    if(quad && f.geometry){
-      const pLngs=lngs.filter(v=>v!==undefined);
-      const pLats=lats.filter(v=>v!==undefined);
-      const fMinLng=Math.min(...pLngs), fMaxLng=Math.max(...pLngs);
-      const fMinLat=Math.min(...pLats), fMaxLat=Math.max(...pLats);
-      const midLon=(fMinLng+fMaxLng)/2, midLt=(fMinLat+fMaxLat)/2;
+    if(f.geometry && quad){
+      const pCoords=f.geometry.coordinates[0];
+      const pLngs=pCoords.map(c=>c[0]);
+      const pLats=pCoords.map(c=>c[1]);
+      const midLon=(Math.min(...pLngs)+Math.max(...pLngs))/2;
+      const midLt=(Math.min(...pLats)+Math.max(...pLats))/2;
       const vals=Object.values(quad).filter(v=>v!=null);
       if(vals.length>0){
         const sorted=[...vals].sort((a,b)=>a-b);
         const p25=sorted[Math.floor(sorted.length*0.25)];
         const p75=sorted[Math.floor(sorted.length*0.75)];
-        const quadDefs=[
-          {name:'NE',coords:[[midLt,midLon],[midLt,fMaxLng],[fMaxLat,fMaxLng],[fMaxLat,midLon]]},
-          {name:'NW',coords:[[midLt,fMinLng],[midLt,midLon],[fMaxLat,midLon],[fMaxLat,fMinLng]]},
-          {name:'SE',coords:[[fMinLat,midLon],[fMinLat,fMaxLng],[midLt,fMaxLng],[midLt,midLon]]},
-          {name:'SW',coords:[[fMinLat,fMinLng],[fMinLat,midLon],[midLt,midLon],[midLt,fMinLng]]}
-        ];
-        quadDefs.forEach(q=>{
-          const v=quad[q.name];
+        const quadCoords={NE:[],NW:[],SE:[],SW:[]};
+        pCoords.forEach(c=>{
+          const lng=c[0],lat=c[1];
+          if(lng>=midLon&&lat>=midLt) quadCoords.NE.push([lat,lng]);
+          else if(lng<midLon&&lat>=midLt) quadCoords.NW.push([lat,lng]);
+          else if(lng>=midLon&&lat<midLt) quadCoords.SE.push([lat,lng]);
+          else quadCoords.SW.push([lat,lng]);
+        });
+        Object.keys(quadCoords).forEach(n=>{quadCoords[n].push([midLt,midLon]);});
+        Object.entries(quadCoords).forEach(([name,pts])=>{
+          if(pts.length<3) return;
+          const v=quad[name];
           if(v==null) return;
           const color=v>=p75?'#16a34a':v>=p25?'#d97706':'#dc2626';
-          L.polygon(q.coords,{color:'none',fillColor:color,fillOpacity:0.55,weight:0}).addTo(fieldMap);
+          L.polygon(pts,{color:'none',fillColor:color,fillOpacity:0.65,weight:0}).addTo(fieldMap);
         });
       }
     } else if(f.geometry && za){
-      const score=za.uniformity_score||5;
-      const color=score>=7?'#16a34a':score>=4?'#d97706':'#dc2626';
+      const color=za.uniformity_score>=7?'#16a34a':za.uniformity_score>=4?'#d97706':'#dc2626';
       L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'none',fillColor:color,fillOpacity:0.5,weight:0}}).addTo(fieldMap);
     }
     if(za){
