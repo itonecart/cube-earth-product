@@ -958,11 +958,11 @@ function renderIntel(d, f){
   const hist = d.historical_analysis;
   if(!hist || !hist.available){
     // Fetch historical data async after main data loads
+    const _hlat=currentField.lat, _hlng=currentField.lng;
     setTimeout(()=>{
       if(!currentField) return;
       const f=currentField;
-      console.log('Historical fetch lat/lng:', f.lat, f.lng, f.center_lat, f.center_lng);
-      fetch(`${API}/test_historical?lat=${f.center_lat||f.lat}&lng=${f.center_lng||f.lng}`)
+      fetch(`${API}/test_historical?lat=${_hlat}&lng=${_hlng}`)
         .then(r=>r.json())
         .then(h=>{
           if(h.available){
