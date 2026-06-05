@@ -1222,23 +1222,7 @@ function renderZoneCard(za){
         </div>
       </div>
       ${za.anomaly?(()=>{
-        const hist3=window._lastHistorical;
-        let tag='';
-        if(hist3&&hist3.available){
-          if(hist3.variability_type==='stable'||hist3.variability_type==='temporary')
-            tag=' <em style="color:#6b7280">[Acute anomaly — field history is stable. Likely temporary management or localised issue, not a soil fault.]</em>';
-          else if(hist3.variability_type==='chronic')
-            tag=' <em style="color:#dc2626">[Chronic zone — underperformed consistently across multiple years. Structural soil or drainage issue likely.]</em>';
-        }
-        const h3=window._lastHistorical;
-        let acuteTag='';
-        if(h3&&h3.available){
-          if(h3.variability_type==='stable'||h3.variability_type==='temporary')
-            acuteTag=`<div style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">📊 Acute Anomaly — Field history is very stable (CV ${h3.cv_percent}%). This zone dip is likely a temporary management issue, not a structural soil fault.</div>`;
-          else if(h3.variability_type==='chronic')
-            acuteTag=`<div style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed consistently across ${h3.years_analysed} years. Structural soil or drainage issue likely. Consider soil testing.</div>`;
-        }
-        return '<div data-zone-anomaly style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">⚠ '+za.anomaly+tag+acuteTag+'</div>';
+        return '<div data-zone-anomaly style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">⚠ '+za.anomaly+'</div>';
       })():''}
     </div>
   </div>`;
