@@ -965,9 +965,10 @@ function switchMapLayer(idx){
           poly.addTo(fieldMap);
         });
       }
-    } else if(f.geometry&&za){
-      var color=za.uniformity_score>=7?'#16a34a':za.uniformity_score>=4?'#d97706':'#dc2626';
-      L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'none',fillColor:color,fillOpacity:0.5,weight:0}}).addTo(fieldMap);
+    } else if(f.geometry&&za&&za.uniformity_score<6){
+      // Only show whole-parcel colour if field is variable
+      var color=za.uniformity_score>=4?'#d97706':'#dc2626';
+      L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'none',fillColor:color,fillOpacity:0.4,weight:0}}).addTo(fieldMap);
     }
     if(za){
       var leg2=document.createElement('div');
