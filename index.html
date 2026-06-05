@@ -1356,7 +1356,7 @@ function switchMapLayer(idx){
 
   } else if(idx===2){
     // Sentinel RGB — proper XYZ tiling
-    L.tileLayer(`${API}/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR&time=${tFrom}/${tTo}`,{
+    L.tileLayer(API+'/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR&time='+tFrom+'/'+tTo,{
       maxZoom:18, tileSize:256,
       attribution:'© Copernicus/ESA · Sentinel-2'
     }).addTo(fieldMap);
