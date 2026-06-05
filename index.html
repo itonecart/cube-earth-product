@@ -962,23 +962,23 @@ function renderIntel(d, f){
     } else if(bothHigh && declining){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
       decAction='⚠ Strong Cover — Growth Slowing';
-      decReason=`High canopy density but trend declining. Monitor grazing pressure and rotate stock if needed.`;
+      decReason='High canopy density but trend declining. Monitor grazing pressure and rotate stock if needed.';
     } else if(ndviHighRviLow){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
       decAction='⚠ Drought Stress Detected';
-      decReason=`NDVI ${ndvi.toFixed(2)} shows green but RVI ${rvi?.toFixed(2)} shows collapsed structure. Possible drought stress — verify on ground.`;
+      decReason='NDVI '+ndvi.toFixed(2)+' shows green but RVI '+(rvi?.toFixed(2)||'—')+' shows collapsed structure. Possible drought stress — verify on ground.';
     } else if(ndviLowRviHigh){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
       decAction='👁 Post-Grazing Residual';
-      decReason=`Low chlorophyll but canopy structure remains. Field likely recently grazed. Allow recovery time.`;
+      decReason='Low chlorophyll but canopy structure remains. Field likely recently grazed. Allow recovery time.';
     } else if(ndvi>0.45){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
       decAction='👁 Monitor — Growth Building';
-      decReason=`NDVI ${ndvi.toFixed(2)} — vegetation building. Check again in 3-5 days.`;
+      decReason='NDVI '+ndvi.toFixed(2)+' — vegetation building. Check again in 3-5 days.';
     } else {
       decBg='linear-gradient(135deg,#7f1d1d,#dc2626)';
       decAction='⚠ Low Vegetation — Rest Field';
-      decReason=`NDVI ${ndvi.toFixed(2)} — low vegetation. Field needs recovery time.`;
+      decReason='NDVI '+ndvi.toFixed(2)+' — low vegetation. Field needs recovery time.';
     }
     dec.style.background=decBg;
     document.getElementById('intel-dec-action').textContent=decAction;
