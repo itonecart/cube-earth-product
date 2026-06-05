@@ -961,7 +961,8 @@ function renderIntel(d, f){
     setTimeout(()=>{
       if(!currentField) return;
       const f=currentField;
-      fetch(`${API}/test_historical?lat=${f.lat}&lng=${f.lng}`)
+      console.log('Historical fetch lat/lng:', f.lat, f.lng, f.center_lat, f.center_lng);
+      fetch(`${API}/test_historical?lat=${f.center_lat||f.lat}&lng=${f.center_lng||f.lng}`)
         .then(r=>r.json())
         .then(h=>{
           if(h.available){
