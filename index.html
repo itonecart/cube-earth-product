@@ -946,7 +946,13 @@ function switchMapLayer(idx){
               +'<div style="font-size:12px;margin-bottom:8px;color:'+color+'">'+diffStr+' vs field average</div>'
               +(v<p25?'<div style="margin-top:8px"><button id="zone-inspect-btn" style="width:100%;padding:8px;background:#1a4a8c;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">&#128203; Start Ground Inspection</button></div>':'')
               +'</div>';
-            L.popup({maxWidth:260}).setLatLng(pts[0]).setContent(popupHtml).openOn(fieldMap);
+            var _cl=compassLabel, _cn=cropName;
+            var pop=L.popup({maxWidth:260}).setLatLng(pts[0]).setContent(popupHtml);
+            pop.on('add',function(){
+              var btn=document.getElementById('zone-inspect-btn');
+              if(btn) btn.onclick=function(){openInspection(_cl+' Low Zone',_cn);};
+            });
+            pop.openOn(fieldMap);
           });
           poly.addTo(fieldMap);
         });
