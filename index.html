@@ -1239,7 +1239,7 @@ function renderIntel(d, f){
   if(badge&&imgDate) badge.textContent = imgDate+(imgAge!=null?' · '+imgAge+'d old':'');
 
   // Map overlay
-  const freshBadge = imgDate?` · ${imgDate}${imgAge!=null?` · ${imgAge}d old`:''}` :'';
+  const freshBadge = imgDate?' · '+imgDate+(imgAge!=null?' · '+imgAge+'d old':''):'';
   document.getElementById('map-overlay').textContent = `🛰 Sentinel-2${freshBadge}`;
 
   // Zone analysis card
