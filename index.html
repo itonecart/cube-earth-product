@@ -967,16 +967,20 @@ function renderIntel(d, f){
         .then(h=>{
           if(h.available){
             window._lastHistorical = h;
-            // Re-render zone alert with historical context
+            // Inject acute anomaly tag inside zone variability alert
             const zaEl = document.querySelector('[data-zone-anomaly]');
-            const za2 = window._lastZoneAnalysis;
-            if(za2 && za2.anomaly){
+            if(zaEl){
               let tag='';
-              if(h.variability_type==='stable'||h.variability_type==='temporary')
-                tag=' <em style="color:#6b7280;font-style:italic">[Acute anomaly — field history is stable. Likely temporary issue, not a soil fault.]</em>';
-              else if(h.variability_type==='chronic')
-                tag=' <em style="color:#dc2626;font-style:italic">[Chronic zone — structural soil or drainage issue likely.]</em>';
-              if(zaEl) zaEl.innerHTML='⚠ '+za2.anomaly+tag;
+              if(h.variability_type==='stable'||h.variability_type==='temporary'){
+                tag=`<div style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">
+                  📊 Acute Anomaly — Field history is very stable (CV ${h.cv_percent}%). This zone dip is likely a temporary management or localised issue, not a structural soil fault.
+                </div>`;
+              } else if(h.variability_type==='chronic'){
+                tag=`<div style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">
+                  ⚠ Chronic Zone — This area has underperformed consistently across ${h.years_analysed} years. Structural soil or drainage issue likely. Consider soil testing.
+                </div>`;
+              }
+              if(tag) zaEl.insertAdjacentHTML('beforeend', tag);
             }
             if(!currentField.profileData) currentField.profileData={};
             currentField.profileData.historical_analysis=h;
