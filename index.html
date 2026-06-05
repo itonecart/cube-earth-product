@@ -822,10 +822,7 @@ function injectAcuteTag(h){
     if(el && !el.querySelector('.acute-tag') && h && h.available){
       let atag='';
       if(h.variability_type==='stable'||h.variability_type==='temporary')
-        const za3=window._lastZoneAnalysis||{};
-        const lowHa=za3.low_ha||'—';
-        const recoveryDays=14;
-        atag=`<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">
+        atag=(()=>{const za3=window._lastZoneAnalysis||{};const lowHa=za3.low_ha||'—';return `<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">
           <div style="background:#065f46;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">📊 TEMPORARY VARIATION · CV ${h.cv_percent}%</div>
           <div style="padding:10px;background:#f0fdf4;color:#065f46;line-height:1.6">
             <div style="margin-bottom:8px">Field history is stable. The ${lowHa} ha low-performing zone is likely a <strong>temporary management issue</strong>, not a chronic soil or drainage problem.</div>
@@ -1070,10 +1067,7 @@ function renderIntel(d, f){
               if(el && !el.querySelector('.acute-tag')){
                 let atag='';
                 if(h.variability_type==='stable'||h.variability_type==='temporary')
-                  const za3=window._lastZoneAnalysis||{};
-        const lowHa=za3.low_ha||'—';
-        const recoveryDays=14;
-        atag=`<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">
+                  atag=(()=>{const za3=window._lastZoneAnalysis||{};const lowHa=za3.low_ha||'—';return `<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">
           <div style="background:#065f46;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">📊 TEMPORARY VARIATION · CV ${h.cv_percent}%</div>
           <div style="padding:10px;background:#f0fdf4;color:#065f46;line-height:1.6">
             <div style="margin-bottom:8px">Field history is stable. The ${lowHa} ha low-performing zone is likely a <strong>temporary management issue</strong>, not a chronic soil or drainage problem.</div>
