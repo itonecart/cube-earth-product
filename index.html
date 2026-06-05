@@ -851,25 +851,45 @@ function renderIntel(d, f){
   const cover = 0;
   if(isGrass){
     const vtd = d.vegetation_trend;
+    const rvi = s?.rvi;
     const declining = vtd?.long_trend==='declining'||vtd?.long_trend==='strong_decline';
     const improving = vtd?.long_trend==='increasing'||vtd?.long_trend==='strong_increase';
-    if(ndvi>0.65 && !declining){
-      dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
-      document.getElementById('intel-dec-action').textContent='✓ Good Condition — Monitor for Grazing';
-      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — strong vegetation${improving?' with improving trend':''}. Walk field to confirm.`;
-    } else if(ndvi>0.65 && declining){
-      dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
-      document.getElementById('intel-dec-action').textContent='✓ Excellent Cover — Growth Slowing';
-      document.getElementById('intel-dec-reason').textContent=`Cover is strong but declining. Monitor grazing pressure and rotate stock if needed.`;
+    
+    // Fusion logic: NDVI + RVI
+    const bothHigh = ndvi>0.65 && rvi>0.7;
+    const ndviHighRviLow = ndvi>0.65 && rvi && rvi<0.4;  // drought stress
+    const ndviLowRviHigh = ndvi<0.4 && rvi && rvi>0.6;   // post-grazing residual
+    const bothLow = ndvi<0.4 && rvi && rvi<0.4;
+
+    let decAction, decReason, decBg;
+    if(bothHigh && !declining){
+      decBg='linear-gradient(135deg,#0a1f0f,#1a5c38)';
+      decAction='✓ Strong Growth — Both Sensors Agree';
+      decReason=`NDVI ${ndvi.toFixed(2)} · RVI ${rvi?.toFixed(2)||'—'} — dense healthy pasture. Both optical and radar confirm strong growth.`;
+    } else if(bothHigh && declining){
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='⚠ Strong Cover — Growth Slowing';
+      decReason=`High canopy density but trend declining. Monitor grazing pressure and rotate stock if needed.`;
+    } else if(ndviHighRviLow){
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='⚠ Drought Stress Detected';
+      decReason=`NDVI ${ndvi.toFixed(2)} shows green but RVI ${rvi?.toFixed(2)} shows collapsed structure. Possible drought stress — verify on ground.`;
+    } else if(ndviLowRviHigh){
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='👁 Post-Grazing Residual';
+      decReason=`Low chlorophyll but canopy structure remains. Field likely recently grazed. Allow recovery time.`;
     } else if(ndvi>0.45){
-      dec.style.background='linear-gradient(135deg,#78350f,#d97706)';
-      document.getElementById('intel-dec-action').textContent='👁 Monitor — Growth Building';
-      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — vegetation building. Check again in 3-5 days.`;
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='👁 Monitor — Growth Building';
+      decReason=`NDVI ${ndvi.toFixed(2)} — vegetation building. Check again in 3-5 days.`;
     } else {
-      dec.style.background='linear-gradient(135deg,#7f1d1d,#dc2626)';
-      document.getElementById('intel-dec-action').textContent='⚠ Low Vegetation — Rest Field';
-      document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi.toFixed(2)} — low vegetation. Field needs recovery time.`;
+      decBg='linear-gradient(135deg,#7f1d1d,#dc2626)';
+      decAction='⚠ Low Vegetation — Rest Field';
+      decReason=`NDVI ${ndvi.toFixed(2)} — low vegetation. Field needs recovery time.`;
     }
+    dec.style.background=decBg;
+    document.getElementById('intel-dec-action').textContent=decAction;
+    document.getElementById('intel-dec-reason').textContent=decReason;
   } else {
     dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
     document.getElementById('intel-dec-action').textContent=ndvi>0.5?'✓ Good Condition':'👁 Monitor';
