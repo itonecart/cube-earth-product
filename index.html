@@ -1188,7 +1188,7 @@ function renderIntel(d, f){
     bars.innerHTML = vt.series.map(s=>{
       const h = Math.round((s.ndvi/maxNdvi)*36);
       const c = s.ndvi>0.6?'#16a34a':s.ndvi>0.4?'#d97706':'#dc2626';
-      return `<div style="flex:1;height:${h}px;background:${c};border-radius:2px 2px 0 0;min-width:6px" title="${s.date}: ${s.ndvi}"></div>`;
+      return '<div style="flex:1;height:'+h+'px;background:'+c+';border-radius:2px 2px 0 0;min-width:6px" title="'+s.date+': '+s.ndvi+'"></div>';
     }).join('');
 
     // 14-day change
