@@ -983,6 +983,74 @@ function switchMapLayer(idx){
 
 var currentInspectionZone = null;
 var inspectionHistory = [];
+var selectedIssue = null;
+var selectedSeverity = null;
+
+function selectIssue(issue, btn){
+  selectedIssue = issue;
+  document.querySelectorAll('.issue-btn').forEach(function(b){
+    b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';
+  });
+  btn.style.borderColor='#1a4a8c';btn.style.background='#eff6ff';btn.style.color='#1a4a8c';
+  updateStep1Recommendation();
+}
+
+function selectSeverity(sev, btn){
+  selectedSeverity = sev;
+  document.querySelectorAll('.sev-btn').forEach(function(b){
+    b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';
+  });
+  btn.style.borderColor='#1a4a8c';btn.style.background='#eff6ff';btn.style.color='#1a4a8c';
+  updateStep1Recommendation();
+}
+
+function updateStep1Recommendation(){
+  if(!selectedIssue) return;
+  var recs={
+    'compaction':'🔧 Aeration recommended after next grazing. Avoid heavy machinery until ground firms up.',
+    'thin_sward':'🌱 Direct-drill oversowing recommended. Target late summer/autumn slot.',
+    'weeds':'🌿 Spot-spray or mechanical topping before next grazing rotation.',
+    'overgrazing':'🐄 Rest this zone for minimum 3 weeks. Reduce stocking pressure.'
+  };
+  var el=document.getElementById('inspection-recommendation');
+  el.innerHTML='<div style="font-weight:700;margin-bottom:4px">🤖 Recommended Action</div>'+recs[selectedIssue];
+  el.style.display='block';
+}
+
+function goToPhotoStep(){
+  document.getElementById('inspect-step1').style.display='none';
+  document.getElementById('inspect-step2').style.display='block';
+  document.getElementById('step-dot-1').style.background='#1a4a8c';
+  document.getElementById('step-dot-2').style.background='#1a4a8c';
+  document.getElementById('photo-zone-label').textContent=document.getElementById('inspection-zone-label').textContent;
+  if(currentInspectionZone){
+    var lat=(currentInspectionZone.lat||0).toFixed(5);
+    var lng=(currentInspectionZone.lng||0).toFixed(5);
+    document.getElementById('photo-zone-coords').textContent=lat+', '+lng;
+    document.getElementById('geotag-coords').textContent=lat+', '+lng;
+  }
+}
+
+function goBackToStep1(){
+  document.getElementById('inspect-step2').style.display='none';
+  document.getElementById('inspect-step1').style.display='block';
+  document.getElementById('step-dot-2').style.background='#e2e8f0';
+}
+
+function handlePhoto(input){
+  if(!input.files||!input.files[0]) return;
+  var file=input.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('photo-img').src=e.target.result;
+    document.getElementById('photo-preview').style.display='block';
+    document.getElementById('photo-placeholder').style.display='none';
+    if(currentInspectionZone){
+      currentInspectionZone.photoData=e.target.result;
+    }
+  };
+  reader.readAsDataURL(file);
+}
 
 function openInspection(zoneLabel, fieldName){
   currentInspectionZone = {zone: zoneLabel, field: fieldName, date: new Date().toISOString().split('T')[0]};
@@ -1052,51 +1120,85 @@ function newSearch(){
 }
 </script>
 <div id="inspection-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)">
-  <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px;max-height:90vh;overflow-y:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-size:17px;font-weight:800;color:#0a1525">📋 Ground Inspection</div>
-      <button onclick="closeInspection()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b7a90">✕</button>
-    </div>
-    <div id="inspection-zone-label" style="font-size:12px;color:#6b7a90;margin-bottom:20px"></div>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px;max-height:92vh;overflow-y:auto">
 
-    <div style="margin-bottom:20px">
-      <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Step 1 — Sward Density</div>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer">
-        <input type="radio" name="sward" value="dense" style="accent-color:#1a4a8c"> <span style="font-size:14px">Dense &amp; even — good cover throughout</span></label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer">
-        <input type="radio" name="sward" value="thin" style="accent-color:#1a4a8c"> <span style="font-size:14px">Thin patches present</span></label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
-        <input type="radio" name="sward" value="bare" style="accent-color:#1a4a8c"> <span style="font-size:14px">Bare ground visible</span></label>
+    <!-- Step indicator -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+      <div id="step-indicator" style="display:flex;gap:6px;flex:1">
+        <div id="step-dot-1" style="flex:1;height:3px;border-radius:2px;background:#1a4a8c"></div>
+        <div id="step-dot-2" style="flex:1;height:3px;border-radius:2px;background:#e2e8f0"></div>
+      </div>
+      <button onclick="closeInspection()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b7a90;margin-left:8px">✕</button>
     </div>
 
-    <div style="margin-bottom:20px">
-      <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Step 2 — Plant Mix</div>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer">
-        <input type="radio" name="plants" value="clean" style="accent-color:#1a4a8c"> <span style="font-size:14px">Clean ryegrass dominant</span></label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer">
-        <input type="radio" name="plants" value="mixed" style="accent-color:#1a4a8c"> <span style="font-size:14px">Mixed with some weeds</span></label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
-        <input type="radio" name="plants" value="weeds" style="accent-color:#1a4a8c"> <span style="font-size:14px">Weed dominated</span></label>
+    <!-- STEP 1 -->
+    <div id="inspect-step1">
+      <div style="font-size:17px;font-weight:800;color:#0a1525;margin-bottom:4px">📋 Ground Inspection</div>
+      <div id="inspection-zone-label" style="font-size:12px;color:#6b7a90;margin-bottom:20px"></div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">What issue do you see?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="selectIssue('compaction',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+            🚜<br>Compaction
+          </button>
+          <button onclick="selectIssue('thin_sward',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+            🌱<br>Thin Sward
+          </button>
+          <button onclick="selectIssue('weeds',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+            🌿<br>Weeds
+          </button>
+          <button onclick="selectIssue('overgrazing',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+            🐄<br>Overgrazing
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Severity</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="selectSeverity('mild',this)" class="sev-btn" style="flex:1;padding:10px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Mild</button>
+          <button onclick="selectSeverity('moderate',this)" class="sev-btn" style="flex:1;padding:10px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Moderate</button>
+          <button onclick="selectSeverity('severe',this)" class="sev-btn" style="flex:1;padding:10px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Severe</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Observation</div>
+        <textarea id="inspection-notes" placeholder="What do you see on the ground?" style="width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:sans-serif;outline:none;resize:none;height:70px"></textarea>
+      </div>
+
+      <div id="inspection-recommendation" style="display:none;background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:#1e3a5f"></div>
+
+      <button onclick="goToPhotoStep()" style="width:100%;padding:14px;background:#1a4a8c;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">Next: Add Photo →</button>
     </div>
 
-    <div style="margin-bottom:20px">
-      <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Step 3 — Ground Condition</div>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer">
-        <input type="radio" name="ground" value="firm" style="accent-color:#1a4a8c"> <span style="font-size:14px">Firm — no compaction</span></label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:8px;cursor:pointer">
-        <input type="radio" name="ground" value="soft" style="accent-color:#1a4a8c"> <span style="font-size:14px">Soft / spongy underfoot</span></label>
-      <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
-        <input type="radio" name="ground" value="compacted" style="accent-color:#1a4a8c"> <span style="font-size:14px">Hard compaction pan detected</span></label>
+    <!-- STEP 2: PHOTO -->
+    <div id="inspect-step2" style="display:none">
+      <div style="font-size:17px;font-weight:800;color:#0a1525;margin-bottom:4px">📸 Add Photo</div>
+      <div id="photo-zone-label" style="font-size:12px;color:#6b7a90;margin-bottom:16px"></div>
+
+      <div id="photo-preview" style="display:none;margin-bottom:16px">
+        <img id="photo-img" style="width:100%;border-radius:12px;max-height:240px;object-fit:cover">
+        <div id="photo-geotag" style="font-size:11px;color:#6b7a90;margin-top:6px;display:flex;align-items:center;gap:4px">📍 <span id="geotag-coords"></span></div>
+      </div>
+
+      <div id="photo-placeholder" style="border:2px dashed #e2e8f0;border-radius:12px;padding:32px;text-align:center;margin-bottom:16px;cursor:pointer" onclick="document.getElementById('photo-input').click()">
+        <div style="font-size:36px;margin-bottom:8px">📷</div>
+        <div style="font-size:14px;font-weight:600;color:#1a4a8c">Tap to take photo</div>
+        <div style="font-size:12px;color:#6b7a90;margin-top:4px">Opens your camera</div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(this)">
+
+      <div style="background:#f0fdf4;border:1px solid #d1fae5;border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:#065f46">
+        📍 Photo will be geotagged to <span id="photo-zone-coords" style="font-weight:700"></span>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="goBackToStep1()" style="flex:1;padding:14px;background:#f5f7fa;color:#1a4a8c;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:sans-serif">← Back</button>
+        <button onclick="saveInspection()" style="flex:2;padding:14px;background:#1a4a8c;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">Save ✓</button>
+      </div>
     </div>
-
-    <div style="margin-bottom:20px">
-      <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Notes (optional)</div>
-      <textarea id="inspection-notes" placeholder="Any observations..." style="width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:sans-serif;outline:none;resize:none;height:80px"></textarea>
-    </div>
-
-    <div id="inspection-recommendation" style="display:none;background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:#1e3a5f"></div>
-
-    <button onclick="saveInspection()" style="width:100%;padding:14px;background:#1a4a8c;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">Save Inspection ✓</button>
   </div>
 </div>
 </body>
