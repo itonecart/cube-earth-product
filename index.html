@@ -1236,7 +1236,7 @@ function renderIntel(d, f){
 
   // Freshness badge
   const badge = document.getElementById('sentinel-date-badge');
-  if(badge&&imgDate) badge.textContent = imgDate+(imgAge!=null?` · ${imgAge}d old`:'');
+  if(badge&&imgDate) badge.textContent = imgDate+(imgAge!=null?' · '+imgAge+'d old':'');
 
   // Map overlay
   const freshBadge = imgDate?` · ${imgDate}${imgAge!=null?` · ${imgAge}d old`:''}` :'';
