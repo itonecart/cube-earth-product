@@ -958,7 +958,7 @@ function renderIntel(d, f){
     if(bothHigh && !declining){
       decBg='linear-gradient(135deg,#0a1f0f,#1a5c38)';
       decAction='✓ Strong Growth — Both Sensors Agree';
-      decReason=`NDVI ${ndvi.toFixed(2)} · RVI ${rvi?.toFixed(2)||'—'} — dense healthy pasture. Both optical and radar confirm strong growth.`;
+      decReason='NDVI '+ndvi.toFixed(2)+' · RVI '+(rvi?.toFixed(2)||'—')+' — dense healthy pasture. Both optical and radar confirm strong growth.';
     } else if(bothHigh && declining){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
       decAction='⚠ Strong Cover — Growth Slowing';
