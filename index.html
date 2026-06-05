@@ -710,10 +710,14 @@ function renderIntel(d,f){
     var bothHigh=bothAgree||bothPositive;
     var ndviHighRviLow=ndvi>0.65&&rvi&&rvi<0.4;
     var ndviLowRviHigh=ndvi<0.4&&rvi&&rvi>0.6;
-    if(bothHigh&&!declining){
+    if(bothAgree&&!declining){
       decBg='linear-gradient(135deg,#0a1525,#1a4a8c)';
       decAction='\u2713 Strong Growth \u2014 Both Sensors Agree';
-      decReason='NDVI '+ndvi.toFixed(2)+' \u00b7 RVI '+(rvi?rvi.toFixed(2):'—')+' — dense healthy pasture. Both optical and radar confirm strong growth.';
+      decReason='NDVI '+ndvi.toFixed(2)+' \u00b7 RVI '+(rvi?rvi.toFixed(2):'\u2014')+' \u2014 both optical and radar strongly confirm healthy growth.';
+    } else if(bothPositive&&!bothAgree&&!declining){
+      decBg='linear-gradient(135deg,#0a1525,#1a4a8c)';
+      decAction='\u2713 Strong Growth';
+      decReason='NDVI '+ndvi.toFixed(2)+' \u00b7 RVI '+(rvi?rvi.toFixed(2):'\u2014')+' \u2014 optical and radar indicators are positive.';
     } else if(bothHigh&&declining){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
       decAction='\u26a0 Strong Cover \u2014 Growth Slowing';
