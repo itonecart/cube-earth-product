@@ -1240,7 +1240,7 @@ function renderIntel(d, f){
 
   // Map overlay
   const freshBadge = imgDate?' · '+imgDate+(imgAge!=null?' · '+imgAge+'d old':''):'';
-  document.getElementById('map-overlay').textContent = `🛰 Sentinel-2${freshBadge}`;
+  document.getElementById('map-overlay').textContent = '🛰 Sentinel-2'+freshBadge;
 
   // Zone analysis card
   renderZoneCard(d.vegetation?.zone_analysis);
