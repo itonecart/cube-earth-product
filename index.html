@@ -614,7 +614,7 @@ function injectAcuteTag(h){
     var el=document.querySelector('[data-zone-anomaly]');
     if(!el||el.querySelector('.acute-tag')||!h||!h.available) return;
     var atag='';
-    if(h.variability_type==='stable'||h.variability_type==='temporary'){
+    if(h.variability_type==='stable'||h.variability_type==='temporary'||h.variability_type==='mixed'){
       atag='<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">'
         +(h.cv_percent<5?'<div style="background:#1a4a8c;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#128202; LIKELY TEMPORARY · CV '+h.cv_percent+'%</div>':h.cv_percent<15?'<div style="background:#78350f;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#9888; RECURRING VARIATION · CV '+h.cv_percent+'%</div>':'<div style="background:#7f1d1d;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#9888; SIGNIFICANT VARIATION · CV '+h.cv_percent+'%</div>')
         +'<div style="padding:10px;background:#eff6ff;color:#1e3a5f;line-height:1.6">'
