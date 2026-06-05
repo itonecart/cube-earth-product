@@ -877,7 +877,7 @@ function renderIntel(d, f){
     const improving = vtd?.long_trend==='increasing'||vtd?.long_trend==='strong_increase';
     
     // Fusion logic: NDVI + RVI
-    const bothHigh = ndvi>0.65 && rvi>0.7;
+    const bothHigh = ndvi>0.65 && rvi>0.65;
     const ndviHighRviLow = ndvi>0.65 && rvi && rvi<0.4;  // drought stress
     const ndviLowRviHigh = ndvi<0.4 && rvi && rvi>0.6;   // post-grazing residual
     const bothLow = ndvi<0.4 && rvi && rvi<0.4;
@@ -1162,7 +1162,15 @@ function renderZoneCard(za){
           else if(hist3.variability_type==='chronic')
             tag=' <em style="color:#dc2626">[Chronic zone — underperformed consistently across multiple years. Structural soil or drainage issue likely.]</em>';
         }
-        return '<div data-zone-anomaly style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">⚠ '+za.anomaly+tag+'</div>';
+        const h3=window._lastHistorical;
+        let acuteTag='';
+        if(h3&&h3.available){
+          if(h3.variability_type==='stable'||h3.variability_type==='temporary')
+            acuteTag=`<div style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">📊 Acute Anomaly — Field history is very stable (CV ${h3.cv_percent}%). This zone dip is likely a temporary management issue, not a structural soil fault.</div>`;
+          else if(h3.variability_type==='chronic')
+            acuteTag=`<div style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed consistently across ${h3.years_analysed} years. Structural soil or drainage issue likely. Consider soil testing.</div>`;
+        }
+        return '<div data-zone-anomaly style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">⚠ '+za.anomaly+tag+acuteTag+'</div>';
       })():''}
     </div>
   </div>`;
