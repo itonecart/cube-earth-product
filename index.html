@@ -926,6 +926,17 @@ function switchMapLayer(idx){
           var fieldMean=za.ndvi_mean||(vals.reduce(function(a,b){return a+b;},0)/vals.length);
           var diff=((v-fieldMean)/fieldMean*100).toFixed(1);
           var diffStr=(diff>0?'+':'')+diff+'%';
+          // Calculate centroid of zone pts for accurate compass label
+          var cLat=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;
+          var cLng=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;
+          var dLat=cLat-midLt, dLng=cLng-midLon;
+          var compassDir='';
+          if(Math.abs(dLat)>Math.abs(dLng)*0.5){compassDir=dLat>0?'North':'South';}
+          else if(Math.abs(dLng)>Math.abs(dLat)*0.5){compassDir=dLng>0?'East':'West';}
+          if(Math.abs(dLat)>0.3*Math.max(Math.abs(dLat),Math.abs(dLng))&&Math.abs(dLng)>0.3*Math.max(Math.abs(dLat),Math.abs(dLng))){
+            compassDir=(dLat>0?'North':'South')+(dLng>0?'East':'West');
+          }
+          var compassLabel=compassDir||name;
           var poly=L.polygon(pts,{color:'none',fillColor:color,fillOpacity:0.65,weight:0});
           poly.on('click',function(){
             var popupHtml='<div style="font-family:sans-serif;min-width:200px">'
