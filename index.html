@@ -705,7 +705,9 @@ function renderIntel(d,f){
     var rvi=s&&s.rvi;
     var declining=vtd&&(vtd.long_trend==='declining'||vtd.long_trend==='strong_decline');
     var decAction,decReason,decBg;
-    var bothHigh=ndvi>0.65&&rvi>0.65;
+    var bothAgree=ndvi>=0.70&&rvi&&rvi>=0.75;
+    var bothPositive=ndvi>=0.65&&rvi&&rvi>=0.60;
+    var bothHigh=bothAgree||bothPositive;
     var ndviHighRviLow=ndvi>0.65&&rvi&&rvi<0.4;
     var ndviLowRviHigh=ndvi<0.4&&rvi&&rvi>0.6;
     if(bothHigh&&!declining){
