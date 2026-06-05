@@ -1344,10 +1344,7 @@ function switchMapLayer(idx){
       const leg=document.createElement('div');
       leg.id='zone-legend';
       leg.style.cssText='position:absolute;bottom:36px;left:8px;z-index:500;background:rgba(0,0,0,0.75);border-radius:8px;padding:8px 10px;font-size:11px;color:#fff;backdrop-filter:blur(4px)';
-      leg.innerHTML=`<div style="font-weight:700;margin-bottom:4px">Variability Zones</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>${za.high_ha}ha High (${za.high_pct}%)</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>${za.med_ha}ha Med (${za.med_pct}%)</div>
-        <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>${za.low_ha}ha Low (${za.low_pct}%)</div>`;
+      leg.innerHTML='<div style="font-weight:700;margin-bottom:4px">Variability Zones</div><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>'+za.high_ha+'ha High ('+za.high_pct+'%)</div><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>'+za.med_ha+'ha Med ('+za.med_pct+'%)</div><div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>'+za.low_ha+'ha Low ('+za.low_pct+'%)</div>';
       // Remove old legend first
       document.getElementById('zone-legend')?.remove();
       // Add to map container with high z-index
