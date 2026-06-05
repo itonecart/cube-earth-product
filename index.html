@@ -966,6 +966,7 @@ function renderIntel(d, f){
         .then(r=>r.json())
         .then(h=>{
           if(h.available){
+            window._lastHistorical = h;
             if(!currentField.profileData) currentField.profileData={};
             currentField.profileData.historical_analysis=h;
             // Populate card
@@ -1137,7 +1138,17 @@ function renderZoneCard(za){
           <div style="font-size:10px;color:var(--muted)">${za.low_pct}%</div>
         </div>
       </div>
-      ${za.anomaly?'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">⚠ '+za.anomaly+'</div>':''}
+      ${za.anomaly?(()=>{
+        const hist3=window._lastHistorical;
+        let tag='';
+        if(hist3&&hist3.available){
+          if(hist3.variability_type==='stable'||hist3.variability_type==='temporary')
+            tag=' <em style="color:#6b7280">[Acute anomaly — field history is stable. Likely temporary management or localised issue, not a soil fault.]</em>';
+          else if(hist3.variability_type==='chronic')
+            tag=' <em style="color:#dc2626">[Chronic zone — underperformed consistently across multiple years. Structural soil or drainage issue likely.]</em>';
+        }
+        return '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">⚠ '+za.anomaly+tag+'</div>';
+      })():''}
     </div>
   </div>`;
 }
