@@ -1037,7 +1037,7 @@ function renderIntel(d, f){
     setTimeout(()=>{
       if(!currentField) return;
       const f=currentField;
-      fetch(`${API}/test_historical?lat=${_hlat}&lng=${_hlng}`)
+      fetch(API+'/test_historical?lat='+_hlat+'&lng='+_hlng)
         .then(r=>r.json())
         .then(h=>{
           if(h.available){
