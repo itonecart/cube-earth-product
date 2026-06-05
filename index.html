@@ -985,6 +985,10 @@ function renderIntel(d, f){
             if(!currentField.profileData) currentField.profileData={};
             currentField.profileData.historical_analysis=h;
             // Populate card
+            // Re-render full intel with historical context
+            if(currentField && currentField.profileData){
+              renderIntel(currentField.profileData, currentField);
+            }
             document.getElementById('historical-card').style.display='block';
             document.getElementById('h-baseline').textContent=h.baseline_mean?.toFixed(3)||'-';
             document.getElementById('h-cv').textContent=h.cv_percent?h.cv_percent+'%':'-';
