@@ -989,14 +989,19 @@ var selectedSeverity = null;
 var selectedIssues = [];
 
 function toggleIssue(issue, btn){
+  var sevSection=document.querySelector('.sev-section');
+  var noReasonSection=document.getElementById('no-issue-reason-section');
   if(issue==='no_issue'){
-    // No issue clears all others
     selectedIssues=['no_issue'];
     document.querySelectorAll('.issue-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
     btn.style.borderColor='#16a34a';btn.style.background='#f0fdf4';btn.style.color='#16a34a';
+    if(sevSection) sevSection.style.display='none';
+    if(noReasonSection) noReasonSection.style.display='block';
     return;
   }
   // Remove no_issue if selecting real issue
+  if(noReasonSection) noReasonSection.style.display='none';
+  if(sevSection) sevSection.style.display='block';
   var noBtn=document.querySelector('.issue-btn[onclick*="no_issue"]');
   if(noBtn){noBtn.style.borderColor='#e2e8f0';noBtn.style.background='#fff';noBtn.style.color='#0a1525';}
   selectedIssues=selectedIssues.filter(function(i){return i!=='no_issue';});
@@ -1111,6 +1116,11 @@ function openInspectionPage(zoneLabel, zoneNdvi, fieldMean, cropName){
   document.getElementById('insp-zone-meta').textContent='NDVI '+zoneNdvi.toFixed(3)+(diff?' ('+diff+'% vs field avg)':'');
   document.getElementById('insp-notes').value='';
   selectedIssues=[];
+  var _nis=document.getElementById('no-issue-reason-section');
+  if(_nis) _nis.style.display='none';
+  var _ss=document.querySelector('.sev-section');
+  if(_ss) _ss.style.display='block';
+  document.querySelectorAll('input[name="no-issue-reason"]').forEach(function(c){c.checked=false;});
   document.querySelectorAll('.issue-btn,.sev-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
   var today=new Date();
   document.getElementById('insp-date').textContent=today.getDate()+' '+(today.toLocaleString('en',{month:'short'}))+' '+today.getFullYear();
@@ -1189,6 +1199,11 @@ function openInspection(zoneLabel, fieldName){
   document.getElementById('photo-preview').style.display='none';
   document.getElementById('photo-placeholder').style.display='block';
   selectedIssues=[];
+  var _nis=document.getElementById('no-issue-reason-section');
+  if(_nis) _nis.style.display='none';
+  var _ss=document.querySelector('.sev-section');
+  if(_ss) _ss.style.display='block';
+  document.querySelectorAll('input[name="no-issue-reason"]').forEach(function(c){c.checked=false;});
   document.querySelectorAll('.issue-btn,.sev-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
   var today=new Date();
   document.getElementById('insp-date').textContent=today.getDate()+' '+(today.toLocaleString('en',{month:'short'}))+' '+today.getFullYear();
@@ -1302,12 +1317,31 @@ function newSearch(){
       </div>
 
       <!-- Severity -->
-      <div style="margin-bottom:20px">
+      <div class="sev-section" style="margin-bottom:20px">
         <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Severity</div>
         <div style="display:flex;gap:8px">
           <button onclick="selectSeverity('mild',this)" class="sev-btn" style="flex:1;padding:12px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">🟡 Mild</button>
           <button onclick="selectSeverity('moderate',this)" class="sev-btn" style="flex:1;padding:12px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">🟠 Moderate</button>
           <button onclick="selectSeverity('severe',this)" class="sev-btn" style="flex:1;padding:12px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">🔴 Severe</button>
+        </div>
+      </div>
+
+      <!-- No Issue Reason (shown when No Issue selected) -->
+      <div id="no-issue-reason-section" style="display:none;margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Reason</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
+            <input type="checkbox" name="no-issue-reason" value="recovered" style="accent-color:#16a34a;width:18px;height:18px"> <span style="font-size:14px">🌱 Grass recovered since last scan</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
+            <input type="checkbox" name="no-issue-reason" value="recent_grazing" style="accent-color:#16a34a;width:18px;height:18px"> <span style="font-size:14px">🐄 Recent grazing — regrowth underway</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
+            <input type="checkbox" name="no-issue-reason" value="recent_cutting" style="accent-color:#16a34a;width:18px;height:18px"> <span style="font-size:14px">✂️ Recent cutting / silage</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
+            <input type="checkbox" name="no-issue-reason" value="cloud_shadow" style="accent-color:#16a34a;width:18px;height:18px"> <span style="font-size:14px">☁️ Cloud or shadow effect on image</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
+            <input type="checkbox" name="no-issue-reason" value="false_alarm" style="accent-color:#16a34a;width:18px;height:18px"> <span style="font-size:14px">🛰 Satellite false alarm</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;cursor:pointer">
+            <input type="checkbox" name="no-issue-reason" value="other_reason" style="accent-color:#16a34a;width:18px;height:18px"> <span style="font-size:14px">❓ Other reason</span></label>
         </div>
       </div>
 
