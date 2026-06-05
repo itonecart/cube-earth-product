@@ -986,13 +986,29 @@ var inspectionHistory = [];
 var selectedIssue = null;
 var selectedSeverity = null;
 
-function selectIssue(issue, btn){
-  selectedIssue = issue;
-  document.querySelectorAll('.issue-btn').forEach(function(b){
-    b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';
-  });
-  btn.style.borderColor='#1a4a8c';btn.style.background='#eff6ff';btn.style.color='#1a4a8c';
-  updateStep1Recommendation();
+var selectedIssues = [];
+
+function toggleIssue(issue, btn){
+  if(issue==='no_issue'){
+    // No issue clears all others
+    selectedIssues=['no_issue'];
+    document.querySelectorAll('.issue-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
+    btn.style.borderColor='#16a34a';btn.style.background='#f0fdf4';btn.style.color='#16a34a';
+    return;
+  }
+  // Remove no_issue if selecting real issue
+  var noBtn=document.querySelector('.issue-btn[onclick*="no_issue"]');
+  if(noBtn){noBtn.style.borderColor='#e2e8f0';noBtn.style.background='#fff';noBtn.style.color='#0a1525';}
+  selectedIssues=selectedIssues.filter(function(i){return i!=='no_issue';});
+  var idx=selectedIssues.indexOf(issue);
+  if(idx>=0){
+    selectedIssues.splice(idx,1);
+    btn.style.borderColor='#e2e8f0';btn.style.background='#fff';btn.style.color='#0a1525';
+  } else {
+    selectedIssues.push(issue);
+    btn.style.borderColor='#1a4a8c';btn.style.background='#eff6ff';btn.style.color='#1a4a8c';
+  }
+  selectedIssue=selectedIssues[0]||null;
 }
 
 function selectSeverity(sev, btn){
@@ -1068,6 +1084,8 @@ function addInspectionPhotos(input){
 
 function renderPhotoGrid(){
   var grid=document.getElementById('photo-grid');
+  var counter=document.getElementById('photo-counter');
+  if(counter) counter.textContent='('+inspectionPhotos.length+'/5)';
   grid.innerHTML='';
   inspectionPhotos.forEach(function(src,i){
     grid.innerHTML+='<div style="position:relative"><img src="'+src+'" style="width:100%;height:80px;object-fit:cover;border-radius:8px"><button onclick="removePhoto('+i+')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer">✕</button></div>';
@@ -1092,16 +1110,21 @@ function openInspectionPage(zoneLabel, zoneNdvi, fieldMean, cropName){
   var diff=fieldMean?((zoneNdvi-fieldMean)/fieldMean*100).toFixed(1):null;
   document.getElementById('insp-zone-meta').textContent='NDVI '+zoneNdvi.toFixed(3)+(diff?' ('+diff+'% vs field avg)':'');
   document.getElementById('insp-notes').value='';
+  selectedIssues=[];
   document.querySelectorAll('.issue-btn,.sev-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
+  var today=new Date();
+  document.getElementById('insp-date').textContent=today.getDate()+' '+(today.toLocaleString('en',{month:'short'}))+' '+today.getFullYear();
   currentInspectionZone={zone:zoneLabel,ndvi:zoneNdvi,fieldMean:fieldMean,field:cropName,lat:currentField&&currentField.lat||0,lng:currentField&&currentField.lng||0,date:new Date().toISOString().split('T')[0]};
   showPage('pg-inspection');
 }
 
 function saveInspectionAndPlan(){
-  if(!selectedIssue){alert('Please select what you see');return;}
+  if(!selectedIssues||selectedIssues.length===0){alert('Please select what you see');return;}
+  selectedIssue=selectedIssues[0];
   if(!selectedSeverity){alert('Please select severity');return;}
   var notes=document.getElementById('insp-notes').value;
   currentInspectionZone.issue=selectedIssue;
+  currentInspectionZone.issues=selectedIssues;
   currentInspectionZone.severity=selectedSeverity;
   currentInspectionZone.notes=notes;
   currentInspectionZone.photos=inspectionPhotos;
@@ -1165,7 +1188,10 @@ function openInspection(zoneLabel, fieldName){
   document.getElementById('step-dot-2').style.background='#e2e8f0';
   document.getElementById('photo-preview').style.display='none';
   document.getElementById('photo-placeholder').style.display='block';
+  selectedIssues=[];
   document.querySelectorAll('.issue-btn,.sev-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
+  var today=new Date();
+  document.getElementById('insp-date').textContent=today.getDate()+' '+(today.toLocaleString('en',{month:'short'}))+' '+today.getFullYear();
   document.getElementById('inspection-modal').style.display='block';
 }
 
@@ -1235,14 +1261,23 @@ function newSearch(){
 
       <!-- Zone info -->
       <div style="background:linear-gradient(135deg,#0a1525,#1a4a8c);border-radius:14px;padding:16px;color:#fff;margin-bottom:16px">
-        <div style="font-size:11px;opacity:0.7;margin-bottom:4px">INSPECTING</div>
-        <div style="font-size:18px;font-weight:800" id="insp-zone-title">Low Zone</div>
-        <div style="font-size:12px;opacity:0.8;margin-top:4px" id="insp-zone-meta"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:11px;opacity:0.7;margin-bottom:4px">INSPECTING</div>
+            <div style="font-size:18px;font-weight:800" id="insp-zone-title">Low Zone</div>
+            <div style="font-size:12px;opacity:0.8;margin-top:4px" id="insp-zone-meta"></div>
+            <div style="font-size:11px;opacity:0.7;margin-top:6px">📍 GPS saved automatically</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:10px;opacity:0.7">Inspection Date</div>
+            <div style="font-size:13px;font-weight:700" id="insp-date"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Photo upload -->
       <div style="margin-bottom:20px">
-        <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Photos (up to 5)</div>
+        <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Photos <span id="photo-counter">(0/5)</span></div>
         <div id="photo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px"></div>
         <div id="add-photo-btn" style="border:2px dashed #e2e8f0;border-radius:12px;padding:20px;text-align:center;cursor:pointer" onclick="document.getElementById('insp-photo-input').click()">
           <div style="font-size:28px">📷</div>
@@ -1256,12 +1291,13 @@ function newSearch(){
       <div style="margin-bottom:20px">
         <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">What do you see?</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button onclick="selectIssue('compaction',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🚜<br><span style="font-size:11px">Compaction</span></button>
-          <button onclick="selectIssue('thin_sward',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌱<br><span style="font-size:11px">Thin Sward</span></button>
-          <button onclick="selectIssue('weeds',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌿<br><span style="font-size:11px">Weeds</span></button>
-          <button onclick="selectIssue('overgrazing',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🐄<br><span style="font-size:11px">Overgrazing</span></button>
-          <button onclick="selectIssue('drainage',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">💧<br><span style="font-size:11px">Drainage</span></button>
-          <button onclick="selectIssue('other',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">❓<br><span style="font-size:11px">Other</span></button>
+          <button onclick="toggleIssue('compaction',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🚜<br><span style="font-size:11px">Compaction</span></button>
+          <button onclick="toggleIssue('thin_sward',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌱<br><span style="font-size:11px">Thin Sward</span></button>
+          <button onclick="toggleIssue('weeds',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌿<br><span style="font-size:11px">Weeds</span></button>
+          <button onclick="toggleIssue('overgrazing',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🐄<br><span style="font-size:11px">Overgrazing</span></button>
+          <button onclick="toggleIssue('drainage',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">💧<br><span style="font-size:11px">Drainage</span></button>
+          <button onclick="toggleIssue('no_issue',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">✅<br><span style="font-size:11px">No Issue</span></button>
+          <button onclick="toggleIssue('other',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">❓<br><span style="font-size:11px">Other</span></button>
         </div>
       </div>
 
