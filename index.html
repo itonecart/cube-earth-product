@@ -397,6 +397,27 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="irow"><span class="irow-label">Machinery</span><span class="irow-val" id="w-mach">—</span></div>
     </div>
 
+    <div class="icard" id="historical-card" style="display:none">
+      <div class="icard-hd">📅 Historical Baseline</div>
+      <div class="icard-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:11px;color:var(--muted)">5-Year Mean</div>
+            <div style="font-size:22px;font-weight:800;color:#fff" id="h-baseline">-</div>
+            <div style="font-size:11px;color:var(--muted)">NDVI</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:var(--muted)">Variability CV</div>
+            <div style="font-size:22px;font-weight:800;color:#fff" id="h-cv">-</div>
+            <div style="font-size:11px;color:var(--muted)">%</div>
+          </div>
+        </div>
+        <div id="h-cv-label" style="font-size:12px;color:var(--muted);margin-bottom:8px">-</div>
+        <div id="h-anomaly" style="font-size:14px;font-weight:600;color:#fff;margin-bottom:2px">-</div>
+        <div id="h-anomaly-pct" style="font-size:12px;color:var(--muted);margin-bottom:8px">-</div>
+        <div style="display:flex;gap:4px;align-items:flex-end;height:50px" id="h-chart"></div>
+      </div>
+    </div>
     <div class="icard" id="trend-card" style="display:none">
       <div class="icard-hd">📈 Vegetation Health Trend</div>
       <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
