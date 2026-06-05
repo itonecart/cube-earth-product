@@ -986,7 +986,7 @@ function renderIntel(d, f){
   } else {
     dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
     document.getElementById('intel-dec-action').textContent=ndvi>0.5?'✓ Good Condition':'👁 Monitor';
-    document.getElementById('intel-dec-reason').textContent=`NDVI ${ndvi?.toFixed(2)||'—'} — ${v.ndvi_status||'Crop condition assessed from satellite'}`;
+    document.getElementById('intel-dec-reason').textContent='NDVI '+(ndvi?.toFixed(2)||'—')+' — '+(v.ndvi_status||'Crop condition assessed from satellite');
   }
 
   // Weather
