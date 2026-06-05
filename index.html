@@ -946,13 +946,13 @@ function switchMapLayer(idx){
               +'<div style="font-size:12px;margin-bottom:8px;color:'+color+'">'+diffStr+' vs field average</div>'
               +(v<p25?'<div style="margin-top:8px"><button id="zone-inspect-btn" style="width:100%;padding:8px;background:#1a4a8c;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">&#128203; Start Ground Inspection</button></div>':'')
               +'</div>';
-            var _cl=compassLabel, _cn=cropName;
-            var pop=L.popup({maxWidth:260}).setLatLng(pts[0]).setContent(popupHtml);
-            pop.on('add',function(){
-              var btn=document.getElementById('zone-inspect-btn');
-              if(btn) btn.onclick=function(){openInspection(_cl+' Low Zone',_cn);};
-            });
-            pop.openOn(fieldMap);
+            // Tap low zone → go directly to inspection page
+            if(v<p25){
+              openInspectionPage(compassLabel+' Low Zone', v, fieldMean, cropName);
+            } else {
+              var pop=L.popup({maxWidth:260}).setLatLng(pts[0]).setContent(popupHtml);
+              pop.openOn(fieldMap);
+            }
           });
           poly.addTo(fieldMap);
         });
@@ -1052,6 +1052,106 @@ function handlePhoto(input){
   reader.readAsDataURL(file);
 }
 
+var inspectionPhotos = [];
+
+function addInspectionPhotos(input){
+  if(!input.files) return;
+  Array.from(input.files).slice(0, 5-inspectionPhotos.length).forEach(function(file){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      inspectionPhotos.push(e.target.result);
+      renderPhotoGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoGrid(){
+  var grid=document.getElementById('photo-grid');
+  grid.innerHTML='';
+  inspectionPhotos.forEach(function(src,i){
+    grid.innerHTML+='<div style="position:relative"><img src="'+src+'" style="width:100%;height:80px;object-fit:cover;border-radius:8px"><button onclick="removePhoto('+i+')" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer">✕</button></div>';
+  });
+  if(inspectionPhotos.length>=5){
+    document.getElementById('add-photo-btn').style.display='none';
+  }
+}
+
+function removePhoto(i){
+  inspectionPhotos.splice(i,1);
+  renderPhotoGrid();
+  document.getElementById('add-photo-btn').style.display='block';
+}
+
+function openInspectionPage(zoneLabel, zoneNdvi, fieldMean, cropName){
+  inspectionPhotos=[];
+  selectedIssue=null; selectedSeverity=null;
+  renderPhotoGrid();
+  document.getElementById('insp-zone-badge').textContent=zoneLabel;
+  document.getElementById('insp-zone-title').textContent=zoneLabel;
+  var diff=fieldMean?((zoneNdvi-fieldMean)/fieldMean*100).toFixed(1):null;
+  document.getElementById('insp-zone-meta').textContent='NDVI '+zoneNdvi.toFixed(3)+(diff?' ('+diff+'% vs field avg)':'');
+  document.getElementById('insp-notes').value='';
+  document.querySelectorAll('.issue-btn,.sev-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
+  currentInspectionZone={zone:zoneLabel,ndvi:zoneNdvi,fieldMean:fieldMean,field:cropName,lat:currentField&&currentField.lat||0,lng:currentField&&currentField.lng||0,date:new Date().toISOString().split('T')[0]};
+  showPage('pg-inspection');
+}
+
+function saveInspectionAndPlan(){
+  if(!selectedIssue){alert('Please select what you see');return;}
+  if(!selectedSeverity){alert('Please select severity');return;}
+  var notes=document.getElementById('insp-notes').value;
+  currentInspectionZone.issue=selectedIssue;
+  currentInspectionZone.severity=selectedSeverity;
+  currentInspectionZone.notes=notes;
+  currentInspectionZone.photos=inspectionPhotos;
+  inspectionHistory.push(JSON.parse(JSON.stringify(currentInspectionZone)));
+  renderActionPlan();
+  showPage('pg-action');
+}
+
+function renderActionPlan(){
+  var z=currentInspectionZone;
+  var hist=window._lastHistorical||{};
+  document.getElementById('action-zone-title').textContent=z.zone||'Zone';
+  document.getElementById('action-date').textContent=z.date+' · '+z.field;
+  var issueLabels={compaction:'🚜 Compaction',thin_sward:'🌱 Thin Sward',weeds:'🌿 Weed Pressure',overgrazing:'🐄 Overgrazing Damage',drainage:'💧 Poor Drainage',other:'❓ Other Issue'};
+  document.getElementById('action-issue').textContent=issueLabels[z.issue]||z.issue;
+  document.getElementById('action-severity').textContent='Severity: '+z.severity.charAt(0).toUpperCase()+z.severity.slice(1);
+  document.getElementById('action-notes-summary').textContent=z.notes||'';
+  var steps={
+    compaction:['Schedule aeration or subsoiling after next grazing rotation','Avoid heavy machinery on this zone until ground firms','Monitor NDVI weekly — expect improvement within 3-4 weeks'],
+    thin_sward:['Direct-drill oversowing with perennial ryegrass','Target late summer or autumn slot for best establishment','Apply 20-25 kg/ha seed rate','Delay grazing for 6-8 weeks after oversowing'],
+    weeds:['Spot-spray or mechanical top before next grazing','Identify weed species to select correct herbicide','Re-assess via satellite in 4 weeks'],
+    overgrazing:['Rest zone for minimum 3 weeks','Reduce stocking rate on this paddock','Apply 20 units N/ha when ground conditions allow'],
+    drainage:['Assess drain network — check for blocked field drains','Consider mole drainage or gravel slit drainage','Avoid heavy grazing in wet periods'],
+    other:['Walk zone during next farm walk','Record observations and monitor via satellite weekly']
+  };
+  var stepList=steps[z.issue]||steps.other;
+  document.getElementById('action-steps').innerHTML=stepList.map(function(s,i){
+    return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
+      +'<div style="width:22px;height:22px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1a4a8c;flex-shrink:0">'+(i+1)+'</div>'
+      +'<div style="font-size:13px;line-height:1.5">'+s+'</div></div>';
+  }).join('');
+  if(z.ndvi) document.getElementById('action-ndvi').textContent=z.ndvi.toFixed(3);
+  if(z.fieldMean) document.getElementById('action-field-avg').textContent=z.fieldMean.toFixed(3);
+  if(hist.cv_percent) document.getElementById('action-cv').textContent=hist.cv_percent+'% ('+hist.variability_type+')';
+  document.getElementById('action-type').textContent=hist.variability_type==='stable'?'Temporary / Acute':'Chronic / Structural';
+  var recovery={compaction:{opt:'10d',nom:'14d',pes:'21d'},thin_sward:{opt:'6wk',nom:'8wk',pes:'12wk'},weeds:{opt:'2wk',nom:'4wk',pes:'6wk'},overgrazing:{opt:'10d',nom:'21d',pes:'28d'},drainage:{opt:'1mo',nom:'2mo',pes:'3mo'},other:{opt:'1wk',nom:'2wk',pes:'4wk'}};
+  var rec=recovery[z.issue]||recovery.other;
+  document.getElementById('rec-opt').textContent=rec.opt;
+  document.getElementById('rec-nom').textContent=rec.nom;
+  document.getElementById('rec-pes').textContent=rec.pes;
+}
+
+function startVerification(){
+  var toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a4a8c;color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;text-align:center;';
+  toast.innerHTML='✓ Verification check set<br><span style="font-size:11px;opacity:0.8">Satellite will track this zone weekly</span>';
+  document.body.appendChild(toast);
+  setTimeout(function(){toast.remove();showPage('pg-farm');},3000);
+}
+
 function openInspection(zoneLabel, fieldName){
   var lat=currentField&&currentField.lat||0;
   var lng=currentField&&currentField.lng||0;
@@ -1123,6 +1223,127 @@ function newSearch(){
   showPage('pg-setup1');
 }
 </script>
+<!-- INSPECTION PAGE -->
+<div class="page" id="pg-inspection">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-intel')">←</button>
+    <div class="tb-title">Ground Inspection</div>
+    <div style="font-size:12px;color:var(--muted)" id="insp-zone-badge"></div>
+  </div>
+  <div class="scroll">
+    <div style="padding:16px">
+
+      <!-- Zone info -->
+      <div style="background:linear-gradient(135deg,#0a1525,#1a4a8c);border-radius:14px;padding:16px;color:#fff;margin-bottom:16px">
+        <div style="font-size:11px;opacity:0.7;margin-bottom:4px">INSPECTING</div>
+        <div style="font-size:18px;font-weight:800" id="insp-zone-title">Low Zone</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:4px" id="insp-zone-meta"></div>
+      </div>
+
+      <!-- Photo upload -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Photos (up to 5)</div>
+        <div id="photo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px"></div>
+        <div id="add-photo-btn" style="border:2px dashed #e2e8f0;border-radius:12px;padding:20px;text-align:center;cursor:pointer" onclick="document.getElementById('insp-photo-input').click()">
+          <div style="font-size:28px">📷</div>
+          <div style="font-size:13px;font-weight:600;color:#1a4a8c;margin-top:4px">Add Photo</div>
+          <div style="font-size:11px;color:#6b7a90">Tap to open camera</div>
+        </div>
+        <input type="file" id="insp-photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="addInspectionPhotos(this)">
+      </div>
+
+      <!-- Issue type -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">What do you see?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="selectIssue('compaction',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🚜<br><span style="font-size:11px">Compaction</span></button>
+          <button onclick="selectIssue('thin_sward',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌱<br><span style="font-size:11px">Thin Sward</span></button>
+          <button onclick="selectIssue('weeds',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌿<br><span style="font-size:11px">Weeds</span></button>
+          <button onclick="selectIssue('overgrazing',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🐄<br><span style="font-size:11px">Overgrazing</span></button>
+          <button onclick="selectIssue('drainage',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">💧<br><span style="font-size:11px">Drainage</span></button>
+          <button onclick="selectIssue('other',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">❓<br><span style="font-size:11px">Other</span></button>
+        </div>
+      </div>
+
+      <!-- Severity -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Severity</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="selectSeverity('mild',this)" class="sev-btn" style="flex:1;padding:12px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">🟡 Mild</button>
+          <button onclick="selectSeverity('moderate',this)" class="sev-btn" style="flex:1;padding:12px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">🟠 Moderate</button>
+          <button onclick="selectSeverity('severe',this)" class="sev-btn" style="flex:1;padding:12px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">🔴 Severe</button>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Observations</div>
+        <textarea id="insp-notes" placeholder="Describe what you see on the ground..." style="width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;resize:none;height:90px"></textarea>
+      </div>
+
+      <button onclick="saveInspectionAndPlan()" style="width:100%;padding:14px;background:#1a4a8c;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans)">Save &amp; Get Action Plan →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION PLAN PAGE -->
+<div class="page" id="pg-action">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-inspection')">←</button>
+    <div class="tb-title">Action Plan</div>
+  </div>
+  <div class="scroll">
+    <div style="padding:16px">
+      <div style="background:linear-gradient(135deg,#0a1525,#1a4a8c);border-radius:14px;padding:16px;color:#fff;margin-bottom:16px">
+        <div style="font-size:11px;opacity:0.7;margin-bottom:4px">ACTION PLAN FOR</div>
+        <div style="font-size:18px;font-weight:800" id="action-zone-title"></div>
+        <div style="font-size:12px;opacity:0.8;margin-top:4px" id="action-date"></div>
+      </div>
+
+      <!-- Diagnosis -->
+      <div class="icard" style="margin:0 0 12px">
+        <div class="icard-hd">🔍 Diagnosis</div>
+        <div style="padding:14px 16px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:6px" id="action-issue"></div>
+          <div style="font-size:13px;color:var(--muted)" id="action-severity"></div>
+          <div style="font-size:13px;color:var(--muted);margin-top:6px" id="action-notes-summary"></div>
+        </div>
+      </div>
+
+      <!-- Recommended actions -->
+      <div class="icard" style="margin:0 0 12px">
+        <div class="icard-hd">✅ Recommended Actions</div>
+        <div id="action-steps" style="padding:14px 16px"></div>
+      </div>
+
+      <!-- Satellite context -->
+      <div class="icard" style="margin:0 0 12px">
+        <div class="icard-hd">🛰 Satellite Context</div>
+        <div style="padding:14px 16px">
+          <div class="irow" style="padding:6px 0;border:none"><span style="color:var(--muted);font-size:13px">Zone NDVI</span><span style="font-weight:600" id="action-ndvi"></span></div>
+          <div class="irow" style="padding:6px 0;border:none"><span style="color:var(--muted);font-size:13px">Field average</span><span style="font-weight:600" id="action-field-avg"></span></div>
+          <div class="irow" style="padding:6px 0;border:none"><span style="color:var(--muted);font-size:13px">Historical CV</span><span style="font-weight:600" id="action-cv"></span></div>
+          <div class="irow" style="padding:6px 0;border:none;border-top:1px solid var(--border)"><span style="color:var(--muted);font-size:13px">Likely type</span><span style="font-weight:600;color:#1a4a8c" id="action-type"></span></div>
+        </div>
+      </div>
+
+      <!-- Recovery timeline -->
+      <div class="icard" style="margin:0 0 16px">
+        <div class="icard-hd">⏱ Expected Recovery</div>
+        <div style="padding:14px 16px">
+          <div style="display:flex;gap:8px;text-align:center">
+            <div style="flex:1;background:#f5f7fa;border-radius:8px;padding:10px"><div style="font-size:18px;font-weight:800;color:#1a4a8c" id="rec-opt">—</div><div style="font-size:10px;color:var(--muted)">Optimistic</div></div>
+            <div style="flex:1;background:#eff6ff;border-radius:8px;padding:10px;border:2px solid #1a4a8c"><div style="font-size:18px;font-weight:800;color:#1a4a8c" id="rec-nom">—</div><div style="font-size:10px;color:var(--muted)">Expected</div></div>
+            <div style="flex:1;background:#f5f7fa;border-radius:8px;padding:10px"><div style="font-size:18px;font-weight:800;color:#6b7a90" id="rec-pes">—</div><div style="font-size:10px;color:var(--muted)">If dry</div></div>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="startVerification()" style="width:100%;padding:14px;background:#1a4a8c;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans)">Set Up Verification Check →</button>
+    </div>
+  </div>
+</div>
+
 <div id="inspection-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)">
   <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px;max-height:92vh;overflow-y:auto">
 
