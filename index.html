@@ -985,9 +985,12 @@ function renderIntel(d, f){
             if(!currentField.profileData) currentField.profileData={};
             currentField.profileData.historical_analysis=h;
             // Populate card
-            // Re-render with historical context, then repopulate cards
+            // Re-render with historical context
+            console.log('Re-rendering with historical, profileData:', !!currentField?.profileData, 'hist type:', h.variability_type);
             if(currentField && currentField.profileData){
               renderIntel(currentField.profileData, currentField);
+            } else {
+              console.log('No profileData — cannot re-render');
             }
             // Populate historical card AFTER renderIntel
             setTimeout(()=>{
