@@ -4,32 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>Cube Earth — Irish Farm Intelligence</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --g1:#0a1f0f;--g2:#0f3320;--g3:#1a5c38;--g4:#2d7a50;--g5:#4a9a6f;
-  --g-pale:#e8f5ee;--g-soft:#d1edd9;
+  --g1:#0a1525;--g2:#0f2540;--g3:#1a4a8c;--g4:#2d6abf;--g5:#4a8fd4;
+  --g-pale:#e8f0f9;--g-soft:#d1e3f5;
   --amber:#d97706;--amber-lt:#fef9ee;--amber-bd:#fde68a;
   --red:#dc2626;--red-lt:#fff5f5;--red-bd:#fca5a5;
-  --text:#0a0f0c;--muted:#6b7a70;--border:#e2ebe5;
-  --surface:#f5f9f6;--white:#fff;
+  --text:#0a0f1c;--muted:#6b7a90;--border:#e2e8f0;
+  --surface:#f5f7fa;--white:#fff;
   --sans:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
   --nav:60px;--top:52px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--surface);color:var(--text);}
-
-/* PAGES */
 .page{position:fixed;inset:0;display:none;flex-direction:column;}
 .page.active{display:flex;}
-
-/* LOGIN */
-#pg-login{background:linear-gradient(160deg,#051209,#0d2e18,#1a5c38);align-items:center;justify-content:center;padding:24px;}
+#pg-login{background:linear-gradient(160deg,#050d1a,#0d2040,#1a4a8c);align-items:center;justify-content:center;padding:24px;}
 .login-wrap{width:100%;max-width:360px;}
 .login-logo{text-align:center;margin-bottom:32px;}
 .logo-icon{font-size:52px;display:block;margin-bottom:10px;}
@@ -45,50 +39,35 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 .divider{text-align:center;color:var(--muted);font-size:12px;margin:14px 0;position:relative;}
 .divider::before,.divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:var(--border);}
 .divider::before{left:0;}.divider::after{right:0;}
-
-/* TOP BAR */
 .topbar{height:var(--top);display:flex;align-items:center;padding:0 16px;gap:10px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0;z-index:10;}
 .tb-title{font-size:17px;font-weight:700;flex:1;letter-spacing:-0.3px;}
 .back-btn{background:none;border:none;font-size:24px;cursor:pointer;color:var(--g3);padding:0;line-height:1;}
 .icon-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;background:var(--surface);border:1px solid var(--border);border-radius:8px;}
-
-/* SCROLL */
 .scroll{flex:1;overflow-y:auto;padding-bottom:80px;}
 .scroll::-webkit-scrollbar{display:none;}
-
-/* SETUP STEPS */
 .setup-progress{display:flex;gap:4px;padding:12px 16px;background:var(--white);border-bottom:1px solid var(--border);}
 .step-dot{flex:1;height:4px;border-radius:2px;background:var(--border);}
 .step-dot.done{background:var(--g3);}
 .step-dot.active{background:var(--g4);}
-
 .setup-hd{padding:24px 20px 16px;text-align:center;}
 .setup-step-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
 .setup-title{font-size:22px;font-weight:800;color:var(--g1);letter-spacing:-0.5px;margin-bottom:6px;}
 .setup-sub{font-size:13px;color:var(--muted);line-height:1.5;}
-
 .form-card{background:var(--white);border:1px solid var(--border);border-radius:14px;margin:0 16px 12px;overflow:hidden;}
 .form-row{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
 .form-row:last-child{border-bottom:none;}
 .form-row label{font-size:13px;font-weight:600;color:var(--muted);width:100px;flex-shrink:0;}
 .form-row input,.form-row select{flex:1;border:none;outline:none;font-size:14px;font-family:var(--sans);background:transparent;color:var(--text);}
-.form-row select{cursor:pointer;}
-
-/* MAP PICKER */
 #setup-map{flex:1;min-height:0;}
 .map-search-bar{padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border);display:flex;gap:8px;}
 .map-search-input{flex:1;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;}
 .map-search-input:focus{border-color:var(--g3);}
 .map-search-btn{padding:10px 16px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer;}
-
-.map-hint-bar{padding:8px 14px;background:rgba(26,92,56,0.9);color:#fff;font-size:12px;font-weight:500;text-align:center;flex-shrink:0;}
-
+.map-hint-bar{padding:8px 14px;background:rgba(26,74,140,0.9);color:#fff;font-size:12px;font-weight:500;text-align:center;flex-shrink:0;}
 .selected-parcels-bar{background:var(--white);border-top:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .selected-count{font-size:13px;font-weight:700;color:var(--g3);flex:1;}
 .btn-save-farm{padding:10px 20px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:var(--sans);cursor:pointer;}
-.btn-save-farm:disabled{background:#86efac;cursor:not-allowed;}
-
-/* FARM DASHBOARD */
+.btn-save-farm:disabled{background:#90b8e0;cursor:not-allowed;}
 .farm-hero{background:linear-gradient(135deg,var(--g1),var(--g3));padding:20px 16px 22px;color:#fff;}
 .farm-name{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
 .farm-meta{font-size:13px;opacity:0.75;margin-bottom:16px;}
@@ -97,9 +76,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 .fpill-g{background:rgba(255,255,255,0.15);color:#fff;}
 .fpill-a{background:rgba(217,119,6,0.3);color:#fde68a;}
 .fpill-r{background:rgba(220,38,38,0.3);color:#fca5a5;}
-
 .section-hd{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:16px 16px 8px;}
-
 .field-row{display:flex;align-items:center;padding:14px 16px;background:var(--white);border-bottom:1px solid var(--border);cursor:pointer;gap:12px;}
 .field-row:active{background:var(--surface);}
 .fd{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
@@ -111,27 +88,21 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 .fr-action{font-size:13px;font-weight:700;}
 .fr-action.g{color:#16a34a;}.fr-action.a{color:#d97706;}.fr-action.r{color:#dc2626;}
 .fr-cover{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px;}
-
-/* INTEL PAGE */
 #field-map{height:45vh;width:100%;flex-shrink:0;background:#111;position:relative;}
 .map-overlay{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.7);color:#fff;font-size:10px;padding:5px 10px;border-radius:8px;z-index:400;font-family:var(--mono);pointer-events:none;backdrop-filter:blur(4px);}
-
 #layer-switcher{position:absolute;top:8px;right:8px;z-index:1000;background:rgba(0,0,0,0.75);border-radius:10px;padding:8px 12px;backdrop-filter:blur(4px);}
 .ls-title{font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
 .ls-label{display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0;}
 .ls-label-text{font-size:12px;color:#fff;}
 .ls-label-sub{font-size:10px;color:rgba(255,255,255,0.5);}
-
 .intel-hd{padding:14px 14px 0;background:var(--white);}
 .intel-type{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
 .intel-crop{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:3px;}
 .intel-meta{font-size:13px;color:var(--muted);padding-bottom:14px;border-bottom:1px solid var(--border);}
-
 .decision{margin:12px 14px;border-radius:16px;padding:18px 20px;color:#fff;}
 .dec-label{font-size:10px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
-.dec-action{font-size:26px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;}
+.dec-action{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;}
 .dec-reason{font-size:13px;opacity:0.88;line-height:1.5;}
-
 .metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;}
 .mc{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;}
 .mc-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
@@ -139,7 +110,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 .mc-unit{font-size:11px;color:var(--muted);margin-top:2px;}
 .mc-note{font-size:11px;font-weight:600;margin-top:5px;}
 .note-g{color:#16a34a;}.note-a{color:#d97706;}.note-r{color:#dc2626;}
-
 .icard{background:var(--white);border:1px solid var(--border);border-radius:14px;margin:10px 14px 0;overflow:hidden;}
 .icard-hd{padding:12px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--border);}
 .irow{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;}
@@ -147,8 +117,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 .irow-label{color:var(--muted);}
 .irow-val{font-weight:600;}
 .irow-val.g{color:#16a34a;}.irow-val.a{color:#d97706;}.irow-val.r{color:#dc2626;}
-
-/* PLANS */
 .plan-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;margin:0 14px 10px;}
 .plan-card.featured{border-color:var(--g3);border-width:2px;position:relative;}
 .plan-badge{position:absolute;top:-10px;left:16px;background:var(--g3);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:100px;}
@@ -157,16 +125,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 .plan-price span{font-size:13px;font-weight:400;color:var(--muted);}
 .plan-desc{font-size:12px;color:var(--muted);line-height:1.6;margin:8px 0;}
 .plan-btn{width:100%;padding:10px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);margin-top:10px;}
-
-/* BOTTOM NAV */
 .bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--white);border-top:1px solid var(--border);display:none;z-index:1000;}
 .bnav.show{display:flex;}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);border:none;background:none;font-family:var(--sans);padding:6px 4px;}
 .ni.active{color:var(--g3);}
 .ni-icon{font-size:22px;line-height:1;}
 .ni-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;}
-
-/* LOADING */
 .loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);}
 .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--g3);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -174,7 +138,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 </head>
 <body>
 
-<!-- LOGIN -->
 <div class="page active" id="pg-login">
   <div class="login-wrap">
     <div class="login-logo">
@@ -193,16 +156,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   </div>
 </div>
 
-<!-- SETUP STEP 1: FARM DETAILS -->
 <div class="page" id="pg-setup1">
-  <div class="topbar">
-    <div class="tb-title">🌍 Add My Farm</div>
-  </div>
-  <div class="setup-progress">
-    <div class="step-dot active"></div>
-    <div class="step-dot"></div>
-    <div class="step-dot"></div>
-  </div>
+  <div class="topbar"><div class="tb-title">🌍 Add My Farm</div></div>
+  <div class="setup-progress"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
   <div class="scroll">
     <div class="setup-hd">
       <div class="setup-step-label">Step 1 of 3</div>
@@ -210,12 +166,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="setup-sub">This helps us show the right field intelligence for your enterprise</div>
     </div>
     <div class="form-card">
-      <div class="form-row">
-        <label>Farm name</label>
-        <input type="text" id="farm-name" placeholder="e.g. Brookfield Farm">
-      </div>
-      <div class="form-row">
-        <label>County</label>
+      <div class="form-row"><label>Farm name</label><input type="text" id="farm-name" placeholder="e.g. Brookfield Farm"></div>
+      <div class="form-row"><label>County</label>
         <select id="farm-county">
           <option value="">Select county...</option>
           <option>Carlow</option><option>Cavan</option><option>Clare</option>
@@ -229,45 +181,28 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
           <option>Wexford</option><option>Wicklow</option>
         </select>
       </div>
-      <div class="form-row">
-        <label>Enterprise</label>
+      <div class="form-row"><label>Enterprise</label>
         <select id="farm-type">
           <option value="">Select type...</option>
-          <option>Dairy</option>
-          <option>Beef</option>
-          <option>Sheep</option>
-          <option>Mixed Livestock</option>
-          <option>Tillage / Arable</option>
-          <option>Mixed Crop & Livestock</option>
-          <option>Other</option>
+          <option>Dairy</option><option>Beef</option><option>Sheep</option>
+          <option>Mixed Livestock</option><option>Tillage / Arable</option>
+          <option>Mixed Crop & Livestock</option><option>Other</option>
         </select>
       </div>
-      <div class="form-row">
-        <label>In ACRES?</label>
-        <select id="farm-acres">
-          <option value="no">No</option>
-          <option value="yes">Yes</option>
-          <option value="applied">Applied</option>
-        </select>
+      <div class="form-row"><label>In ACRES?</label>
+        <select id="farm-acres"><option value="no">No</option><option value="yes">Yes</option><option value="applied">Applied</option></select>
       </div>
     </div>
-    <div style="padding:0 16px 16px">
-      <button class="btn-p" onclick="goSetup2()">Next: Select Fields on Map →</button>
-    </div>
+    <div style="padding:0 16px 16px"><button class="btn-p" onclick="goSetup2()">Next: Select Fields on Map →</button></div>
   </div>
 </div>
 
-<!-- SETUP STEP 2: SELECT FIELDS ON MAP -->
 <div class="page" id="pg-setup2">
   <div class="topbar">
     <button class="back-btn" onclick="showPage('pg-setup1')">←</button>
     <div class="tb-title">Select Your Fields</div>
   </div>
-  <div class="setup-progress">
-    <div class="step-dot done"></div>
-    <div class="step-dot active"></div>
-    <div class="step-dot"></div>
-  </div>
+  <div class="setup-progress"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
   <div class="map-search-bar">
     <input class="map-search-input" id="map-search-input" placeholder="🔍 Search townland or village...">
     <button class="map-search-btn" onclick="searchOnMap()">Go</button>
@@ -280,11 +215,8 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   </div>
 </div>
 
-<!-- SETUP STEP 3: SAVING -->
 <div class="page" id="pg-setup3">
-  <div class="topbar">
-    <div class="tb-title">Setting Up Your Farm</div>
-  </div>
+  <div class="topbar"><div class="tb-title">Setting Up Your Farm</div></div>
   <div class="loading">
     <div class="spinner"></div>
     <div style="font-size:14px;font-weight:600;color:var(--text)">Analysing your fields...</div>
@@ -292,7 +224,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   </div>
 </div>
 
-<!-- FARM DASHBOARD -->
 <div class="page" id="pg-farm">
   <div class="topbar">
     <div class="tb-title" id="dash-farm-name">My Farm</div>
@@ -313,14 +244,12 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   </div>
 </div>
 
-<!-- FIELD INTELLIGENCE -->
 <div class="page" id="pg-intel">
   <div class="topbar">
     <button class="back-btn" onclick="showPage('pg-farm')">←</button>
     <div class="tb-title" id="intel-title">Field</div>
     <div id="intel-badge" style="font-size:18px">🟢</div>
   </div>
-
   <div class="scroll" id="intel-scroll">
     <div id="field-map" style="position:relative">
       <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.3)">
@@ -329,30 +258,25 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="map-overlay" id="map-overlay">🛰 Sentinel-2</div>
       <div id="layer-switcher">
         <div class="ls-title">🗺 Layers</div>
-        <label class="ls-label"><input type="radio" name="maplayer" value="0" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
+        <label class="ls-label"><input type="radio" name="maplayer" value="0" checked style="accent-color:#4a8fd4;flex-shrink:0" onchange="switchMapLayer(0)">
           <div><div class="ls-label-text">🗺 Aerial Imagery</div><div class="ls-label-sub">High-res · field reference</div></div></label>
-        <label class="ls-label"><input type="radio" name="maplayer" value="0" checked style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(0)">
+        <label class="ls-label"><input type="radio" name="maplayer" value="1" style="accent-color:#4a8fd4;flex-shrink:0" onchange="switchMapLayer(1)">
           <div><div class="ls-label-text">🗺 Variability Zones</div><div class="ls-label-sub">High / Med / Low</div></div></label>
-        <label class="ls-label"><input type="radio" name="maplayer" value="2" style="accent-color:#00ff88;flex-shrink:0" onchange="switchMapLayer(2)">
+        <label class="ls-label"><input type="radio" name="maplayer" value="2" style="accent-color:#4a8fd4;flex-shrink:0" onchange="switchMapLayer(2)">
           <div><div class="ls-label-text">🛰 Sentinel RGB</div><div class="ls-label-sub" id="sentinel-date-badge">Recent · Copernicus</div></div></label>
-
       </div>
     </div>
-
     <div class="intel-hd">
       <div class="intel-type" id="intel-type">🌱 Grassland</div>
       <div class="intel-crop" id="intel-crop">Permanent Pasture</div>
-      <div class="intel-meta" id="intel-meta">— ha · — · —</div>
+      <div class="intel-meta" id="intel-meta">— ha · —</div>
     </div>
-
-    <div class="decision" id="intel-decision" style="background:linear-gradient(135deg,#0a1f0f,#1a5c38)">
+    <div class="decision" id="intel-decision" style="background:linear-gradient(135deg,#0a1525,#1a4a8c)">
       <div class="dec-label">Today's Decision</div>
       <div class="dec-action" id="intel-dec-action">Analysing...</div>
       <div class="dec-reason" id="intel-dec-reason">Loading satellite data for this field</div>
     </div>
-
     <div class="metrics">
-
       <div class="mc">
         <div class="mc-label">🌾 Crop Vitality</div>
         <div class="mc-val" id="m-ndvi">—</div>
@@ -378,9 +302,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <div class="mc-note note-g" id="m-veg-pct">—</div>
       </div>
     </div>
-
     <div id="zone-card"></div>
-
     <div class="icard" id="traf-card">
       <div class="icard-hd">🚜 Trafficability & Ground</div>
       <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
@@ -396,24 +318,23 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="irow"><span class="irow-label">Wetness risk</span><span class="irow-val" id="w-wet">—</span></div>
       <div class="irow"><span class="irow-label">Machinery</span><span class="irow-val" id="w-mach">—</span></div>
     </div>
-
     <div class="icard" id="historical-card" style="display:none">
       <div class="icard-hd">📅 Historical Baseline</div>
-      <div class="icard-body">
+      <div style="padding:14px 16px">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px">
           <div>
             <div style="font-size:11px;color:var(--muted)">5-Year Mean</div>
-            <div style="font-size:22px;font-weight:800;color:#fff" id="h-baseline">-</div>
+            <div style="font-size:22px;font-weight:800;color:var(--g1)" id="h-baseline">-</div>
             <div style="font-size:11px;color:var(--muted)">NDVI</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:11px;color:var(--muted)">Variability CV</div>
-            <div style="font-size:22px;font-weight:800;color:#fff" id="h-cv">-</div>
+            <div style="font-size:22px;font-weight:800;color:var(--g1)" id="h-cv">-</div>
             <div style="font-size:11px;color:var(--muted)">%</div>
           </div>
         </div>
         <div id="h-cv-label" style="font-size:12px;color:var(--muted);margin-bottom:8px">-</div>
-        <div id="h-anomaly" style="font-size:14px;font-weight:600;color:#fff;margin-bottom:2px">-</div>
+        <div id="h-anomaly" style="font-size:14px;font-weight:600;margin-bottom:2px">-</div>
         <div id="h-anomaly-pct" style="font-size:12px;color:var(--muted);margin-bottom:8px">-</div>
         <div style="display:flex;gap:4px;align-items:flex-end;height:50px" id="h-chart"></div>
       </div>
@@ -437,18 +358,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="irow"><span class="irow-label">vs seasonal baseline</span><span class="irow-val" id="trend-seasonal">—</span></div>
       <div class="irow"><span class="irow-label">Latest observation</span><span class="irow-val" id="trend-latest">—</span></div>
     </div>
-
     <div class="icard" id="compliance-card" style="display:none">
       <div class="icard-hd">📋 Compliance</div>
       <div class="irow"><span class="irow-label">ACRES</span><span class="irow-val g" id="c-acres">—</span></div>
       <div class="irow"><span class="irow-label">Eco Scheme</span><span class="irow-val g" id="c-eco">—</span></div>
       <div class="irow"><span class="irow-label">BISS</span><span class="irow-val g" id="c-biss">—</span></div>
     </div>
-
     <div class="icard" style="margin-bottom:12px">
-      <div class="icard-hd" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
-        Field Details ▼
-      </div>
+      <div class="icard-hd" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">Field Details ▼</div>
       <div style="display:none">
         <div class="irow"><span class="irow-label">LPIS data</span><span class="irow-val">DAFM 2024</span></div>
         <div class="irow"><span class="irow-label">Satellite</span><span class="irow-val">Sentinel-2 L2A</span></div>
@@ -459,7 +376,6 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   </div>
 </div>
 
-<!-- PLANS -->
 <div class="page" id="pg-plans">
   <div class="topbar">
     <button class="back-btn" onclick="showPage('pg-farm')">←</button>
@@ -474,346 +390,223 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="plan-name">🌱 Basic</div>
       <div class="plan-price">€30<span>/month</span></div>
       <div class="plan-desc">Up to 5 fields · Weekly grass cover updates · NDVI + soil moisture · Grazing decisions · ACRES monitoring · Email alerts</div>
-      <button class="plan-btn" onclick="alert('Coming soon — launching shortly')">Get Started →</button>
+      <button class="plan-btn" onclick="alert('Coming soon')">Get Started →</button>
     </div>
     <div class="plan-card featured">
       <div class="plan-badge">MOST POPULAR</div>
       <div class="plan-name">🌾 Farm</div>
       <div class="plan-price">€50<span>/month</span></div>
-      <div class="plan-desc">Unlimited fields · Daily updates · AI field advisor · Vegetation trend analysis · Seasonal anomaly detection · PDF reports · Multi-field dashboard</div>
-      <button class="plan-btn" onclick="alert('Coming soon — launching shortly')">Get Started →</button>
+      <div class="plan-desc">Unlimited fields · Daily updates · AI field advisor · Vegetation trend analysis · Seasonal anomaly detection · PDF reports</div>
+      <button class="plan-btn" onclick="alert('Coming soon')">Get Started →</button>
     </div>
     <div class="plan-card" style="margin-bottom:16px">
       <div class="plan-name">🚀 Pro</div>
       <div class="plan-price">€100<span>/month</span></div>
-      <div class="plan-desc">Multi-farm management · Priority support · Custom reports · API access · Advisor portal · White label option</div>
-      <button class="plan-btn" style="background:var(--g1)" onclick="alert('Contact us: hello@cubed-earth.com')">Contact Us →</button>
+      <div class="plan-desc">Multi-farm management · Priority support · Custom reports · API access · Advisor portal</div>
+      <button class="plan-btn" style="background:var(--g1)" onclick="alert('Contact: hello@cubed-earth.com')">Contact Us →</button>
     </div>
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bnav" id="bnav">
-  <button class="ni active" onclick="navTo('pg-farm',this)" id="ni-farm">
-    <span class="ni-icon">🏠</span><span class="ni-label">Farm</span>
-  </button>
-  <button class="ni" onclick="navTo('pg-plans',this)" id="ni-plans">
-    <span class="ni-icon">💳</span><span class="ni-label">Plans</span>
-  </button>
-  <button class="ni" onclick="newSearch()" id="ni-search">
-    <span class="ni-icon">🔍</span><span class="ni-label">New Search</span>
-  </button>
-  <button class="ni" id="ni-dev" style="display:none" onclick="navTo('pg-intel',this)">
-    <span class="ni-icon">🛰</span><span class="ni-label">Dev</span>
-  </button>
+  <button class="ni active" onclick="navTo('pg-farm',this)" id="ni-farm"><span class="ni-icon">🏠</span><span class="ni-label">Farm</span></button>
+  <button class="ni" onclick="navTo('pg-plans',this)" id="ni-plans"><span class="ni-icon">💳</span><span class="ni-label">Plans</span></button>
+  <button class="ni" onclick="newSearch()" id="ni-search"><span class="ni-icon">🔍</span><span class="ni-label">New Search</span></button>
 </div>
 
 <script>
 const API = 'https://cube-earth.onrender.com';
-let farmData = {name:'', county:'', type:'', acres:'no'};
-let selectedParcels = []; // parcels selected on map
-let myFields = []; // processed fields with NDVI
+let farmData = {name:'',county:'',type:'',acres:'no'};
+let selectedParcels = [];
+let myFields = [];
 let setupMap = null;
 let fieldMap = null;
 let currentField = null;
 window._lastZoneAnalysis = null;
+window._lastHistorical = null;
 
-// Dev mode
-if(new URLSearchParams(window.location.search).get('dev')==='1'){
-  document.getElementById('ni-dev').style.display='flex';
-}
-
-// ── NAVIGATION ──
 function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.getElementById(id).classList.add('active');
 }
-
-function navTo(id, btn){
+function navTo(id,btn){
   showPage(id);
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('active');});
   if(btn) btn.classList.add('active');
 }
-
-function goSetup(){
-  showPage('pg-setup1');
-}
-
+function goSetup(){ showPage('pg-setup1'); }
 function goSetup2(){
-  const name = document.getElementById('farm-name').value.trim();
+  var name=document.getElementById('farm-name').value.trim();
   if(!name){alert('Please enter your farm name');return;}
-  farmData.name = name;
-  farmData.county = document.getElementById('farm-county').value;
-  farmData.type = document.getElementById('farm-type').value;
-  farmData.acres = document.getElementById('farm-acres').value;
+  farmData.name=name;
+  farmData.county=document.getElementById('farm-county').value;
+  farmData.type=document.getElementById('farm-type').value;
+  farmData.acres=document.getElementById('farm-acres').value;
   showPage('pg-setup2');
-  setTimeout(initSetupMap, 300);
+  setTimeout(initSetupMap,300);
 }
 
-// ── SETUP MAP ──
 function initSetupMap(){
   if(setupMap) return;
-  setupMap = L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
-    maxZoom:20, attribution:'© Esri'
-  }).addTo(setupMap);
-
-  // If county selected, zoom to it
-  const countyCoords = {
-    'Kerry':[52.1,-9.5],'Cork':[51.9,-8.5],'Tipperary':[52.5,-8.0],
-    'Galway':[53.3,-9.0],'Mayo':[53.9,-9.2],'Clare':[52.8,-9.0],
-    'Limerick':[52.5,-8.6],'Waterford':[52.2,-7.6],'Wexford':[52.3,-6.5],
-    'Wicklow':[52.9,-6.4],'Kildare':[53.2,-6.8],'Dublin':[53.3,-6.3],
-    'Meath':[53.6,-6.7],'Louth':[53.9,-6.5],'Monaghan':[54.2,-6.9],
-    'Cavan':[54.0,-7.4],'Donegal':[54.8,-8.1],'Sligo':[54.0,-8.5],
-    'Leitrim':[54.1,-8.0],'Roscommon':[53.6,-8.2],'Longford':[53.7,-7.8],
-    'Westmeath':[53.5,-7.5],'Offaly':[53.2,-7.7],'Laois':[52.9,-7.3],
-    'Kilkenny':[52.6,-7.2],'Carlow':[52.7,-6.9]
-  };
-  if(farmData.county && countyCoords[farmData.county]){
-    setupMap.setView(countyCoords[farmData.county], 12);
-    loadParcelsOnMap(countyCoords[farmData.county][0], countyCoords[farmData.county][1]);
+  setupMap=L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'© Esri'}).addTo(setupMap);
+  var countyCoords={'Kerry':[52.1,-9.5],'Cork':[51.9,-8.5],'Tipperary':[52.5,-8.0],'Galway':[53.3,-9.0],'Mayo':[53.9,-9.2],'Clare':[52.8,-9.0],'Limerick':[52.5,-8.6],'Waterford':[52.2,-7.6],'Wexford':[52.3,-6.5],'Wicklow':[52.9,-6.4],'Kildare':[53.2,-6.8],'Dublin':[53.3,-6.3],'Meath':[53.6,-6.7],'Louth':[53.9,-6.5],'Monaghan':[54.2,-6.9],'Cavan':[54.0,-7.4],'Donegal':[54.8,-8.1],'Sligo':[54.0,-8.5],'Leitrim':[54.1,-8.0],'Roscommon':[53.6,-8.2],'Longford':[53.7,-7.8],'Westmeath':[53.5,-7.5],'Offaly':[53.2,-7.7],'Laois':[52.9,-7.3],'Kilkenny':[52.6,-7.2],'Carlow':[52.7,-6.9]};
+  if(farmData.county&&countyCoords[farmData.county]){
+    setupMap.setView(countyCoords[farmData.county],12);
+    loadParcelsOnMap(countyCoords[farmData.county][0],countyCoords[farmData.county][1]);
   }
-
-  setupMap.on('moveend', ()=>{
-    const c = setupMap.getCenter();
-    if(setupMap.getZoom() >= 13){
-      loadParcelsOnMap(c.lat, c.lng);
-    }
+  setupMap.on('moveend',function(){
+    var c=setupMap.getCenter();
+    if(setupMap.getZoom()>=13) loadParcelsOnMap(c.lat,c.lng);
   });
 }
 
-let parcelLayers = {};
-let loadingParcels = false;
-
-async function loadParcelsOnMap(lat, lng){
+var parcelLayers={};
+var loadingParcels=false;
+async function loadParcelsOnMap(lat,lng){
   if(loadingParcels) return;
-  loadingParcels = true;
+  loadingParcels=true;
   try{
-    const b = setupMap.getBounds();
-    const url = `${API}/parcels_in_bbox?minlng=${b.getWest()}&minlat=${b.getSouth()}&maxlng=${b.getEast()}&maxlat=${b.getNorth()}`;
-    const r = await fetch(url);
-    const data = await r.json();
-    const features = (data.features||[]).filter(f=>{
-      const c=(f.properties?.CROP||'').toLowerCase();
-      const area=parseFloat(f.properties?.CLAIM_AREA||0);
-      const skip=['building','road','water','farmyard','forestry ineligible','habitat'];
-      return !skip.some(s=>c.includes(s)) && c!=='' && area>0.2;
+    var b=setupMap.getBounds();
+    var url=API+'/parcels_in_bbox?minlng='+b.getWest()+'&minlat='+b.getSouth()+'&maxlng='+b.getEast()+'&maxlat='+b.getNorth();
+    var r=await fetch(url);
+    var data=await r.json();
+    var features=(data.features||[]).filter(function(f){
+      var c=(f.properties&&f.properties.CROP||'').toLowerCase();
+      var area=parseFloat(f.properties&&f.properties.CLAIM_AREA||0);
+      var skip=['building','road','water','farmyard','forestry ineligible','habitat'];
+      return !skip.some(function(s){return c.includes(s);})&&c!==''&&area>0.2;
     });
-    features.forEach(f=>{
-      const id = f.properties?.PAR_LAB||Math.random().toString();
+    features.forEach(function(f){
+      var id=f.properties&&f.properties.PAR_LAB||Math.random().toString();
       if(parcelLayers[id]) return;
-      const selected = selectedParcels.find(p=>p.id===id);
-      const layer = L.geoJSON(f,{
-        style:{
-          color: selected?'#00ff88':'rgba(255,255,255,0.6)',
-          weight: selected?3:1.5,
-          fillColor: selected?'#00ff88':'transparent',
-          fillOpacity: selected?0.2:0
-        }
-      }).addTo(setupMap);
-      layer.on('click',()=>toggleParcel(id, f, layer));
-      parcelLayers[id] = {layer, feature:f};
+      var selected=selectedParcels.find(function(p){return p.id===id;});
+      var layer=L.geoJSON(f,{style:{color:selected?'#4a8fd4':'rgba(255,255,255,0.6)',weight:selected?3:1.5,fillColor:selected?'#4a8fd4':'transparent',fillOpacity:selected?0.2:0}}).addTo(setupMap);
+      layer.on('click',function(){toggleParcel(id,f,layer);});
+      parcelLayers[id]={layer:layer,feature:f};
     });
   }catch(e){}
-  loadingParcels = false;
+  loadingParcels=false;
 }
 
-function toggleParcel(id, feature, layer){
-  const idx = selectedParcels.findIndex(p=>p.id===id);
+function toggleParcel(id,feature,layer){
+  var idx=selectedParcels.findIndex(function(p){return p.id===id;});
   if(idx>=0){
     selectedParcels.splice(idx,1);
     layer.setStyle({color:'rgba(255,255,255,0.6)',weight:1.5,fillColor:'transparent',fillOpacity:0});
   } else {
-    const p = feature.properties||{};
-    const coords = feature.geometry?.coordinates?.[0]||[];
-    const lat = coords.length?coords.reduce((s,c)=>s+c[1],0)/coords.length:0;
-    const lng = coords.length?coords.reduce((s,c)=>s+c[0],0)/coords.length:0;
-    selectedParcels.push({
-      id, lat, lng,
-      crop: p.CROP||'Unknown',
-      area: parseFloat(p.CLAIM_AREA||0),
-      olr: p.OLR||'Owned',
-      eco: p.ECO==='Y',
-      biss: p.BISS==='Y',
-      acres: p.ACRES==='Y',
-      geometry: feature.geometry,
-      properties: p,
-      status:'amber', action:'Loading...', cover:null, ndvi:null
-    });
-    layer.setStyle({color:'#00ff88',weight:3,fillColor:'#00ff88',fillOpacity:0.2});
+    var p=feature.properties||{};
+    var coords=feature.geometry&&feature.geometry.coordinates&&feature.geometry.coordinates[0]||[];
+    var lat=coords.length?coords.reduce(function(s,c){return s+c[1];},0)/coords.length:0;
+    var lng=coords.length?coords.reduce(function(s,c){return s+c[0];},0)/coords.length:0;
+    selectedParcels.push({id:id,lat:lat,lng:lng,crop:p.CROP||'Unknown',area:parseFloat(p.CLAIM_AREA||0),olr:p.OLR||'Owned',eco:p.ECO==='Y',biss:p.BISS==='Y',acres:p.ACRES==='Y',geometry:feature.geometry,properties:p,status:'amber',action:'Loading...',cover:null,ndvi:null});
+    layer.setStyle({color:'#4a8fd4',weight:3,fillColor:'#4a8fd4',fillOpacity:0.2});
   }
   updateSelectedCount();
 }
 
 function updateSelectedCount(){
-  const n = selectedParcels.length;
-  document.getElementById('selected-count-hint').textContent = `${n} selected`;
-  document.getElementById('selected-count-bar').textContent = n===0?'No fields selected':`${n} field${n>1?'s':''} selected`;
-  document.getElementById('btn-save').disabled = n===0;
+  var n=selectedParcels.length;
+  document.getElementById('selected-count-hint').textContent=n+' selected';
+  document.getElementById('selected-count-bar').textContent=n===0?'No fields selected':n+' field'+(n>1?'s':'')+' selected';
+  document.getElementById('btn-save').disabled=n===0;
 }
 
 async function searchOnMap(){
-  const q = document.getElementById('map-search-input').value.trim();
+  var q=document.getElementById('map-search-input').value.trim();
   if(!q) return;
   try{
-    const county = farmData.county||'Ireland';
-    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+', '+county+', Ireland')}&format=json&limit=1`);
-    const data = await r.json();
-    if(data.length){
-      setupMap.setView([data[0].lat, data[0].lon], 14);
-      loadParcelsOnMap(data[0].lat, data[0].lon);
-    }
+    var county=farmData.county||'Ireland';
+    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q+', '+county+', Ireland')+'&format=json&limit=1');
+    var data=await r.json();
+    if(data.length){setupMap.setView([data[0].lat,data[0].lon],14);loadParcelsOnMap(data[0].lat,data[0].lon);}
   }catch(e){}
 }
 
-// ── SAVE FARM ──
 async function saveFarm(){
   showPage('pg-setup3');
-  myFields = [...selectedParcels];
-  
-  // Load NDVI for each field
-  for(let i=0; i<myFields.length; i++){
-    const f = myFields[i];
-    document.getElementById('setup-status').textContent = `Analysing field ${i+1} of ${myFields.length}: ${f.crop}`;
+  myFields=[...selectedParcels];
+  for(var i=0;i<myFields.length;i++){
+    var f=myFields[i];
+    document.getElementById('setup-status').textContent='Analysing field '+(i+1)+' of '+myFields.length+': '+f.crop;
     try{
-      const r = await fetch(`${API}/field_profile`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({
-          lat:f.lat, lng:f.lng, year:2026,
-          parcel_override:{
-            crop:f.crop, claim_area:f.area,
-            grassland:f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass'),
-            eco:f.eco, biss:f.biss, olr:f.olr
-          }
-        })
-      });
-      const d = await r.json();
+      var r=await fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:f.lat,lng:f.lng,year:2026,parcel_override:{crop:f.crop,claim_area:f.area,grassland:f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass'),eco:f.eco,biss:f.biss,olr:f.olr}})});
+      var d=await r.json();
       if(d.success){
-        const ndvi = d.vegetation?.ndvi;
-        const smap = d.soil_moisture?.smap?.sm_surface_m3;
-        f.ndvi = ndvi;
-        f.smap = smap;
-        f.profileData = d;
+        var ndvi=d.vegetation&&d.vegetation.ndvi;
+        f.ndvi=ndvi;f.profileData=d;
         if(ndvi){
-          const h = Math.max(0,(ndvi-0.15)*18);
-          f.cover = Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
-          const isGrass = f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass');
-          if(isGrass){
-            f.status = f.cover>1800?'green':f.cover>1200?'amber':'red';
-            f.action = f.cover>1800?'Graze Now':f.cover>1200?'Monitor':'Check Field';
-          } else {
-            f.status = ndvi>0.5?'green':ndvi>0.3?'amber':'red';
-            f.action = ndvi>0.5?'Good':'Monitor';
-          }
+          var h=Math.max(0,(ndvi-0.15)*18);
+          f.cover=Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+          var isG=f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass');
+          if(isG){f.status=f.cover>1800?'green':f.cover>1200?'amber':'red';f.action=f.cover>1800?'Graze Now':f.cover>1200?'Monitor':'Check Field';}
+          else{f.status=ndvi>0.5?'green':ndvi>0.3?'amber':'red';f.action=ndvi>0.5?'Good':'Monitor';}
         }
       }
-    }catch(e){ f.status='amber'; f.action='Monitor'; }
+    }catch(e){f.status='amber';f.action='Monitor';}
   }
-
-  // Show farm dashboard
   renderFarmDashboard();
   showPage('pg-farm');
   document.getElementById('bnav').classList.add('show');
 }
 
-// ── FARM DASHBOARD ──
 function renderFarmDashboard(){
-  const name = farmData.name || 'My Farm';
-  document.getElementById('dash-farm-name').textContent = name;
-  document.getElementById('hero-farm-name').textContent = name;
-  const totalHa = myFields.reduce((s,f)=>s+f.area,0).toFixed(1);
-  document.getElementById('hero-farm-meta').textContent = `${farmData.county||'Ireland'} · ${totalHa} ha · ${myFields.length} fields`;
-
-  const g = myFields.filter(f=>f.status==='green').length;
-  const a = myFields.filter(f=>f.status==='amber').length;
-  const red = myFields.filter(f=>f.status==='red').length;
-  document.getElementById('cnt-g').textContent = g;
-  document.getElementById('cnt-a').textContent = a;
-  document.getElementById('cnt-r').textContent = red;
-
-  const sorted = [...myFields].sort((a,b)=>{
-    const order={red:0,amber:1,green:2};
-    return order[a.status]-order[b.status];
-  });
-
-  const el = document.getElementById('field-list');
-  el.innerHTML = sorted.map((f,i)=>`
-    <div class="field-row" onclick="openField(${myFields.indexOf(f)})">
-      <div class="fd fd-${f.status[0]}"></div>
-      <div class="fr-info">
-        <div class="fr-name">Field ${myFields.indexOf(f)+1} · ${f.crop}</div>
-        <div class="fr-meta">${f.area} ha · ${f.olr||'Owned'}</div>
-      </div>
-      <div class="fr-right">
-        <div class="fr-action ${f.status[0]}">${f.action}</div>
-        ${f.cover?`<div class="fr-cover">${f.cover.toLocaleString()} kg DM/ha</div>`:''}
-      </div>
-      <div style="color:var(--muted);font-size:18px;margin-left:6px">›</div>
-    </div>`).join('');
+  var name=farmData.name||'My Farm';
+  document.getElementById('dash-farm-name').textContent=name;
+  document.getElementById('hero-farm-name').textContent=name;
+  var totalHa=myFields.reduce(function(s,f){return s+f.area;},0).toFixed(1);
+  document.getElementById('hero-farm-meta').textContent=(farmData.county||'Ireland')+' · '+totalHa+' ha · '+myFields.length+' fields';
+  var g=myFields.filter(function(f){return f.status==='green';}).length;
+  var a=myFields.filter(function(f){return f.status==='amber';}).length;
+  var red=myFields.filter(function(f){return f.status==='red';}).length;
+  document.getElementById('cnt-g').textContent=g;
+  document.getElementById('cnt-a').textContent=a;
+  document.getElementById('cnt-r').textContent=red;
+  var sorted=[...myFields].sort(function(a,b){var o={red:0,amber:1,green:2};return o[a.status]-o[b.status];});
+  var el=document.getElementById('field-list');
+  el.innerHTML=sorted.map(function(f,i){
+    var fi=myFields.indexOf(f);
+    var coverHtml=f.cover?'<div class="fr-cover">'+f.cover.toLocaleString()+' kg DM/ha</div>':'';
+    return '<div class="field-row" onclick="openField('+fi+')">'
+      +'<div class="fd fd-'+f.status[0]+'"></div>'
+      +'<div class="fr-info"><div class="fr-name">Field '+(fi+1)+' \u00b7 '+f.crop+'</div><div class="fr-meta">'+f.area+' ha \u00b7 '+(f.olr||'Owned')+'</div></div>'
+      +'<div class="fr-right"><div class="fr-action '+f.status[0]+'">'+f.action+'</div>'+coverHtml+'</div>'
+      +'<div style="color:var(--muted);font-size:18px;margin-left:6px">›</div>'
+      +'</div>';
+  }).join('');
 }
 
-// ── OPEN FIELD ──
 function openField(idx){
-  currentField = myFields[idx];
+  currentField=myFields[idx];
   showPage('pg-intel');
-  
-  document.getElementById('intel-title').textContent = `Field ${idx+1}`;
-  const isGrass = currentField.crop.toLowerCase().includes('pasture')||currentField.crop.toLowerCase().includes('grass');
-  document.getElementById('intel-type').textContent = isGrass?'🌱 Grassland':'🌾 Tillage/Arable';
-  // Simplify crop label for display
-  let displayCrop = currentField.crop||'Unknown';
+  document.getElementById('intel-title').textContent='Field '+(idx+1);
+  var isGrass=currentField.crop.toLowerCase().includes('pasture')||currentField.crop.toLowerCase().includes('grass');
+  document.getElementById('intel-type').textContent=isGrass?'🌱 Grassland':'🌾 Tillage/Arable';
+  var displayCrop=currentField.crop||'Unknown';
   if(displayCrop.toLowerCase().includes('extensive')) displayCrop='Permanent Pasture';
   if(displayCrop.toLowerCase().includes('rough grazing')) displayCrop='Rough Grazing / Hill Land';
-  if(displayCrop.toLowerCase().includes('commonage')) displayCrop='Commonage';
-  document.getElementById('intel-crop').textContent = displayCrop;
-  document.getElementById('intel-meta').textContent = `${currentField.area} ha · ${currentField.olr||'Owned'}`;
-  document.getElementById('intel-badge').textContent = currentField.status==='green'?'🟢':currentField.status==='amber'?'🟡':'🔴';
-
-  // Populate from cached profileData or fetch fresh
-  if(currentField.profileData){
-    renderIntel(currentField.profileData, currentField);
-  } else {
+  document.getElementById('intel-crop').textContent=displayCrop;
+  document.getElementById('intel-meta').textContent=currentField.area+' ha \u00b7 '+(currentField.olr||'Owned');
+  document.getElementById('intel-badge').textContent=currentField.status==='green'?'🟢':currentField.status==='amber'?'🟡':'🔴';
+  if(currentField.profileData){renderIntel(currentField.profileData,currentField);}
+  else{
     renderIntelLoading();
-    // Fetch fresh data
-    fetch(`${API}/field_profile`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        lat:currentField.lat, lng:currentField.lng, year:2026,
-        parcel_override:{
-          crop:currentField.crop,
-          claim_area:currentField.area,
-          grassland:currentField.crop?.toLowerCase().includes('pasture')||currentField.crop?.toLowerCase().includes('grass'),
-          eco:currentField.eco, biss:currentField.biss, olr:currentField.olr
-        }
-      })
-    }).then(r=>r.json()).then(d=>{
-      if(d.success){
-        currentField.profileData=d;
-        renderIntel(d, currentField);
-      }
-    }).catch(e=>console.log('Intel fetch error:',e));
+    fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:currentField.lat,lng:currentField.lng,year:2026,parcel_override:{crop:currentField.crop,claim_area:currentField.area,grassland:currentField.crop.toLowerCase().includes('pasture'),eco:currentField.eco,biss:currentField.biss,olr:currentField.olr}})})
+      .then(function(r){return r.json();}).then(function(d){if(d.success){currentField.profileData=d;renderIntel(d,currentField);}}).catch(function(e){console.log('fetch error',e);});
   }
-
-  // Init map
-  setTimeout(()=>{
+  setTimeout(function(){
     if(fieldMap){fieldMap.remove();fieldMap=null;}
-    fieldMap = L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
+    fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
     if(currentField.geometry){
-      const l = L.geoJSON({type:'Feature',geometry:currentField.geometry},{
-        style:{color:'#00ff88',weight:2.5,fill:false}
-      }).addTo(fieldMap);
+      var l=L.geoJSON({type:'Feature',geometry:currentField.geometry},{style:{color:'#4a8fd4',weight:2.5,fill:false}}).addTo(fieldMap);
       fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
       switchMapLayer(0);
     } else {
-      fieldMap.setView([currentField.lat, currentField.lng],15);
+      fieldMap.setView([currentField.lat,currentField.lng],15);
       switchMapLayer(0);
     }
   },300);
-
-  document.getElementById('intel-scroll').scrollTop = 0;
+  document.getElementById('intel-scroll').scrollTop=0;
 }
 
 function injectAcuteTag(h){
@@ -823,27 +616,27 @@ function injectAcuteTag(h){
     var atag='';
     if(h.variability_type==='stable'||h.variability_type==='temporary'){
       atag='<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">'
-        +'<div style="background:#065f46;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">📊 TEMPORARY VARIATION · CV '+h.cv_percent+'%</div>'
-        +'<div style="padding:10px;background:#f0fdf4;color:#065f46;line-height:1.6">'
+        +'<div style="background:#1a4a8c;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#128202; TEMPORARY VARIATION \u00b7 CV '+h.cv_percent+'%</div>'
+        +'<div style="padding:10px;background:#eff6ff;color:#1e3a5f;line-height:1.6">'
         +'<div style="margin-bottom:8px">Field history is stable. The low-performing zone is likely a <strong>temporary management issue</strong>, not a chronic soil or drainage problem.</div>'
         +'<div style="margin-bottom:6px;font-weight:600;color:#374151">&#10060; Ruled Out</div>'
-        +'<div style="color:#6b7280;margin-bottom:4px">• Chronic drainage — eliminated (CV '+h.cv_percent+'%)</div>'
-        +'<div style="color:#6b7280;margin-bottom:8px">• General N deficiency — eliminated (field-wide NDVI healthy)</div>'
-        +'<div style="background:#fff;border:1px solid #d1fae5;border-radius:6px;padding:8px;margin-bottom:8px">'
-        +'<div style="font-weight:700;margin-bottom:6px;color:#065f46">&#128205; Field Walk — Southeast Zone</div>'
-        +'<div>&#128193; Step 1 — Sward density: Look for bare patches</div>'
-        +'<div>&#128193; Step 2 — Plant mix: Check for weed competition</div>'
-        +'<div>&#128193; Step 3 — Penetration test: Check for compaction</div>'
+        +'<div style="color:#6b7280;margin-bottom:4px">\u2022 Chronic drainage \u2014 eliminated (CV '+h.cv_percent+'%)</div>'
+        +'<div style="color:#6b7280;margin-bottom:8px">\u2022 General N deficiency \u2014 eliminated (field-wide NDVI healthy)</div>'
+        +'<div style="background:#fff;border:1px solid #dbeafe;border-radius:6px;padding:8px;margin-bottom:8px">'
+        +'<div style="font-weight:700;margin-bottom:6px;color:#1a4a8c">&#128205; Field Walk \u2014 Low-Cover Zone</div>'
+        +'<div>&#128193; Step 1 \u2014 Sward density: Look for bare patches</div>'
+        +'<div>&#128193; Step 2 \u2014 Plant mix: Check for weed competition</div>'
+        +'<div>&#128193; Step 3 \u2014 Penetration test: Check for compaction</div>'
         +'</div>'
-        +'<div style="background:#fff;border:1px solid #d1fae5;border-radius:6px;padding:8px;margin-bottom:8px">'
-        +'<div style="font-weight:700;margin-bottom:4px;color:#065f46">&#9200; Recovery Forecast</div>'
+        +'<div style="background:#fff;border:1px solid #dbeafe;border-radius:6px;padding:8px;margin-bottom:8px">'
+        +'<div style="font-weight:700;margin-bottom:4px;color:#1a4a8c">&#9200; Recovery Forecast</div>'
         +'<div style="display:flex;gap:8px;text-align:center">'
-        +'<div style="flex:1;background:#f0fdf4;border-radius:4px;padding:4px"><div style="font-weight:700">10d</div><div style="font-size:10px;color:#6b7280">Optimistic</div></div>'
-        +'<div style="flex:1;background:#dcfce7;border-radius:4px;padding:4px;border:1px solid #16a34a"><div style="font-weight:700;color:#15803d">14d</div><div style="font-size:10px;color:#6b7280">Nominal</div></div>'
-        +'<div style="flex:1;background:#f0fdf4;border-radius:4px;padding:4px"><div style="font-weight:700">21d</div><div style="font-size:10px;color:#6b7280">Dry spell</div></div>'
+        +'<div style="flex:1;background:#eff6ff;border-radius:4px;padding:4px"><div style="font-weight:700">10d</div><div style="font-size:10px;color:#6b7280">Optimistic</div></div>'
+        +'<div style="flex:1;background:#dbeafe;border-radius:4px;padding:4px;border:1px solid #3b82f6"><div style="font-weight:700;color:#1d4ed8">14d</div><div style="font-size:10px;color:#6b7280">Nominal</div></div>'
+        +'<div style="flex:1;background:#eff6ff;border-radius:4px;padding:4px"><div style="font-weight:700">21d</div><div style="font-size:10px;color:#6b7280">Dry spell</div></div>'
         +'</div></div>'
-        +'<div style="background:#fff;border:1px solid #d1fae5;border-radius:6px;padding:8px">'
-        +'<div style="font-weight:700;margin-bottom:4px;color:#065f46">&#128202; Risk Index</div>'
+        +'<div style="background:#fff;border:1px solid #dbeafe;border-radius:6px;padding:8px">'
+        +'<div style="font-weight:700;margin-bottom:4px;color:#1a4a8c">&#128202; Risk Index</div>'
         +'<div style="display:flex;gap:6px">'
         +'<div style="flex:1;text-align:center"><div style="font-size:10px;color:#6b7280">Financial</div><div style="color:#16a34a;font-weight:700">Low</div></div>'
         +'<div style="flex:1;text-align:center"><div style="font-size:10px;color:#6b7280">Feed Budget</div><div style="color:#16a34a;font-weight:700">Minimal</div></div>'
@@ -853,7 +646,7 @@ function injectAcuteTag(h){
         +'</div></div></div>';
     } else if(h.variability_type==='chronic'){
       atag='<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">'
-        +'&#9888; Chronic Zone — Underperformed across '+h.years_analysed+' years. Consider soil testing.</div>';
+        +'&#9888; Chronic Zone \u2014 Underperformed across '+h.years_analysed+' years. Consider soil testing.</div>';
     }
     if(atag) el.insertAdjacentHTML('beforeend',atag);
   },200);
@@ -861,23 +654,23 @@ function injectAcuteTag(h){
 
 function populateHistoricalCard(h){
   document.getElementById('historical-card').style.display='block';
-  document.getElementById('h-baseline').textContent=h.baseline_mean?.toFixed(3)||'-';
+  document.getElementById('h-baseline').textContent=h.baseline_mean?h.baseline_mean.toFixed(3):'-';
   document.getElementById('h-cv').textContent=h.cv_percent?h.cv_percent+'%':'-';
   document.getElementById('h-cv-label').textContent=h.cv_label||'-';
-  const ac=h.anomaly_pct>5?'#16a34a':h.anomaly_pct<-5?'#dc2626':'#d97706';
+  var ac=h.anomaly_pct>5?'#16a34a':h.anomaly_pct<-5?'#dc2626':'#d97706';
   document.getElementById('h-anomaly').style.color=ac;
   document.getElementById('h-anomaly').textContent=h.anomaly_label||'-';
   document.getElementById('h-anomaly-pct').textContent=h.anomaly_pct?(h.anomaly_pct>0?'+':'')+h.anomaly_pct+'% vs 5-year average':'';
-  const hc=document.getElementById('h-chart');
+  var hc=document.getElementById('h-chart');
   if(hc){
     hc.innerHTML='';
-    const yrs=Object.keys(h.yearly_ndvi||{}).sort();
-    const vals=yrs.map(y=>h.yearly_ndvi[y]);
-    const mx=Math.max(...vals);
-    yrs.forEach((yr,i)=>{
-      const v=vals[i];
-      const ratio=v/h.baseline_mean;
-      const col=ratio>=0.92?'#16a34a':ratio>=0.80?'#d97706':'#dc2626';
+    var yrs=Object.keys(h.yearly_ndvi||{}).sort();
+    var vals=yrs.map(function(y){return h.yearly_ndvi[y];});
+    var mx=Math.max.apply(null,vals);
+    yrs.forEach(function(yr,i){
+      var v=vals[i];
+      var ratio=v/h.baseline_mean;
+      var col=ratio>=0.92?'#16a34a':ratio>=0.80?'#d97706':'#dc2626';
       hc.innerHTML+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:100%;background:'+col+';height:'+Math.round(v/mx*100)+'%;border-radius:3px 3px 0 0;min-height:4px"></div><div style="font-size:9px;color:#9ca3af">'+yr.slice(2)+'</div></div>';
     });
   }
@@ -885,365 +678,164 @@ function populateHistoricalCard(h){
 }
 
 function renderIntelLoading(){
-  document.getElementById('intel-dec-action').textContent = 'Loading...';
-  document.getElementById('intel-dec-reason').textContent = 'Fetching satellite data';
+  document.getElementById('intel-dec-action').textContent='Loading...';
+  document.getElementById('intel-dec-reason').textContent='Fetching satellite data';
 }
 
-function renderIntel(d, f){
-  window._lastZoneAnalysis = d.vegetation?.zone_analysis || null;
-  const v = d.vegetation||{};
-  const sm = d.soil_moisture||{};
-  const fr = d.freshness||{};
-  const ag = d.agronomic||{};
-  const s = d.sar||{};
-  const c = d.confidence||{};
-  const isGrass = (f.crop||'').toLowerCase().includes('pasture')||(f.crop||'').toLowerCase().includes('grass');
-
-  // NDVI
-  const ndvi = v.ndvi;
+function renderIntel(d,f){
+  window._lastZoneAnalysis=d.vegetation&&d.vegetation.zone_analysis||null;
+  var v=d.vegetation||{};
+  var sm=d.soil_moisture||{};
+  var fr=d.freshness||{};
+  var s=d.sar||{};
+  var c=d.confidence||{};
+  var isGrass=(f.crop||'').toLowerCase().includes('pasture')||(f.crop||'').toLowerCase().includes('grass');
+  var ndvi=v.ndvi;
   if(ndvi){
-    document.getElementById('m-ndvi').textContent = ndvi.toFixed(2);
-    document.getElementById('m-ndvi-note').textContent = ndvi>0.7?'Excellent':ndvi>0.55?'Good':ndvi>0.4?'Moderate':'Low';
+    document.getElementById('m-ndvi').textContent=ndvi.toFixed(2);
+    document.getElementById('m-ndvi-note').textContent=ndvi>0.7?'Excellent':ndvi>0.55?'Good':ndvi>0.4?'Moderate':'Low';
   }
-
-  // Moisture
-  const smapVal = sm.smap?.sm_surface_m3;
+  var smapVal=sm.smap&&sm.smap.sm_surface_m3;
   if(smapVal){
-    document.getElementById('m-smap').textContent = smapVal.toFixed(2);
-    const smNote = smapVal>0.35?'Wet':smapVal>0.25?'Adequate':smapVal>0.15?'Dry':'Very dry';
-    document.getElementById('m-smap-note').textContent = smNote;
+    document.getElementById('m-smap').textContent=smapVal.toFixed(2);
+    document.getElementById('m-smap-note').textContent=smapVal>0.35?'Wet':smapVal>0.25?'Adequate':smapVal>0.15?'Dry':'Very dry';
   }
-
-  // Grass area
-  const vegPctVal = v.veg_pct;
-  const grassHa = v.grass_ha;
-  if(vegPctVal && grassHa){
+  var vegPctVal=v.veg_pct;
+  var grassHa=v.grass_ha;
+  if(vegPctVal&&grassHa){
     document.getElementById('veg-area-card').style.display='block';
-    document.getElementById('m-grass-ha').textContent = grassHa.toFixed(1)+' ha';
-    document.getElementById('m-total-ha').textContent = currentField?.area||'—';
-    document.getElementById('m-veg-pct').textContent = vegPctVal+'% vegetated';
-    if(vegPctVal < 85){
-      document.getElementById('m-veg-pct').className = 'mc-note note-a';
-      document.getElementById('m-veg-pct').textContent = vegPctVal+'% — mixed land use detected';
-    }
+    document.getElementById('m-grass-ha').textContent=grassHa.toFixed(1)+' ha';
+    document.getElementById('m-total-ha').textContent=currentField&&currentField.area||'—';
+    document.getElementById('m-veg-pct').textContent=vegPctVal+'% vegetated';
+    if(vegPctVal<85){document.getElementById('m-veg-pct').className='mc-note note-a';document.getElementById('m-veg-pct').textContent=vegPctVal+'% — mixed land use detected';}
   }
-
-  // Grass area
-  // SAR
   if(s.rvi){
-    document.getElementById('m-sar').textContent = s.rvi.toFixed(3);
-    document.getElementById('m-sar-note').textContent = s.rvi_interpretation||'';
+    document.getElementById('m-sar').textContent=s.rvi.toFixed(3);
+    document.getElementById('m-sar-note').textContent=s.rvi_interpretation||'';
   }
-
-  // Decision
-  const dec = document.getElementById('intel-decision');
-  const cover = 0;
+  var dec=document.getElementById('intel-decision');
   if(isGrass){
-    const vtd = d.vegetation_trend;
-    const rvi = s?.rvi;
-    const declining = vtd?.long_trend==='declining'||vtd?.long_trend==='strong_decline';
-    const improving = vtd?.long_trend==='increasing'||vtd?.long_trend==='strong_increase';
-    
-    // Fusion logic: NDVI + RVI
-    const bothHigh = ndvi>0.65 && rvi>0.65;
-    const ndviHighRviLow = ndvi>0.65 && rvi && rvi<0.4;  // drought stress
-    const ndviLowRviHigh = ndvi<0.4 && rvi && rvi>0.6;   // post-grazing residual
-    const bothLow = ndvi<0.4 && rvi && rvi<0.4;
-
-    let decAction, decReason, decBg;
-    if(bothHigh && !declining){
-      decBg='linear-gradient(135deg,#0a1f0f,#1a5c38)';
-      decAction='✓ Strong Growth — Both Sensors Agree';
-      decReason='NDVI '+ndvi.toFixed(2)+' · RVI '+(rvi?.toFixed(2)||'—')+' — dense healthy pasture. Both optical and radar confirm strong growth.';
-    } else if(bothHigh && declining){
+    var vtd=d.vegetation_trend;
+    var rvi=s&&s.rvi;
+    var declining=vtd&&(vtd.long_trend==='declining'||vtd.long_trend==='strong_decline');
+    var decAction,decReason,decBg;
+    var bothHigh=ndvi>0.65&&rvi>0.65;
+    var ndviHighRviLow=ndvi>0.65&&rvi&&rvi<0.4;
+    var ndviLowRviHigh=ndvi<0.4&&rvi&&rvi>0.6;
+    if(bothHigh&&!declining){
+      decBg='linear-gradient(135deg,#0a1525,#1a4a8c)';
+      decAction='\u2713 Strong Growth \u2014 Both Sensors Agree';
+      decReason='NDVI '+ndvi.toFixed(2)+' \u00b7 RVI '+(rvi?rvi.toFixed(2):'—')+' — dense healthy pasture. Both optical and radar confirm strong growth.';
+    } else if(bothHigh&&declining){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
-      decAction='⚠ Strong Cover — Growth Slowing';
+      decAction='\u26a0 Strong Cover \u2014 Growth Slowing';
       decReason='High canopy density but trend declining. Monitor grazing pressure and rotate stock if needed.';
     } else if(ndviHighRviLow){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
-      decAction='⚠ Drought Stress Detected';
-      decReason='NDVI '+ndvi.toFixed(2)+' shows green but RVI '+(rvi?.toFixed(2)||'—')+' shows collapsed structure. Possible drought stress — verify on ground.';
+      decAction='\u26a0 Drought Stress Detected';
+      decReason='NDVI '+ndvi.toFixed(2)+' shows green but RVI '+(rvi?rvi.toFixed(2):'—')+' shows collapsed structure. Possible drought stress — verify on ground.';
     } else if(ndviLowRviHigh){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
-      decAction='👁 Post-Grazing Residual';
+      decAction='\ud83d\udc41 Post-Grazing Residual';
       decReason='Low chlorophyll but canopy structure remains. Field likely recently grazed. Allow recovery time.';
-    } else if(ndvi>0.45){
+    } else if(ndvi&&ndvi>0.45){
       decBg='linear-gradient(135deg,#78350f,#d97706)';
-      decAction='👁 Monitor — Growth Building';
+      decAction='\ud83d\udc41 Monitor \u2014 Growth Building';
       decReason='NDVI '+ndvi.toFixed(2)+' — vegetation building. Check again in 3-5 days.';
     } else {
       decBg='linear-gradient(135deg,#7f1d1d,#dc2626)';
-      decAction='⚠ Low Vegetation — Rest Field';
-      decReason='NDVI '+ndvi.toFixed(2)+' — low vegetation. Field needs recovery time.';
+      decAction='\u26a0 Low Vegetation \u2014 Rest Field';
+      decReason='NDVI '+(ndvi?ndvi.toFixed(2):'—')+' — low vegetation. Field needs recovery time.';
     }
     dec.style.background=decBg;
     document.getElementById('intel-dec-action').textContent=decAction;
     document.getElementById('intel-dec-reason').textContent=decReason;
   } else {
-    dec.style.background='linear-gradient(135deg,#0a1f0f,#1a5c38)';
-    document.getElementById('intel-dec-action').textContent=ndvi>0.5?'✓ Good Condition':'👁 Monitor';
-    document.getElementById('intel-dec-reason').textContent='NDVI '+(ndvi?.toFixed(2)||'—')+' — '+(v.ndvi_status||'Crop condition assessed from satellite');
+    dec.style.background='linear-gradient(135deg,#0a1525,#1a4a8c)';
+    document.getElementById('intel-dec-action').textContent=ndvi>0.5?'\u2713 Good Condition':'\ud83d\udc41 Monitor';
+    document.getElementById('intel-dec-reason').textContent='NDVI '+(ndvi?ndvi.toFixed(2):'—')+' — '+(v.ndvi_status||'Crop condition assessed from satellite');
   }
-
-  // Weather
-  // Trafficability assessment
   if(smapVal){
-    let trafStatus, trafIcon, trafSub, wetRisk, machNote;
-    const sarRVI = s.rvi||0;
-    
-    if(smapVal > 0.38){
-      trafStatus='Poor'; trafIcon='🔴';
-      trafSub='Ground saturated — avoid heavy machinery';
-      wetRisk='High'; machNote='Not recommended';
-    } else if(smapVal > 0.32){
-      trafStatus='Moderate'; trafIcon='🟡';
-      trafSub='Ground wet — light machinery only';
-      wetRisk='Moderate'; machNote='Light machinery only';
-    } else if(smapVal > 0.25){
-      trafStatus='Good'; trafIcon='🟢';
-      trafSub='Ground conditions suitable';
-      wetRisk='Low'; machNote='Suitable';
-    } else {
-      trafStatus='Excellent'; trafIcon='🟢';
-      trafSub='Firm ground — all machinery suitable';
-      wetRisk='Very low'; machNote='All machinery suitable';
-    }
-
-    document.getElementById('traf-icon').textContent = trafIcon;
-    document.getElementById('w-traf').textContent = trafStatus;
-    document.getElementById('traf-sub').textContent = trafSub;
-    document.getElementById('w-sm').textContent = smapVal.toFixed(3)+' m³/m³';
-    document.getElementById('w-wet').textContent = wetRisk;
-    document.getElementById('w-mach').textContent = machNote;
-    
-    // Colour
-    const trafEl = document.getElementById('w-traf');
-    trafEl.className = smapVal>0.38?'irow-val r':smapVal>0.32?'irow-val a':'irow-val g';
+    var trafStatus,trafIcon,trafSub,wetRisk,machNote;
+    if(smapVal>0.38){trafStatus='Poor';trafIcon='🔴';trafSub='Ground saturated — avoid heavy machinery';wetRisk='High';machNote='Not recommended';}
+    else if(smapVal>0.32){trafStatus='Moderate';trafIcon='🟡';trafSub='Ground wet — light machinery only';wetRisk='Moderate';machNote='Light machinery only';}
+    else if(smapVal>0.25){trafStatus='Good';trafIcon='🟢';trafSub='Ground conditions suitable';wetRisk='Low';machNote='Suitable';}
+    else{trafStatus='Excellent';trafIcon='🟢';trafSub='Firm ground — all machinery suitable';wetRisk='Very low';machNote='All machinery suitable';}
+    document.getElementById('traf-icon').textContent=trafIcon;
+    document.getElementById('w-traf').textContent=trafStatus;
+    document.getElementById('traf-sub').textContent=trafSub;
+    document.getElementById('w-sm').textContent=smapVal.toFixed(3)+' m³/m³';
+    document.getElementById('w-wet').textContent=wetRisk;
+    document.getElementById('w-mach').textContent=machNote;
+    document.getElementById('w-traf').className=smapVal>0.38?'irow-val r':smapVal>0.32?'irow-val a':'irow-val g';
   }
-
-  // Vegetation trend card
-  // Historical CV Analysis
-  const hist = d.historical_analysis;
-  if(hist && hist.available){
-    window._lastHistorical = hist;
+  var hist=d.historical_analysis;
+  if(hist&&hist.available){
+    window._lastHistorical=hist;
     populateHistoricalCard(hist);
   } else {
-    // Fetch async
-    const _hlat=currentField.lat, _hlng=currentField.lng;
-    setTimeout(()=>{
+    var _hlat=currentField.lat,_hlng=currentField.lng;
+    setTimeout(function(){
       if(!currentField) return;
-      const f=currentField;
       fetch(API+'/test_historical?lat='+_hlat+'&lng='+_hlng)
-        .then(r=>r.json())
-        .then(h=>{
+        .then(function(r){return r.json();})
+        .then(function(h){
           if(h.available){
-            window._lastHistorical = h;
-            // Inject acute anomaly tag inside zone variability alert
-            const zaEl = document.querySelector('[data-zone-anomaly]');
-            if(zaEl){
-              let tag='';
-              if(h.variability_type==='stable'||h.variability_type==='temporary'){
-                tag=`<div style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">
-                  📊 Acute Anomaly — Field history is very stable (CV ${h.cv_percent}%). This zone dip is likely a temporary management or localised issue, not a structural soil fault.
-                </div>`;
-              } else if(h.variability_type==='chronic'){
-                tag='<div style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed consistently. Consider soil testing.</div>';
-              }
-              if(tag) zaEl.insertAdjacentHTML('beforeend', tag);
-            }
+            window._lastHistorical=h;
             if(!currentField.profileData) currentField.profileData={};
             currentField.profileData.historical_analysis=h;
-            // Populate card
-            // Store historical and inject tag directly
-            window._lastHistorical = h;
-            setTimeout(()=>{
-              const el = document.querySelector('[data-zone-anomaly]');
-              if(el && !el.querySelector('.acute-tag')){
-                let atag='';
-                if(h.variability_type==='stable'||h.variability_type==='temporary')
-                  atag=(()=>{const za3=window._lastZoneAnalysis||{};const lowHa=za3.low_ha||'—';return `<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">
-          <div style="background:#065f46;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">📊 TEMPORARY VARIATION · CV ${h.cv_percent}%</div>
-          <div style="padding:10px;background:#f0fdf4;color:#065f46;line-height:1.6">
-            <div style="margin-bottom:8px">Field history is stable. The ${lowHa} ha low-performing zone is likely a <strong>temporary management issue</strong>, not a chronic soil or drainage problem.</div>
-            <div style="margin-bottom:6px;font-weight:600;color:#374151">❌ Ruled Out</div>
-            <div style="color:#6b7280;margin-bottom:4px">• Chronic drainage — eliminated (CV ${h.cv_percent}%)</div>
-            <div style="color:#6b7280;margin-bottom:8px">• General N deficiency — eliminated (NDVI 0.72 field-wide)</div>
-            <div style="margin-bottom:6px;font-weight:600;color:#374151">⚠ Most Likely Causes</div>
-            <div style="color:#374151;margin-bottom:8px">Localised compaction, overgrazing, or pest damage in Southeast zone</div>
-            <div style="background:#fff;border:1px solid #d1fae5;border-radius:6px;padding:8px;margin-bottom:8px">
-              <div style="font-weight:700;margin-bottom:6px;color:#065f46">📍 Field Walk Roadmap — Southeast Zone</div>
-              <div style="margin-bottom:3px">📁 Step 1 — Sward density: Look for bare patches</div>
-              <div style="margin-bottom:3px">📁 Step 2 — Plant mix: Check for weed competition</div>
-              <div style="margin-bottom:3px">📁 Step 3 — Penetration test: Check for compaction</div>
-            </div>
-            <div style="background:#fff;border:1px solid #d1fae5;border-radius:6px;padding:8px;margin-bottom:8px">
-              <div style="font-weight:700;margin-bottom:4px;color:#065f46">⏱ Recovery Forecast</div>
-              <div style="display:flex;gap:8px;text-align:center">
-                <div style="flex:1;background:#f0fdf4;border-radius:4px;padding:4px"><div style="font-weight:700">10d</div><div style="font-size:10px;color:#6b7280">Optimistic</div></div>
-                <div style="flex:1;background:#dcfce7;border-radius:4px;padding:4px;border:1px solid #16a34a"><div style="font-weight:700;color:#15803d">14d</div><div style="font-size:10px;color:#6b7280">Nominal</div></div>
-                <div style="flex:1;background:#f0fdf4;border-radius:4px;padding:4px"><div style="font-weight:700">21d</div><div style="font-size:10px;color:#6b7280">Dry spell</div></div>
-              </div>
-            </div>
-            <div style="background:#fff;border:1px solid #d1fae5;border-radius:6px;padding:8px">
-              <div style="font-weight:700;margin-bottom:4px;color:#065f46">📊 Risk Index</div>
-              <div style="display:flex;gap:6px">
-                <div style="flex:1;text-align:center"><div style="font-size:10px;color:#6b7280">Financial</div><div style="color:#16a34a;font-weight:700">Low</div></div>
-                <div style="flex:1;text-align:center"><div style="font-size:10px;color:#6b7280">Feed Budget</div><div style="color:#16a34a;font-weight:700">Minimal</div></div>
-                <div style="flex:1;text-align:center"><div style="font-size:10px;color:#d97706">Action Risk</div><div style="color:#d97706;font-weight:700">High</div></div>
-              </div>
-              <div style="margin-top:6px;font-size:10px;color:#6b7280">High risk of wasted inputs if nitrogen applied without ground-truthing first.</div>
-            </div>
-          </div>
-        </div>\`;
-                else if(h.variability_type==='chronic')
-                  atag='<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed across '+h.years_analysed+' years. Consider soil testing.</div>';
-                if(atag) el.insertAdjacentHTML('beforeend', atag);
-              }
-            }, 500);
-            // Populate historical card AFTER renderIntel
-            setTimeout(()=>{
-              document.getElementById('historical-card').style.display='block';
-              document.getElementById('h-baseline').textContent=h.baseline_mean?.toFixed(3)||'-';
-              document.getElementById('h-cv').textContent=h.cv_percent?h.cv_percent+'%':'-';
-              document.getElementById('h-cv-label').textContent=h.cv_label||'-';
-              const ac=h.anomaly_pct>5?'#16a34a':h.anomaly_pct<-5?'#dc2626':'#d97706';
-              document.getElementById('h-anomaly').style.color=ac;
-              document.getElementById('h-anomaly').textContent=h.anomaly_label||'-';
-              document.getElementById('h-anomaly-pct').textContent=h.anomaly_pct?(h.anomaly_pct>0?'+':'')+h.anomaly_pct+'% vs 5-year average':'';
-              // Inject acute tag
-              const zaEl2=document.querySelector('[data-zone-anomaly]');
-              if(zaEl2 && !zaEl2.querySelector('.acute-tag')){
-                let atag='';
-                if(h.variability_type==='stable'||h.variability_type==='temporary')
-                  atag='<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">📊 Temporary Variation — Field history stable (CV '+h.cv_percent+'%). Zone dip is likely temporary, not a soil fault.</div>';
-                else if(h.variability_type==='chronic')
-                  atag='<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed across '+h.years_analysed+' years. Consider soil testing.</div>';
-                if(atag) zaEl2.insertAdjacentHTML('beforeend', atag);
-              }
-            }, 100);
-            const hc=document.getElementById('h-chart');
-            hc.innerHTML='';
-            const yrs=Object.keys(h.yearly_ndvi||{}).sort();
-            const vals=yrs.map(y=>h.yearly_ndvi[y]);
-            const mx=Math.max(...vals);
-            yrs.forEach((yr,i)=>{
-              const v=vals[i];
-              const col=v>=h.baseline_mean*1.05?'#16a34a':v>=h.baseline_mean*0.95?'#d97706':'#dc2626';
-              hc.innerHTML+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:100%;background:'+col+';height:'+Math.round(v/mx*100)+'%;border-radius:3px 3px 0 0;min-height:4px"></div><div style="font-size:9px;color:#9ca3af">'+yr.slice(2)+'</div></div>';
-            });
+            populateHistoricalCard(h);
           }
-        }).catch(e=>console.log('Historical fetch error:',e));
-    }, 2000);
+        }).catch(function(e){console.log('Historical fetch error:',e);});
+    },2000);
   }
-  const hist2 = hist;
-  if(hist && hist.available){
-    document.getElementById('historical-card').style.display='block';
-    document.getElementById('h-baseline').textContent = hist.baseline_mean?.toFixed(3)||'-';
-    document.getElementById('h-cv').textContent = hist.cv_percent ? hist.cv_percent+'%' : '-';
-    document.getElementById('h-cv-label').textContent = hist.cv_label||'-';
-    const anomColor = hist.anomaly_pct>5?'#16a34a':hist.anomaly_pct<-5?'#dc2626':'#d97706';
-    document.getElementById('h-anomaly').style.color = anomColor;
-    document.getElementById('h-anomaly').textContent = hist.anomaly_label||'-';
-    document.getElementById('h-anomaly-pct').textContent = hist.anomaly_pct ?
-      (hist.anomaly_pct>0?'+':'')+hist.anomaly_pct+'% vs 5-year average' : '';
-    const hchart = document.getElementById('h-chart');
-    hchart.innerHTML='';
-    const yearly = hist.yearly_ndvi||{};
-    const yrs = Object.keys(yearly).sort();
-    const vals = yrs.map(y=>yearly[y]);
-    const maxVal = Math.max(...vals);
-    yrs.forEach((yr,i)=>{
-      const v=vals[i];
-      const pct=Math.round(v/maxVal*100);
-      // Color relative to mean: within 15% = green/neutral, outside = warning
-      const ratio = v / hist.baseline_mean;
-      const col = ratio >= 0.92 ? '#16a34a' : ratio >= 0.80 ? '#d97706' : '#dc2626';
-      hchart.innerHTML+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:100%;background:'+col+';height:'+pct+'%;border-radius:3px 3px 0 0;min-height:4px"></div><div style="font-size:9px;color:#9ca3af">'+yr.slice(2)+'</div></div>';
-    });
-  }
-
-  const vt = d.vegetation_trend||{};
-  console.log('VT available:', vt.available, 'series:', vt.series?.length);
-  if(vt.available && vt.series && vt.series.length>=2){
+  var vt=d.vegetation_trend||{};
+  if(vt.available&&vt.series&&vt.series.length>=2){
     document.getElementById('trend-card').style.display='block';
-    
-    // Arrow and label
-    const trendColor = vt.long_trend==='increasing'||vt.long_trend==='strong_increase'?'#16a34a':
-                       vt.long_trend==='stable'?'#6b7a70':'#dc2626';
-    const trendArrow = vt.long_trend==='strong_increase'?'📈 Strong Growth':
-                       vt.long_trend==='increasing'?'↗ Improving':
-                       vt.long_trend==='stable'?'→ Stable':
-                       vt.long_trend==='declining'?'↘ Softening':'📉 Declining';
-    document.getElementById('trend-arrow-val').textContent = trendArrow;
-    document.getElementById('trend-arrow-val').style.color = trendColor;
-    document.getElementById('trend-label-val').textContent = vt.interpretation?.trend_label||'';
-    
-    const diffSign = vt.long_diff>0?'+':'';
-    document.getElementById('trend-diff-val').textContent = diffSign+vt.long_diff.toFixed(3)+' NDVI';
-    document.getElementById('trend-diff-val').style.color = trendColor;
-
-    // Mini bar chart
-    const bars = document.getElementById('trend-bars');
-    const maxNdvi = Math.max(...vt.series.map(s=>s.ndvi));
-    bars.innerHTML = vt.series.map(s=>{
-      const h = Math.round((s.ndvi/maxNdvi)*36);
-      const c = s.ndvi>0.6?'#16a34a':s.ndvi>0.4?'#d97706':'#dc2626';
-      return '<div style="flex:1;height:'+h+'px;background:'+c+';border-radius:2px 2px 0 0;min-width:6px" title="'+s.date+': '+s.ndvi+'"></div>';
+    var trendColor=vt.long_trend==='increasing'||vt.long_trend==='strong_increase'?'#16a34a':vt.long_trend==='stable'?'#6b7a70':'#dc2626';
+    var trendArrow=vt.long_trend==='strong_increase'?'📈 Strong Growth':vt.long_trend==='increasing'?'↗ Improving':vt.long_trend==='stable'?'→ Stable':vt.long_trend==='declining'?'↘ Softening':'📉 Declining';
+    document.getElementById('trend-arrow-val').textContent=trendArrow;
+    document.getElementById('trend-arrow-val').style.color=trendColor;
+    document.getElementById('trend-label-val').textContent=(vt.interpretation&&vt.interpretation.trend_label)||'';
+    var diffSign=vt.long_diff>0?'+':'';
+    document.getElementById('trend-diff-val').textContent=diffSign+vt.long_diff.toFixed(3)+' NDVI';
+    document.getElementById('trend-diff-val').style.color=trendColor;
+    var bars=document.getElementById('trend-bars');
+    var maxNdvi=Math.max.apply(null,vt.series.map(function(s){return s.ndvi;}));
+    bars.innerHTML=vt.series.map(function(s){
+      var bh=Math.round((s.ndvi/maxNdvi)*36);
+      var bc=s.ndvi>0.6?'#16a34a':s.ndvi>0.4?'#d97706':'#dc2626';
+      return '<div style="flex:1;height:'+bh+'px;background:'+bc+';border-radius:2px 2px 0 0;min-width:6px" title="'+s.date+': '+s.ndvi+'"></div>';
     }).join('');
-
-    // 14-day change
-    const recent = vt.series.slice(-3);
+    var recent=vt.series.slice(-3);
     if(recent.length>=2){
-      const change14 = recent[recent.length-1].ndvi - recent[0].ndvi;
-      const s14 = change14>0.05?'Growing fast':change14>0?'Improving':change14<-0.05?'Declining fast':'Stable';
-      const c14 = change14>0?'g':change14<-0.02?'r':'';
-      document.getElementById('trend-14d').textContent = (change14>=0?'+':'')+change14.toFixed(3)+' ('+s14+')';
-      document.getElementById('trend-14d').className = 'irow-val '+(change14>0?'g':change14<0?'r':'');
+      var change14=recent[recent.length-1].ndvi-recent[0].ndvi;
+      var s14=change14>0.05?'Growing fast':change14>0?'Improving':change14<-0.05?'Declining fast':'Stable';
+      document.getElementById('trend-14d').textContent=(change14>=0?'+':'')+change14.toFixed(3)+' ('+s14+')';
+      document.getElementById('trend-14d').className='irow-val '+(change14>0?'g':change14<0?'r':'');
     }
-
-    // Seasonal
-    const seasonal = vt.seasonal;
-    if(seasonal?.available){
-      const sPct = seasonal.anomaly_pct;
-      document.getElementById('trend-seasonal').textContent = (sPct>0?'+':'')+sPct+'% '+seasonal.anomaly_label;
-      document.getElementById('trend-seasonal').className = 'irow-val '+(sPct>5?'g':sPct<-5?'r':'');
-    }
-
-    // Latest
-    // Use current NDVI if fresher than trend series
-    const trendDate = vt.latest_date||'';
-    const imgDateStr = fr.sentinel2?.date||v.granule_date?.substring(0,10)||'';
-    if(imgDateStr && ndvi && imgDateStr > trendDate){
-      document.getElementById('trend-latest').textContent = imgDateStr+' · NDVI '+ndvi.toFixed(3)+' (current)';
+    var trendDate=vt.latest_date||'';
+    var imgDateStr=(fr.sentinel2&&fr.sentinel2.date)||(v.granule_date&&v.granule_date.substring(0,10))||'';
+    if(imgDateStr&&ndvi&&imgDateStr>trendDate){
+      document.getElementById('trend-latest').textContent=imgDateStr+' \u00b7 NDVI '+ndvi.toFixed(3)+' (current)';
     } else {
-      document.getElementById('trend-latest').textContent = trendDate+' · NDVI '+(vt.latest_ndvi||'—');
+      document.getElementById('trend-latest').textContent=trendDate+' \u00b7 NDVI '+(vt.latest_ndvi||'—');
     }
   }
-
-  // Compliance — only show if real scheme data available
   if(f.acres||f.eco||f.biss){
-    document.getElementById('c-acres').textContent = f.acres?'✅ Active':'Not active';
-    document.getElementById('c-eco').textContent = f.eco?'✅ Active':'Not active';
-    document.getElementById('c-biss').textContent = f.biss?'✅ Eligible':'Not eligible';
+    document.getElementById('c-acres').textContent=f.acres?'✅ Active':'Not active';
+    document.getElementById('c-eco').textContent=f.eco?'✅ Active':'Not active';
+    document.getElementById('c-biss').textContent=f.biss?'✅ Eligible':'Not eligible';
     document.getElementById('compliance-card').style.display='block';
   }
-
-  // Image date
-  const imgDate = fr.sentinel2?.date||v.granule_date?.substring(0,10)||'';
-  const imgAge = fr.sentinel2?.age_days;
-  if(imgDate) document.getElementById('d-imgdate').textContent = imgDate+(imgAge!=null?' ('+imgAge+'d old)':'');
-  if(c.score) document.getElementById('d-conf').textContent = c.score+'/10 '+(c.score>=8?'High':'Moderate');
-
-  // Freshness badge
-  const badge = document.getElementById('sentinel-date-badge');
-  if(badge&&imgDate) badge.textContent = imgDate+(imgAge!=null?' · '+imgAge+'d old':'');
-
-  // Map overlay
-  const freshBadge = imgDate?' · '+imgDate+(imgAge!=null?' · '+imgAge+'d old':''):'';
-  document.getElementById('map-overlay').textContent = '🛰 Sentinel-2'+freshBadge;
-
-  // Zone analysis card
-  renderZoneCard(d.vegetation?.zone_analysis);
+  var imgDate=(fr.sentinel2&&fr.sentinel2.date)||(v.granule_date&&v.granule_date.substring(0,10))||'';
+  var imgAge=fr.sentinel2&&fr.sentinel2.age_days;
+  if(imgDate) document.getElementById('d-imgdate').textContent=imgDate+(imgAge!=null?' ('+imgAge+'d old)':'');
+  if(c.score) document.getElementById('d-conf').textContent=c.score+'/10 '+(c.score>=8?'High':'Moderate');
+  var badge=document.getElementById('sentinel-date-badge');
+  if(badge&&imgDate) badge.textContent=imgDate+(imgAge!=null?' \u00b7 '+imgAge+'d old':'');
+  document.getElementById('map-overlay').textContent='\ud83d\udef0 Sentinel-2'+(imgDate?' \u00b7 '+imgDate+(imgAge!=null?' \u00b7 '+imgAge+'d old':''):'');
+  renderZoneCard(d.vegetation&&d.vegetation.zone_analysis);
 }
 
 function renderZoneCard(za){
@@ -1274,105 +866,91 @@ function renderZoneCard(za){
   h+='</div></div>';
   el.innerHTML=h;
 }
-// ── MAP LAYER SWITCHER ──
+
 function switchMapLayer(idx){
-  const mapEl=document.getElementById('field-map');
+  var mapEl=document.getElementById('field-map');
   if(!currentField||!fieldMap) return;
   mapEl.style.backgroundImage='none';
-  fieldMap.eachLayer(l=>{
+  fieldMap.eachLayer(function(l){
     if(l instanceof L.TileLayer||l instanceof L.ImageOverlay) fieldMap.removeLayer(l);
   });
-  document.getElementById('zone-legend')?.remove();
-
-  const f=currentField;
-  const coords=f.geometry?.coordinates?.[0]||[];
-  const lngs=coords.length?coords.map(c=>c[0]):[f.lng];
-  const lats=coords.length?coords.map(c=>c[1]):[f.lat];
-  const pad=0.012;
-  const minlng=Math.min(...lngs)-pad;
-  const maxlng=Math.max(...lngs)+pad;
-  const minlat=Math.min(...lats)-pad;
-  const maxlat=Math.max(...lats)+pad;
-  const today=new Date();
-  const tTo=today.toISOString().split('T')[0];
-  const tFrom=new Date(today-60*24*60*60*1000).toISOString().split('T')[0];
-  const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-
+  var leg=document.getElementById('zone-legend');
+  if(leg) leg.remove();
+  var f=currentField;
+  var coords=f.geometry&&f.geometry.coordinates&&f.geometry.coordinates[0]||[];
+  var lngs=coords.length?coords.map(function(c){return c[0];}):[ f.lng];
+  var lats=coords.length?coords.map(function(c){return c[1];}):[ f.lat];
+  var pad=0.012;
+  var minlng=Math.min.apply(null,lngs)-pad;
+  var maxlng=Math.max.apply(null,lngs)+pad;
+  var minlat=Math.min.apply(null,lats)-pad;
+  var maxlat=Math.max.apply(null,lats)+pad;
+  var today=new Date();
+  var tTo=today.toISOString().split('T')[0];
+  var tFrom=new Date(today-60*24*60*60*1000).toISOString().split('T')[0];
+  var ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   if(idx===0){
-    // Aerial
     L.tileLayer(ESRI,{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
     document.getElementById('map-overlay').textContent='🗺 Aerial Imagery';
-
   } else if(idx===1){
-    // Variability Zones — colours INSIDE parcel only
     L.tileLayer(ESRI,{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
-    const za=window._lastZoneAnalysis;
-    const quad=za?.quad_ndvi;
-    if(f.geometry && quad){
-      const pCoords=f.geometry.coordinates[0];
-      const pLngs=pCoords.map(c=>c[0]);
-      const pLats=pCoords.map(c=>c[1]);
-      const midLon=(Math.min(...pLngs)+Math.max(...pLngs))/2;
-      const midLt=(Math.min(...pLats)+Math.max(...pLats))/2;
-      const vals=Object.values(quad).filter(v=>v!=null);
+    var za=window._lastZoneAnalysis;
+    var quad=za&&za.quad_ndvi;
+    if(f.geometry&&quad){
+      var pCoords=f.geometry.coordinates[0];
+      var pLngs=pCoords.map(function(c){return c[0];});
+      var pLats=pCoords.map(function(c){return c[1];});
+      var midLon=(Math.min.apply(null,pLngs)+Math.max.apply(null,pLngs))/2;
+      var midLt=(Math.min.apply(null,pLats)+Math.max.apply(null,pLats))/2;
+      var vals=Object.values(quad).filter(function(v){return v!=null;});
       if(vals.length>0){
-        const sorted=[...vals].sort((a,b)=>a-b);
-        const p25=sorted[Math.floor(sorted.length*0.25)];
-        const p75=sorted[Math.floor(sorted.length*0.75)];
-        const quadCoords={NE:[],NW:[],SE:[],SW:[]};
-        pCoords.forEach(c=>{
-          const lng=c[0],lat=c[1];
+        var sorted=[].concat(vals).sort(function(a,b){return a-b;});
+        var p25=sorted[Math.floor(sorted.length*0.25)];
+        var p75=sorted[Math.floor(sorted.length*0.75)];
+        var quadCoords={NE:[],NW:[],SE:[],SW:[]};
+        pCoords.forEach(function(c){
+          var lng=c[0],lat=c[1];
           if(lng>=midLon&&lat>=midLt) quadCoords.NE.push([lat,lng]);
           else if(lng<midLon&&lat>=midLt) quadCoords.NW.push([lat,lng]);
           else if(lng>=midLon&&lat<midLt) quadCoords.SE.push([lat,lng]);
           else quadCoords.SW.push([lat,lng]);
         });
-        Object.keys(quadCoords).forEach(n=>{quadCoords[n].push([midLt,midLon]);});
-        Object.entries(quadCoords).forEach(([name,pts])=>{
+        Object.keys(quadCoords).forEach(function(n){quadCoords[n].push([midLt,midLon]);});
+        Object.entries(quadCoords).forEach(function(entry){
+          var name=entry[0],pts=entry[1];
           if(pts.length<3) return;
-          const v=quad[name];
+          var v=quad[name];
           if(v==null) return;
-          const color=v>=p75?'#16a34a':v>=p25?'#d97706':'#dc2626';
+          var color=v>=p75?'#16a34a':v>=p25?'#d97706':'#dc2626';
           L.polygon(pts,{color:'none',fillColor:color,fillOpacity:0.65,weight:0}).addTo(fieldMap);
         });
       }
-    } else if(f.geometry && za){
-      const color=za.uniformity_score>=7?'#16a34a':za.uniformity_score>=4?'#d97706':'#dc2626';
+    } else if(f.geometry&&za){
+      var color=za.uniformity_score>=7?'#16a34a':za.uniformity_score>=4?'#d97706':'#dc2626';
       L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'none',fillColor:color,fillOpacity:0.5,weight:0}}).addTo(fieldMap);
     }
     if(za){
-      const leg=document.createElement('div');
-      leg.id='zone-legend';
-      leg.style.cssText='position:absolute;bottom:36px;left:8px;z-index:500;background:rgba(0,0,0,0.75);border-radius:8px;padding:8px 10px;font-size:11px;color:#fff;backdrop-filter:blur(4px)';
-      leg.innerHTML='<div style="font-weight:700;margin-bottom:4px">Variability Zones</div><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>'+za.high_ha+'ha High ('+za.high_pct+'%)</div><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>'+za.med_ha+'ha Med ('+za.med_pct+'%)</div><div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>'+za.low_ha+'ha Low ('+za.low_pct+'%)</div>';
-      // Remove old legend first
-      document.getElementById('zone-legend')?.remove();
-      // Add to map container with high z-index
-      const mapContainer=document.getElementById('field-map');
-      mapContainer.style.position='relative';
-      mapContainer.appendChild(leg);
+      var leg2=document.createElement('div');
+      leg2.id='zone-legend';
+      leg2.style.cssText='position:absolute;bottom:36px;left:8px;z-index:500;background:rgba(0,0,0,0.75);border-radius:8px;padding:8px 10px;font-size:11px;color:#fff;backdrop-filter:blur(4px)';
+      leg2.innerHTML='<div style="font-weight:700;margin-bottom:4px">Variability Zones</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>'+za.high_ha+'ha High ('+za.high_pct+'%)</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><div style="width:10px;height:10px;border-radius:2px;background:#d97706"></div>'+za.med_ha+'ha Med ('+za.med_pct+'%)</div>'
+        +'<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>'+za.low_ha+'ha Low ('+za.low_pct+'%)</div>';
+      document.getElementById('field-map').appendChild(leg2);
     }
     document.getElementById('map-overlay').textContent='🗺 Variability Zones';
-
   } else if(idx===2){
-    // Sentinel RGB — proper XYZ tiling
-    L.tileLayer(API+'/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR&time='+tFrom+'/'+tTo,{
-      maxZoom:18, tileSize:256,
-      attribution:'© Copernicus/ESA · Sentinel-2'
-    }).addTo(fieldMap);
-    document.getElementById('map-overlay').textContent=`🛰 Sentinel RGB · ${tTo}`;
+    L.tileLayer(API+'/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR&time='+tFrom+'/'+tTo,{maxZoom:18,tileSize:256,attribution:'© Copernicus/ESA'}).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent='🛰 Sentinel RGB · '+tTo;
   }
-
-  // Parcel boundary always on top
   if(f.geometry){
-    L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'#00ff88',weight:2.5,fill:false}}).addTo(fieldMap);
+    L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'#4a8fd4',weight:2.5,fill:false}}).addTo(fieldMap);
   }
 }
 
 function newSearch(){
-  selectedParcels=[];
-  parcelLayers={};
-  myFields=[];
+  selectedParcels=[];parcelLayers={};myFields=[];
   if(setupMap){setupMap.remove();setupMap=null;}
   if(fieldMap){fieldMap.remove();fieldMap=null;}
   document.getElementById('bnav').classList.remove('show');
