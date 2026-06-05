@@ -1011,7 +1011,9 @@ function renderIntel(d, f){
     yrs.forEach((yr,i)=>{
       const v=vals[i];
       const pct=Math.round(v/maxVal*100);
-      const col=v>=hist.baseline_mean*1.05?'#16a34a':v>=hist.baseline_mean*0.95?'#d97706':'#dc2626';
+      // Color relative to mean: within 15% = green/neutral, outside = warning
+      const ratio = v / hist.baseline_mean;
+      const col = ratio >= 0.92 ? '#16a34a' : ratio >= 0.80 ? '#d97706' : '#dc2626';
       hchart.innerHTML+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
         <div style="width:100%;background:${col};height:${pct}%;border-radius:3px 3px 0 0;min-height:4px"></div>
         <div style="font-size:9px;color:var(--muted)">${yr.slice(2)}</div>
