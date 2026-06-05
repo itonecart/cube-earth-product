@@ -1115,9 +1115,9 @@ function renderIntel(d, f){
               if(zaEl2 && !zaEl2.querySelector('.acute-tag')){
                 let atag='';
                 if(h.variability_type==='stable'||h.variability_type==='temporary')
-                  atag=`<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">📊 Acute Anomaly — Field history is very stable (CV ${h.cv_percent}%). This zone dip is likely a temporary management issue, not a structural soil fault.</div>`;
+                  atag='<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">📊 Temporary Variation — Field history stable (CV '+h.cv_percent+'%). Zone dip is likely temporary, not a soil fault.</div>';
                 else if(h.variability_type==='chronic')
-                  atag=`<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed consistently across ${h.years_analysed} years. Consider soil testing.</div>`;
+                  atag='<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed across '+h.years_analysed+' years. Consider soil testing.</div>';
                 if(atag) zaEl2.insertAdjacentHTML('beforeend', atag);
               }
             }, 100);
