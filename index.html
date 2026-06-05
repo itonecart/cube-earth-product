@@ -985,18 +985,31 @@ function renderIntel(d, f){
             if(!currentField.profileData) currentField.profileData={};
             currentField.profileData.historical_analysis=h;
             // Populate card
-            // Re-render full intel with historical context
+            // Re-render with historical context, then repopulate cards
             if(currentField && currentField.profileData){
               renderIntel(currentField.profileData, currentField);
             }
-            document.getElementById('historical-card').style.display='block';
-            document.getElementById('h-baseline').textContent=h.baseline_mean?.toFixed(3)||'-';
-            document.getElementById('h-cv').textContent=h.cv_percent?h.cv_percent+'%':'-';
-            document.getElementById('h-cv-label').textContent=h.cv_label||'-';
-            const ac=h.anomaly_pct>5?'#16a34a':h.anomaly_pct<-5?'#dc2626':'#d97706';
-            document.getElementById('h-anomaly').style.color=ac;
-            document.getElementById('h-anomaly').textContent=h.anomaly_label||'-';
-            document.getElementById('h-anomaly-pct').textContent=h.anomaly_pct?(h.anomaly_pct>0?'+':'')+h.anomaly_pct+'% vs 5-year average':'';
+            // Populate historical card AFTER renderIntel
+            setTimeout(()=>{
+              document.getElementById('historical-card').style.display='block';
+              document.getElementById('h-baseline').textContent=h.baseline_mean?.toFixed(3)||'-';
+              document.getElementById('h-cv').textContent=h.cv_percent?h.cv_percent+'%':'-';
+              document.getElementById('h-cv-label').textContent=h.cv_label||'-';
+              const ac=h.anomaly_pct>5?'#16a34a':h.anomaly_pct<-5?'#dc2626':'#d97706';
+              document.getElementById('h-anomaly').style.color=ac;
+              document.getElementById('h-anomaly').textContent=h.anomaly_label||'-';
+              document.getElementById('h-anomaly-pct').textContent=h.anomaly_pct?(h.anomaly_pct>0?'+':'')+h.anomaly_pct+'% vs 5-year average':'';
+              // Inject acute tag
+              const zaEl2=document.querySelector('[data-zone-anomaly]');
+              if(zaEl2 && !zaEl2.querySelector('.acute-tag')){
+                let atag='';
+                if(h.variability_type==='stable'||h.variability_type==='temporary')
+                  atag=`<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(16,163,74,0.1);border-left:3px solid #16a34a;border-radius:0 4px 4px 0;font-size:11px;color:#16a34a;font-weight:600">📊 Acute Anomaly — Field history is very stable (CV ${h.cv_percent}%). This zone dip is likely a temporary management issue, not a structural soil fault.</div>`;
+                else if(h.variability_type==='chronic')
+                  atag=`<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">⚠ Chronic Zone — Underperformed consistently across ${h.years_analysed} years. Consider soil testing.</div>`;
+                if(atag) zaEl2.insertAdjacentHTML('beforeend', atag);
+              }
+            }, 100);
             const hc=document.getElementById('h-chart');
             hc.innerHTML='';
             const yrs=Object.keys(h.yearly_ndvi||{}).sort();
