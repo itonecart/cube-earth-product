@@ -852,7 +852,9 @@ function renderZoneCard(za){
   h+='<div style="padding:14px 16px">';
   h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">';
   h+='<div style="text-align:center">';
+  var uLabel=za.uniformity_score>=8?'Uniform':za.uniformity_score>=6?'Mostly Uniform':za.uniformity_score>=4?'Variable':'Patchy';
   h+='<div style="font-size:32px;font-weight:800;color:'+uColor+';font-family:var(--mono)">'+za.uniformity_score+'<span style="font-size:14px;color:var(--muted);font-weight:400">/10</span></div>';
+  h+='<div style="font-size:10px;color:'+uColor+';font-weight:700;margin-top:2px">'+uLabel+'</div>';
   h+='<div style="width:60px;height:4px;background:var(--border);border-radius:2px;margin-top:4px"><div style="height:100%;width:'+(za.uniformity_score*10)+'%;background:'+uColor+';border-radius:2px"></div></div>';
   h+='</div>';
   h+='<div style="font-size:13px;color:var(--muted);line-height:1.5">'+za.uniformity_label+'</div>';
