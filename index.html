@@ -1231,7 +1231,7 @@ function renderIntel(d, f){
   // Image date
   const imgDate = fr.sentinel2?.date||v.granule_date?.substring(0,10)||'';
   const imgAge = fr.sentinel2?.age_days;
-  if(imgDate) document.getElementById('d-imgdate').textContent = imgDate+(imgAge!=null?` (${imgAge}d old)`:'');
+  if(imgDate) document.getElementById('d-imgdate').textContent = imgDate+(imgAge!=null?' ('+imgAge+'d old)':'');
   if(c.score) document.getElementById('d-conf').textContent = `${c.score}/10 ${c.score>=8?'High':'Moderate'}`;
 
   // Freshness badge
