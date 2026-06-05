@@ -1053,16 +1053,20 @@ function handlePhoto(input){
 }
 
 function openInspection(zoneLabel, fieldName){
-  currentInspectionZone = {zone: zoneLabel, field: fieldName, date: new Date().toISOString().split('T')[0]};
-  document.getElementById('inspection-zone-label').textContent = (fieldName||'Field')+' · '+zoneLabel;
-  document.querySelectorAll('input[name="sward"],input[name="plants"],input[name="ground"]').forEach(function(r){r.checked=false;});
+  var lat=currentField&&currentField.lat||0;
+  var lng=currentField&&currentField.lng||0;
+  currentInspectionZone={zone:zoneLabel,field:fieldName,date:new Date().toISOString().split('T')[0],lat:lat,lng:lng};
+  selectedIssue=null; selectedSeverity=null;
+  document.getElementById('inspection-zone-label').textContent=(fieldName||'Field')+' · '+zoneLabel;
   document.getElementById('inspection-notes').value='';
   document.getElementById('inspection-recommendation').style.display='none';
+  document.getElementById('inspect-step1').style.display='block';
+  document.getElementById('inspect-step2').style.display='none';
+  document.getElementById('step-dot-2').style.background='#e2e8f0';
+  document.getElementById('photo-preview').style.display='none';
+  document.getElementById('photo-placeholder').style.display='block';
+  document.querySelectorAll('.issue-btn,.sev-btn').forEach(function(b){b.style.borderColor='#e2e8f0';b.style.background='#fff';b.style.color='#0a1525';});
   document.getElementById('inspection-modal').style.display='block';
-  // Live recommendation
-  document.querySelectorAll('input[name="sward"],input[name="plants"],input[name="ground"]').forEach(function(r){
-    r.addEventListener('change', updateRecommendation);
-  });
 }
 
 function updateRecommendation(){
