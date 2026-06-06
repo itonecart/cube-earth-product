@@ -1444,7 +1444,8 @@ function newSearch(){
 
 function openGrassPage(field) {
   var f = field || currentField;
-  if (!f) return;
+  if (!f && myFields && myFields.length > 0) f = myFields[0];
+  if (!f) { alert('Please open a field first'); return; }
   document.getElementById('grass-field-name').textContent = f.crop || 'Field';
   document.getElementById('grass-loading').style.display = 'block';
   document.getElementById('grass-content').style.display = 'none';
