@@ -1511,7 +1511,11 @@ function renderGrassPage(gm, wx) {
     var gr2 = gm.growth_rate_kg_day || 0;
     var days = gm.rotation_days || (gr2 > 0 ? Math.ceil((1600 - cover) / gr2) : null);
     var daysStr = days ? days + 'd' : 'soon';
-    icon = '⏳'; text = 'Building — graze in ' + daysStr; sub = 'Approaching grazing target — monitor daily';
+    if (days && days <= 2) {
+      icon = '✅'; text = 'Graze within ' + daysStr; sub = 'At or near pre-grazing target — prepare to rotate';
+    } else {
+      icon = '⏳'; text = 'Building — graze in ' + daysStr; sub = 'Approaching grazing target — monitor daily';
+    }
     bandLabel = 'Building 1200-1600'; bandColor = '#f97316'; bandBg = 'background:#fff7ed;color:#f97316';
   } else {
     icon = '🔄'; text = 'Recovery Phase'; sub = 'Rest this paddock — below grazing threshold';
@@ -2009,7 +2013,7 @@ function savePlateMeter() {
         <!-- Accuracy note -->
         <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:12px">
           <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px">⚗️ Satellite Estimate — Uncalibrated</div>
-          <div style="font-size:11px;color:#78350f;line-height:1.6">Based on MoSt GG model (Teagasc/Ruelle et al. 2018) with Sentinel-2 NDVI. Accuracy: ±350 kg DM/ha. Add a plate meter reading to calibrate for your farm.</div>
+          <div style="font-size:11px;color:#78350f;line-height:1.6">Based on MoSt GG model (Teagasc/Ruelle et al. 2018) · Sentinel-2 NDVI · Sentinel-1 SAR · UKMO weather. Accuracy comparable to an uncalibrated plate meter (±25-30%). Add a reading below to calibrate for your farm.</div>
         </div>
 
         <!-- Plate meter calibration prompt -->
