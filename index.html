@@ -304,19 +304,27 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     </div>
     <div id="zone-card"></div>
     <div class="icard" id="traf-card">
-      <div class="icard-hd">🚜 Trafficability & Ground</div>
-      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="font-size:36px" id="traf-icon">—</div>
-          <div>
-            <div style="font-size:18px;font-weight:800" id="w-traf">—</div>
-            <div style="font-size:12px;color:var(--muted)" id="traf-sub">—</div>
+      <div class="icard-hd" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="var b=document.getElementById('traf-body');var a=document.getElementById('traf-arrow');b.style.display=b.style.display==='none'?'block':'none';a.textContent=b.style.display==='none'?'▶':'▼'">
+        <span>🚜 Trafficability</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="traf-summary" style="font-size:11px;font-weight:600;color:var(--muted)"></span>
+          <span id="traf-arrow">▶</span>
+        </span>
+      </div>
+      <div id="traf-body" style="display:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:32px" id="traf-icon">—</div>
+            <div>
+              <div style="font-size:16px;font-weight:800" id="w-traf">—</div>
+              <div style="font-size:12px;color:var(--muted)" id="traf-sub">—</div>
+            </div>
           </div>
         </div>
+        <div class="irow"><span class="irow-label">Soil moisture</span><span class="irow-val" id="w-sm">—</span></div>
+        <div class="irow"><span class="irow-label">Wetness risk</span><span class="irow-val" id="w-wet">—</span></div>
+        <div class="irow"><span class="irow-label">Machinery</span><span class="irow-val" id="w-mach">—</span></div>
       </div>
-      <div class="irow"><span class="irow-label">Soil moisture</span><span class="irow-val" id="w-sm">—</span></div>
-      <div class="irow"><span class="irow-label">Wetness risk</span><span class="irow-val" id="w-wet">—</span></div>
-      <div class="irow"><span class="irow-label">Machinery</span><span class="irow-val" id="w-mach">—</span></div>
     </div>
     <div class="icard" id="historical-card" style="display:none">
       <div class="icard-hd" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="var b=document.getElementById('hist-body');var a=document.getElementById('hist-arrow');b.style.display=b.style.display==='none'?'block':'none';a.textContent=b.style.display==='none'?'▶':'▼'">
@@ -942,6 +950,7 @@ function renderZoneCard(za){
     h+='</div>';
     if(za.anomaly) h+='<div style="font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-bottom:10px">&#9888; '+za.anomaly+'</div>';
     h+='<button onclick="startInspectionFromCard()" style="width:100%;padding:13px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">&#128203; Inspect Low Zone</button>';
+    h+='<div id="zone-acute-tag"></div>';
     h+='<div style="margin-top:8px">';
     h+='<div onclick="var b=document.getElementById(\'zone-detail\');b.style.display=b.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=b.style.display===\'none\'?\'\u25ba Details\':\'\u25bc Details\'" style="padding:8px 0;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted)"><span>&#9654; Details</span></div>';
     h+='<div id="zone-detail" style="display:none">';
