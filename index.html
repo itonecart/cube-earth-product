@@ -835,6 +835,8 @@ function renderIntel(d,f){
     document.getElementById('w-wet').textContent=wetRisk;
     document.getElementById('w-mach').textContent=machNote;
     document.getElementById('w-traf').className=smapVal>0.38?'irow-val r':smapVal>0.32?'irow-val a':'irow-val g';
+    var tsumEl=document.getElementById('traf-summary');
+    if(tsumEl) tsumEl.textContent=trafStatus+' · '+machNote;
   }
   var hist=d.historical_analysis;
   if(hist&&hist.available){
