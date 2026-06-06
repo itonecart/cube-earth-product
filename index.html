@@ -914,10 +914,43 @@ function renderZoneCard(za){
   if(!za){el.innerHTML='';return;}
   window._lastZoneAnalysis=za;
   var uColor=za.uniformity_score>=8?'#16a34a':za.uniformity_score>=6?'#d97706':'#dc2626';
-  var anomalyHtml='';
-  if(za.anomaly){
-    anomalyHtml='<div data-zone-anomaly style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">&#9888; '+za.anomaly+'</div>';
+  var h='<div style="background:var(--white);border:1px solid var(--border);border-radius:14px;margin-top:10px;overflow:hidden">';
+  h+='<div style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">&#128506; Field Variability</div>';
+  h+='<div style="font-size:18px;font-weight:800;color:'+uColor+';font-family:var(--mono)">'+za.uniformity_score+'/10</div>';
+  h+='</div>';
+  h+='<div style="padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)">';
+  h+='<div style="display:flex;gap:3px;flex:1;height:8px">';
+  h+='<div style="flex:'+za.high_pct+';background:#16a34a;border-radius:4px 0 0 4px"></div>';
+  h+='<div style="flex:'+za.med_pct+';background:#d97706"></div>';
+  h+='<div style="flex:'+za.low_pct+';background:#dc2626;border-radius:0 4px 4px 0"></div>';
+  h+='</div>';
+  h+='<div style="font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0">&#128994;'+za.high_pct+'% &#128993;'+za.med_pct+'% &#128308;'+za.low_pct+'%</div>';
+  h+='</div>';
+  if(za.low_pct>15){
+    h+='<div style="padding:12px 16px">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    h+='<div><div style="font-size:14px;font-weight:700;color:#dc2626">&#127919; '+za.low_ha+' ha underperforming</div>';
+    h+='<div style="font-size:12px;color:var(--muted);margin-top:2px" id="zone-cv-summary">Inspect to confirm cause</div></div>';
+    h+='<div style="font-size:11px;font-weight:700;padding:4px 10px;background:#fff5f5;color:#dc2626;border-radius:100px;border:1px solid #fca5a5">'+za.low_pct+'% low</div>';
+    h+='</div>';
+    if(za.anomaly) h+='<div style="font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-bottom:10px">&#9888; '+za.anomaly+'</div>';
+    h+='<button onclick="startInspectionFromCard()" style="width:100%;padding:13px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">&#128203; Inspect Low Zone</button>';
+    h+='<div style="margin-top:8px">';
+    h+='<div onclick="var b=document.getElementById('zone-detail');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('span').textContent=b.style.display==='none'?'&#9654; Details':'&#9660; Details'" style="padding:8px 0;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted)"><span>&#9654; Details</span></div>';
+    h+='<div id="zone-detail" style="display:none">';
+    h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">';
+    h+='<div style="background:#f0fdf4;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:700;color:#16a34a">'+za.high_ha+'ha</div><div style="font-size:9px;color:var(--muted)">&#128994; High</div></div>';
+    h+='<div style="background:#fffbeb;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:700;color:#d97706">'+za.med_ha+'ha</div><div style="font-size:9px;color:var(--muted)">&#128993; Med</div></div>';
+    h+='<div style="background:#fff5f5;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:700;color:#dc2626">'+za.low_ha+'ha</div><div style="font-size:9px;color:var(--muted)">&#128308; Low</div></div>';
+    h+='</div><div style="font-size:12px;color:var(--muted)">'+za.uniformity_label+'</div>';
+    h+='</div></div>';
+  } else {
+    h+='<div style="padding:10px 16px;font-size:12px;color:var(--muted)">'+za.uniformity_label+'</div>';
   }
+  h+='</div>';
+  el.innerHTML=h;
+}
   var h='<div class="icard" style="margin-top:10px">';
   h+='<div class="icard-hd">&#128506; Field Variability</div>';
   h+='<div style="padding:14px 16px">';
