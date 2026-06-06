@@ -1241,7 +1241,7 @@ function openInspectionPage(zoneLabel, zoneNdvi, fieldMean, cropName){
 function saveInspectionAndPlan(){
   if(!selectedIssues||selectedIssues.length===0){alert('Please select what you see');return;}
   selectedIssue=selectedIssues[0];
-  if(!selectedSeverity){alert('Please select severity');return;}
+  if(!selectedSeverity&&!selectedIssues.includes('no_issue')){alert('Please select severity');return;}
   var notes=document.getElementById('insp-notes').value;
   currentInspectionZone.issue=selectedIssue;
   currentInspectionZone.issues=selectedIssues;
