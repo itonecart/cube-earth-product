@@ -1779,7 +1779,7 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   // Proxy: if cover in grazing band + growing = low carbon
   var carbonLabel, carbonSub, carbonColor;
   if (cover >= 1600 && cover <= 2500 && gr >= 40) {
-    carbonLabel = '🟢 Good'; carbonSub = 'Grass conditions favour lower carbon footprint'; carbonColor = '#16a34a';
+    carbonLabel = '🟢 Good'; carbonSub = 'Grass utilisation may support lower emissions intensity'; carbonColor = '#16a34a';
   } else if (cover >= 1200 && gr >= 20) {
     carbonLabel = '🟡 Moderate'; carbonSub = 'Improving cover will support carbon efficiency'; carbonColor = '#d97706';
   } else if (cover > 2500) {
