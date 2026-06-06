@@ -682,8 +682,9 @@ function injectAcuteTag(h){
     cvEl.textContent=type+' · Confidence: '+conf+' (CV '+h.cv_percent+'%)';
   }
   setTimeout(function(){
-    var det=document.getElementById('zone-detail');
-    if(!det||det.querySelector('.acute-tag')||!h||!h.available) return;
+    var det=document.getElementById('zone-acute-tag');
+    if(!det||!h||!h.available) return;
+    if(det.querySelector('.acute-tag')) return;
     var title=h.cv_percent<5
       ?'<div style="background:#1a4a8c;padding:6px 10px;font-weight:700;color:#fff;font-size:11px;border-radius:6px 6px 0 0">&#128202; LIKELY TEMPORARY · CV '+h.cv_percent+'%</div>'
       :h.cv_percent<15
