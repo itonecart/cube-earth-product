@@ -586,7 +586,7 @@ function renderFarmDashboard(){
   var name=farmData.name||'My Farm';
   document.getElementById('dash-farm-name').textContent=name;
   document.getElementById('hero-farm-name').textContent=name;
-  var totalHa=myFields.reduce(function(s,f){return s+f.area;},0).toFixed(1);
+  var totalHa=myFields.reduce(function(s,f){return s+f.area;},0).toFixed(2);
   document.getElementById('hero-farm-meta').textContent=(farmData.county||'Ireland')+' · '+totalHa+' ha · '+myFields.length+' fields';
   var g=myFields.filter(function(f){return f.status==='green';}).length;
   var a=myFields.filter(function(f){return f.status==='amber';}).length;
