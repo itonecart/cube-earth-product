@@ -675,31 +675,36 @@ function openField(idx){
 }
 
 function injectAcuteTag(h){
+  var cvEl=document.getElementById('zone-cv-summary');
+  if(cvEl&&h&&h.available){
+    var conf=h.cv_percent<5?'High':h.cv_percent<15?'Moderate':'Low';
+    var type=h.variability_type==='chronic'?'Recurring issue':'Likely temporary';
+    cvEl.textContent=type+' · Confidence: '+conf+' (CV '+h.cv_percent+'%)';
+  }
   setTimeout(function(){
-    var el=document.querySelector('[data-zone-anomaly]');
-    if(!el||el.querySelector('.acute-tag')||!h||!h.available) return;
+    var det=document.getElementById('zone-detail');
+    if(!det||det.querySelector('.acute-tag')||!h||!h.available) return;
+    var title=h.cv_percent<5
+      ?'<div style="background:#1a4a8c;padding:6px 10px;font-weight:700;color:#fff;font-size:11px;border-radius:6px 6px 0 0">&#128202; LIKELY TEMPORARY · CV '+h.cv_percent+'%</div>'
+      :h.cv_percent<15
+      ?'<div style="background:#78350f;padding:6px 10px;font-weight:700;color:#fff;font-size:11px;border-radius:6px 6px 0 0">&#9888; RECURRING · CV '+h.cv_percent+'%</div>'
+      :'<div style="background:#7f1d1d;padding:6px 10px;font-weight:700;color:#fff;font-size:11px;border-radius:6px 6px 0 0">&#9888; SIGNIFICANT · CV '+h.cv_percent+'%</div>';
     var atag='';
-    if(h.variability_type==='stable'||h.variability_type==='temporary'||h.variability_type==='mixed'){
-      atag='<div class="acute-tag" style="margin-top:8px;border:1px solid #d1fae5;border-radius:8px;overflow:hidden;font-size:12px">'
-        +(h.cv_percent<5?'<div style="background:#1a4a8c;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#128202; LIKELY TEMPORARY · CV '+h.cv_percent+'%</div>':h.cv_percent<15?'<div style="background:#78350f;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#9888; RECURRING VARIATION · CV '+h.cv_percent+'%</div>':'<div style="background:#7f1d1d;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#9888; SIGNIFICANT VARIATION · CV '+h.cv_percent+'%</div>')
-        +'<div style="padding:10px;background:#eff6ff;color:#1e3a5f;line-height:1.6">'
-        +'<div style="margin-bottom:8px">Field history is stable. The low-performing zone is likely a <strong>temporary management issue</strong>, not a chronic soil or drainage problem.</div>'
-        +'<div style="margin-bottom:6px;font-weight:600;color:#374151">&#128270; Less Likely (satellite only)</div>'
-        +'<div style="color:#6b7280;margin-bottom:4px">\u2022 Chronic drainage \u2014 eliminated (CV '+h.cv_percent+'%)</div>'
-        +'<div style="color:#6b7280;margin-bottom:8px">\u2022 General N deficiency \u2014 eliminated (field-wide NDVI healthy)</div>'
-        +'<div style="background:#fff;border:1px solid #dbeafe;border-radius:6px;padding:8px;margin-bottom:8px">'
-        +'<div style="font-weight:700;margin-bottom:6px;color:#1a4a8c">&#128205; Field Walk \u2014 Low-Cover Zone</div>'
-        +'<div>&#128193; Step 1 \u2014 Sward density: Look for bare patches</div>'
-        +'<div>&#128193; Step 2 \u2014 Plant mix: Check for weed competition</div>'
-        +'<div>&#128193; Step 3 \u2014 Penetration test: Check for compaction</div>'
-        +'</div>'
-
+    if(h.variability_type!=='chronic'){
+      atag='<div class="acute-tag" style="margin-top:8px;border:1px solid #dbeafe;border-radius:8px;overflow:hidden;font-size:12px">'+title
+        +'<div style="padding:8px 10px;background:#eff6ff;color:#1e3a5f;line-height:1.5">'
+        +'<div style="margin-bottom:6px">&#128270; Less Likely (satellite only)</div>'
+        +'<div style="color:#6b7280;margin-bottom:2px">• Chronic drainage — weak evidence</div>'
+        +'<div style="color:#6b7280;margin-bottom:8px">• Field-wide N deficiency — overall NDVI healthy</div>'
+        +'<div style="font-weight:700;color:#1a4a8c;margin-bottom:4px">&#128205; Field Walk Steps</div>'
+        +'<div style="color:#374151">1. Sward density — bare patches?</div>'
+        +'<div style="color:#374151">2. Plant mix — weed competition?</div>'
+        +'<div style="color:#374151">3. Penetration test — compaction?</div>'
         +'</div></div>';
-    } else if(h.variability_type==='chronic'){
-      atag='<div class="acute-tag" style="margin-top:6px;padding:6px 8px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 4px 4px 0;font-size:11px;color:#dc2626;font-weight:600">'
-        +'&#9888; Chronic Zone \u2014 Underperformed across '+h.years_analysed+' years. Consider soil testing.</div>';
+    } else {
+      atag='<div class="acute-tag" style="margin-top:8px;padding:8px 10px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:6px;font-size:12px;color:#dc2626;font-weight:600">&#9888; Chronic Zone — '+h.years_analysed+' years underperforming. Soil testing recommended.</div>';
     }
-    if(atag) el.insertAdjacentHTML('beforeend',atag);
+    if(atag) det.insertAdjacentHTML('beforeend',atag);
   },200);
 }
 
