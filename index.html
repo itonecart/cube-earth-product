@@ -942,7 +942,7 @@ function renderZoneCard(za){
     if(za.anomaly) h+='<div style="font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-bottom:10px">&#9888; '+za.anomaly+'</div>';
     h+='<button onclick="startInspectionFromCard()" style="width:100%;padding:13px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">&#128203; Inspect Low Zone</button>';
     h+='<div style="margin-top:8px">';
-    h+='<div onclick="var b=document.getElementById('zone-detail');b.style.display=b.style.display==='none'?'block':'none';this.querySelector('span').textContent=b.style.display==='none'?'&#9654; Details':'&#9660; Details'" style="padding:8px 0;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted)"><span>&#9654; Details</span></div>';
+    h+='<div onclick="var b=document.getElementById(\'zone-detail\');b.style.display=b.style.display===\'none\'?\'block\':\'none\';this.querySelector(\'span\').textContent=b.style.display===\'none\'?\'\u25ba Details\':\'\u25bc Details\'" style="padding:8px 0;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted)"><span>&#9654; Details</span></div>';
     h+='<div id="zone-detail" style="display:none">';
     h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">';
     h+='<div style="background:#f0fdf4;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:700;color:#16a34a">'+za.high_ha+'ha</div><div style="font-size:9px;color:var(--muted)">&#128994; High</div></div>';
