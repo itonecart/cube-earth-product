@@ -302,6 +302,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <div class="mc-note note-g" id="m-veg-pct">—</div>
       </div>
     </div>
+    <div style="padding:0 14px;margin-top:12px">
+      <button onclick="openGrassPage(currentField)" style="width:100%;padding:13px;background:linear-gradient(135deg,#0a2e0f,#166534);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px">
+        🌾 View Grass Cover & Growth Model
+      </button>
+    </div>
     <div id="zone-card"></div>
     <div class="icard" id="traf-card">
       <div class="icard-hd" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="var b=document.getElementById('traf-body');var a=document.getElementById('traf-arrow');b.style.display=b.style.display==='none'?'block':'none';a.textContent=b.style.display==='none'?'▶':'▼'">
@@ -437,6 +442,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 <div class="bnav" id="bnav">
   <button class="ni active" onclick="navTo('pg-farm',this)" id="ni-farm"><span class="ni-icon">🏠</span><span class="ni-label">Farm</span></button>
   <button class="ni" onclick="navTo('pg-plans',this)" id="ni-plans"><span class="ni-icon">💳</span><span class="ni-label">Plans</span></button>
+  <button class="ni" onclick="openGrassPage(currentField)" id="ni-grass"><span class="ni-icon">🌾</span><span class="ni-label">Grass</span></button>
   <button class="ni" onclick="newSearch()" id="ni-search"><span class="ni-icon">🔍</span><span class="ni-label">New Search</span></button>
 </div>
 
@@ -1435,6 +1441,154 @@ function newSearch(){
   document.getElementById('bnav').classList.remove('show');
   showPage('pg-setup1');
 }
+
+function openGrassPage(field) {
+  var f = field || currentField;
+  if (!f) return;
+  document.getElementById('grass-field-name').textContent = f.crop || 'Field';
+  document.getElementById('grass-loading').style.display = 'block';
+  document.getElementById('grass-content').style.display = 'none';
+  showPage('pg-grass');
+
+  // Use cached data if available
+  var d = f.profileData;
+  if (d && d.grass_model && d.grass_model.available) {
+    renderGrassPage(d.grass_model, d.weather);
+  } else {
+    // Fetch fresh
+    fetch(API + '/field_profile', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({lat: f.lat, lng: f.lng, year: 2026,
+        parcel_override: {crop: f.crop, claim_area: f.area, grassland: true, eco: f.eco, biss: f.biss, olr: f.olr}})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.grass_model && data.grass_model.available) {
+        if (f.profileData) f.profileData.grass_model = data.grass_model;
+        renderGrassPage(data.grass_model, data.weather);
+      } else {
+        document.getElementById('grass-loading').innerHTML = '<div style="color:var(--muted);font-size:13px">⚠ Grass model unavailable for this field</div>';
+      }
+    })
+    .catch(function(e) {
+      document.getElementById('grass-loading').innerHTML = '<div style="color:var(--muted);font-size:13px">⚠ Could not load grass data</div>';
+    });
+  }
+}
+
+function renderGrassPage(gm, wx) {
+  document.getElementById('grass-loading').style.display = 'none';
+  document.getElementById('grass-content').style.display = 'block';
+
+  // Cover value
+  var cover = gm.kg_dm_ha || 0;
+  document.getElementById('grass-cover-val').textContent = cover.toLocaleString();
+  document.getElementById('grass-cover-range').textContent = 'Range: ' + (gm.kg_dm_ha_low||'—').toLocaleString() + ' – ' + (gm.kg_dm_ha_high||'—').toLocaleString() + ' kg DM/ha';
+
+  // Cover bar (0-3500 scale)
+  var barPct = Math.min(100, Math.round(cover / 3500 * 100));
+  var barColor = cover >= 1400 ? '#16a34a' : cover >= 800 ? '#d97706' : '#dc2626';
+  var bar = document.getElementById('grass-cover-bar');
+  bar.style.width = barPct + '%';
+  bar.style.background = barColor;
+
+  // Decision
+  var dec = document.getElementById('grass-decision-card');
+  var icon, text, sub, bg;
+  if (cover >= 1400) {
+    icon = '✅'; text = 'Ready to Graze'; sub = 'Pre-grazing target reached · Rotate stock in now';
+    bg = 'background:#f0fdf4;border:1.5px solid #bbf7d0';
+  } else if (cover >= 1000) {
+    var days = gm.rotation_days || '—';
+    icon = '⏳'; text = 'Approaching target'; sub = 'Est. ' + days + ' days to graze — monitor daily';
+    bg = 'background:#fffbeb;border:1.5px solid #fde68a';
+  } else if (cover >= 600) {
+    icon = '🔄'; text = 'Recovery Phase'; sub = 'Rest this paddock — allow regrowth';
+    bg = 'background:#fff5f5;border:1.5px solid #fca5a5';
+  } else {
+    icon = '⛔'; text = 'Post-Grazing Residual'; sub = 'Below 4cm residual — avoid grazing';
+    bg = 'background:#fff5f5;border:1.5px solid #fca5a5';
+  }
+  dec.setAttribute('style', dec.getAttribute('style').split(';')[0] + '; border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;' + bg);
+  document.getElementById('grass-decision-icon').textContent = icon;
+  document.getElementById('grass-decision-text').textContent = text;
+  document.getElementById('grass-decision-sub').textContent = sub;
+
+  // Growth rate
+  var gr = gm.growth_rate_kg_day || 0;
+  document.getElementById('grass-growth-val').textContent = gr;
+  var grLabel = gr >= 60 ? '🟢 Excellent growth' : gr >= 40 ? '🟡 Good growth' : gr >= 20 ? '🟠 Moderate' : '🔴 Slow growth';
+  document.getElementById('grass-growth-label').textContent = grLabel;
+  document.getElementById('grass-growth-val').style.color = gr >= 60 ? '#16a34a' : gr >= 40 ? '#d97706' : '#dc2626';
+
+  // Forecast
+  var fc = gm.forecast_cover_7d;
+  if (fc) {
+    document.getElementById('grass-forecast-val').textContent = fc.toLocaleString();
+    var diff = fc - cover;
+    document.getElementById('grass-forecast-label').textContent = (diff >= 0 ? '+' : '') + diff + ' kg DM/ha in 7 days';
+  } else {
+    document.getElementById('grass-forecast-val').textContent = '—';
+    document.getElementById('grass-forecast-label').textContent = 'Forecast unavailable';
+  }
+
+  // Height
+  var ht = gm.height_cm_est || 0;
+  document.getElementById('grass-height-val').textContent = ht + ' cm';
+  var htPct = Math.min(100, ht / 12 * 100);
+  document.getElementById('grass-height-bar').style.width = htPct + '%';
+
+  // Weather
+  if (wx && wx.available) {
+    var gc = wx.growth_conditions || {};
+    var scoreLabel = gc.label || '—';
+    var scoreColor = gc.label === 'Excellent' ? '#16a34a' : gc.label === 'Good' ? '#1a4a8c' : gc.label === 'Moderate' ? '#d97706' : '#dc2626';
+    var scoreBg = gc.label === 'Excellent' ? 'background:#f0fdf4;color:#16a34a' : gc.label === 'Good' ? 'background:#eff6ff;color:#1a4a8c' : 'background:#fffbeb;color:#d97706';
+    document.getElementById('weather-score-label').textContent = scoreLabel + ' Growing Conditions';
+    document.getElementById('weather-score-label').style.color = scoreColor;
+    var badge = document.getElementById('weather-score-badge');
+    badge.textContent = 'Score ' + (gc.score || '—') + '/10';
+    badge.setAttribute('style', 'font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;' + scoreBg);
+    document.getElementById('wx-temp').textContent = gc.avg_temp_c ? gc.avg_temp_c + '°' : '—';
+    document.getElementById('wx-rain').textContent = gc.rain_7d_mm ? gc.rain_7d_mm + 'mm' : '—';
+    document.getElementById('wx-rad').textContent = gc.radiation_mj_day ? gc.radiation_mj_day : '—';
+
+    // 7-day forecast mini grid
+    var fc7 = wx.forecast_7d || [];
+    if (fc7.length > 0) {
+      var grid = document.getElementById('wx-forecast-grid');
+      var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      grid.innerHTML = '<div style="display:flex;gap:4px;overflow-x:auto;padding-bottom:4px">' +
+        fc7.map(function(d) {
+          var dt = new Date(d.date);
+          var dayName = days[dt.getDay()];
+          var rain = d.rain_mm ? Math.round(d.rain_mm) : 0;
+          var rainColor = rain > 10 ? '#3b82f6' : rain > 3 ? '#93c5fd' : '#e2e8f0';
+          var temp = d.temp_max ? Math.round(d.temp_max) : '—';
+          return '<div style="flex-shrink:0;text-align:center;padding:6px 8px;background:#f5f7fa;border-radius:8px;min-width:44px">'
+            + '<div style="font-size:9px;color:var(--muted);font-weight:700">' + dayName + '</div>'
+            + '<div style="font-size:13px;font-weight:700;margin:3px 0">' + temp + '°</div>'
+            + '<div style="width:20px;height:20px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;background:' + rainColor + '">'
+            + '<div style="font-size:8px;color:#1e40af;font-weight:700">' + (rain || '') + '</div></div>'
+            + '</div>';
+        }).join('') + '</div>'
+        + '<div style="font-size:9px;color:var(--muted);margin-top:6px">🌧 Rain in mm · Temperature max °C</div>';
+      document.getElementById('wx-forecast-card').style.display = 'block';
+    }
+  }
+}
+
+function savePlateMeter() {
+  var val = document.getElementById('plate-meter-input').value;
+  if (!val) return;
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999';
+  toast.textContent = '✓ Plate meter reading saved — ' + parseInt(val).toLocaleString() + ' kg DM/ha';
+  document.body.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 3000);
+}
+
 </script>
 <!-- INSPECTION PAGE -->
 <div class="page" id="pg-inspection">
@@ -1668,5 +1822,152 @@ function newSearch(){
     </div>
   </div>
 </div>
+
+<!-- GRASS COVER PAGE -->
+<div class="page" id="pg-grass">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-intel')">←</button>
+    <div class="tb-title">🌾 Grass Cover</div>
+    <div style="font-size:11px;color:var(--muted)" id="grass-field-name"></div>
+  </div>
+  <div class="scroll" id="grass-scroll">
+    <div style="padding:14px">
+
+      <!-- Cover estimate card -->
+      <div id="grass-loading" style="padding:40px;text-align:center;color:var(--muted)">
+        <div class="spinner" style="margin:0 auto 12px"></div>
+        <div style="font-size:13px">Loading grass model...</div>
+      </div>
+
+      <div id="grass-content" style="display:none">
+
+        <!-- Main cover card -->
+        <div style="background:linear-gradient(135deg,#0a2e0f,#166534);border-radius:16px;padding:20px;color:#fff;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">📡 Satellite Estimate</div>
+          <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
+            <div style="font-size:42px;font-weight:800;font-family:var(--mono);line-height:1" id="grass-cover-val">—</div>
+            <div style="font-size:14px;opacity:0.7;padding-bottom:8px">kg DM/ha</div>
+          </div>
+          <div style="font-size:12px;opacity:0.7;margin-bottom:14px" id="grass-cover-range">Range: — to —</div>
+          <!-- Cover bar -->
+          <div style="background:rgba(255,255,255,0.15);border-radius:100px;height:8px;margin-bottom:8px">
+            <div id="grass-cover-bar" style="height:100%;border-radius:100px;background:#4ade80;transition:width 0.8s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;opacity:0.5">
+            <span>0</span><span>Post-graze 400</span><span>Graze 1,400</span><span>Max 3,500</span>
+          </div>
+        </div>
+
+        <!-- Decision banner -->
+        <div id="grass-decision-card" style="border-radius:12px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px" id="grass-decision-icon">—</div>
+          <div>
+            <div style="font-size:15px;font-weight:700" id="grass-decision-text">—</div>
+            <div style="font-size:12px;opacity:0.8;margin-top:2px" id="grass-decision-sub">—</div>
+          </div>
+        </div>
+
+        <!-- Growth + Forecast row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">📈 Growth Rate</div>
+            <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:#16a34a" id="grass-growth-val">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">kg DM/ha/day</div>
+            <div style="font-size:11px;font-weight:600;margin-top:6px" id="grass-growth-label">—</div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">📅 7-Day Forecast</div>
+            <div style="font-size:22px;font-weight:800;font-family:var(--mono);color:#1a4a8c" id="grass-forecast-val">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">kg DM/ha</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px" id="grass-forecast-label">—</div>
+          </div>
+        </div>
+
+        <!-- Height estimate -->
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">📏 Estimated Sward Height</div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="font-size:32px;font-weight:800;font-family:var(--mono);color:var(--g3)" id="grass-height-val">—</div>
+            <div>
+              <div style="font-size:12px;color:var(--muted)">compressed height</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Post-graze residual: 4cm · Graze at: 8–10cm</div>
+            </div>
+          </div>
+          <!-- Height visual bar -->
+          <div style="margin-top:10px;position:relative;height:24px;background:#f0fdf4;border-radius:8px;overflow:hidden">
+            <div id="grass-height-bar" style="height:100%;background:linear-gradient(90deg,#bbf7d0,#16a34a);border-radius:8px;transition:width 0.8s ease"></div>
+            <div style="position:absolute;left:25%;top:0;height:100%;width:1px;background:rgba(0,0,0,0.1)"></div>
+            <div style="position:absolute;left:50%;top:0;height:100%;width:1px;background:rgba(0,0,0,0.15)"></div>
+            <div style="position:absolute;left:80%;top:0;height:100%;width:2px;background:#16a34a;opacity:0.6"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:4px">
+            <span>0cm</span><span>3cm</span><span>6cm</span><span>10cm+</span>
+          </div>
+        </div>
+
+        <!-- Weather growth conditions -->
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">🌤 Growth Conditions (7-day)</div>
+          <div style="padding:10px 16px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:22px;font-weight:800;color:var(--g3)" id="weather-score-label">—</div>
+              <div id="weather-score-badge" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px">—</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+              <div style="text-align:center;background:#f5f7fa;border-radius:8px;padding:8px">
+                <div style="font-size:16px;font-weight:800;font-family:var(--mono)" id="wx-temp">—</div>
+                <div style="font-size:9px;color:var(--muted);margin-top:2px">Avg °C</div>
+              </div>
+              <div style="text-align:center;background:#f5f7fa;border-radius:8px;padding:8px">
+                <div style="font-size:16px;font-weight:800;font-family:var(--mono)" id="wx-rain">—</div>
+                <div style="font-size:9px;color:var(--muted);margin-top:2px">Rain mm</div>
+              </div>
+              <div style="text-align:center;background:#f5f7fa;border-radius:8px;padding:8px">
+                <div style="font-size:16px;font-weight:800;font-family:var(--mono)" id="wx-rad">—</div>
+                <div style="font-size:9px;color:var(--muted);margin-top:2px">MJ/m²/day</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7-day weather forecast mini chart -->
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px" id="wx-forecast-card" style="display:none">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">📆 7-Day Forecast</div>
+          <div style="padding:12px 16px" id="wx-forecast-grid"></div>
+        </div>
+
+        <!-- Accuracy note -->
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px">⚗️ Satellite Estimate — Uncalibrated</div>
+          <div style="font-size:11px;color:#78350f;line-height:1.6">Based on MoSt GG model (Teagasc/Ruelle et al. 2018) with Sentinel-2 NDVI. Accuracy: ±350 kg DM/ha. Add a plate meter reading to calibrate for your farm.</div>
+        </div>
+
+        <!-- Plate meter calibration prompt -->
+        <div style="background:var(--white);border:1.5px dashed var(--border);border-radius:12px;padding:16px;margin-bottom:12px;text-align:center">
+          <div style="font-size:20px;margin-bottom:6px">📏</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">Calibrate with Plate Meter</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Enter your plate meter reading to improve accuracy for this field</div>
+          <div style="display:flex;gap:8px;max-width:280px;margin:0 auto">
+            <input type="number" id="plate-meter-input" placeholder="e.g. 1650" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--sans);outline:none;text-align:center">
+            <div style="font-size:11px;color:var(--muted);align-self:center;white-space:nowrap">kg DM/ha</div>
+            <button onclick="savePlateMeter()" style="padding:10px 14px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Save</button>
+          </div>
+        </div>
+
+        <!-- Model info -->
+        <div style="background:#f5f7fa;border-radius:10px;padding:10px 14px;margin-bottom:16px">
+          <div style="font-size:10px;color:var(--muted);line-height:1.7">
+            <strong>Model:</strong> MoSt GG (Ruelle, Hennessy &amp; Delaby, 2018) · Teagasc Moorepark<br>
+            <strong>Satellite:</strong> Sentinel-2 NDVI + Sentinel-1 SAR · Copernicus/ESA<br>
+            <strong>Weather:</strong> UKMO UKV 2km · Open-Meteo (no API key)<br>
+            <strong>Uncertainty:</strong> Weekly RMSPE 321 kg DM/ha (published validation)
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
