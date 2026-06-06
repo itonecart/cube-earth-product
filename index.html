@@ -303,7 +303,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       </div>
     </div>
     <div style="padding:0 14px;margin-top:12px">
-      <button onclick="openGrassPage(currentField)" style="width:100%;padding:13px;background:linear-gradient(135deg,#0a2e0f,#166534);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px">
+      <button onclick="openGrassPage(currentField)" style="width:100%;padding:13px;background:var(--g3);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;justify-content:center;gap:8px">
         🌾 View Grass Cover & Growth Model
       </button>
     </div>
@@ -1597,7 +1597,7 @@ function renderGrassPage(gm, wx) {
     var scoreColor = gc.label === 'Excellent' ? '#16a34a' : gc.label === 'Good' ? '#1a4a8c' : gc.label === 'Moderate' ? '#d97706' : '#dc2626';
     var scoreBg = gc.label === 'Excellent' ? 'background:#f0fdf4;color:#16a34a' : gc.label === 'Good' ? 'background:#eff6ff;color:#1a4a8c' : 'background:#fffbeb;color:#d97706';
     document.getElementById('weather-score-label').textContent = scoreLabel + ' Growing Conditions';
-    document.getElementById('weather-score-label').style.color = scoreColor;
+    document.getElementById('weather-score-label').style.color = '#1a4a8c';
     var badge = document.getElementById('weather-score-badge');
     badge.textContent = 'Score ' + (gc.score || '—') + '/10';
     badge.setAttribute('style', 'font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;' + scoreBg);
@@ -1893,7 +1893,7 @@ function savePlateMeter() {
       <div id="grass-content" style="display:none">
 
         <!-- Main cover card -->
-        <div style="background:linear-gradient(135deg,#0a2e0f,#166534);border-radius:16px;padding:20px;color:#fff;margin-bottom:12px">
+        <div style="background:linear-gradient(135deg,#0a1525,#1a4a8c);border-radius:16px;padding:20px;color:#fff;margin-bottom:12px">
           <div style="font-size:11px;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">📡 Satellite Estimate</div>
           <div style="display:flex;align-items:flex-end;gap:8px;margin-bottom:4px">
             <div style="font-size:42px;font-weight:800;font-family:var(--mono);line-height:1" id="grass-cover-val">—</div>
@@ -1912,11 +1912,11 @@ function savePlateMeter() {
               </div>
             </div>
             <div style="position:relative;height:16px;margin-bottom:4px">
-              <span style="position:absolute;left:0;font-size:9px;opacity:0.5;transform:translateX(-50%)">0</span>
+              <span style="position:absolute;left:0%;font-size:9px;opacity:0.5">0</span>
               <span style="position:absolute;left:11.4%;font-size:9px;opacity:0.5;transform:translateX(-50%)">400</span>
               <span style="position:absolute;left:34.3%;font-size:9px;opacity:0.5;transform:translateX(-50%)">1,200</span>
               <span style="position:absolute;left:45.7%;font-size:9px;opacity:0.5;transform:translateX(-50%)">1,600</span>
-              <span style="position:absolute;right:0;font-size:9px;opacity:0.5">3,500</span>
+              <span style="position:absolute;right:0%;font-size:9px;opacity:0.5">3,500</span>
             </div>
           </div>
         </div>
