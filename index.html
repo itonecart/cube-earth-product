@@ -1488,10 +1488,11 @@ function renderGrassPage(gm, wx) {
 
   // Cover bar (0-3500 scale)
   var barPct = Math.min(100, Math.round(cover / 3500 * 100));
-  var markerColor = cover >= 2500 ? '#d97706' : cover >= 1600 ? '#16a34a' : cover >= 1200 ? '#f97316' : '#dc2626';
+  var markerColor = cover >= 3200 ? '#2563eb' : cover >= 2500 ? '#7c3aed' : cover >= 1600 ? '#16a34a' : cover >= 1200 ? '#eab308' : '#dc2626';
   var bar = document.getElementById('grass-cover-bar');
   bar.style.width = barPct + '%';
-  bar.style.background = markerColor;
+  var fillColor = cover >= 3200 ? 'linear-gradient(90deg,#dc2626,#eab308,#16a34a,#7c3aed,#2563eb)' : cover >= 2500 ? 'linear-gradient(90deg,#dc2626,#eab308,#16a34a,#7c3aed)' : cover >= 1600 ? 'linear-gradient(90deg,#dc2626,#eab308,#16a34a)' : cover >= 1200 ? 'linear-gradient(90deg,#dc2626,#eab308)' : '#dc2626';
+  bar.style.background = fillColor;
   // Floating marker
   var marker = document.getElementById('grass-cover-marker');
   var badge = document.getElementById('grass-cover-marker-badge');
@@ -1507,27 +1508,27 @@ function renderGrassPage(gm, wx) {
   var icon, text, sub, bandLabel, bandColor, bandBg;
   if (cover >= 3200) {
     icon = '🌾'; text = 'Silage Candidate'; sub = 'Cover exceeds grazing target — cut for silage';
-    bandLabel = 'Silage >3200'; bandColor = '#6b7280'; bandBg = 'background:#f5f7fa;color:#6b7280';
+    bandLabel = '🔵 Silage >3200'; bandColor = '#2563eb'; bandBg = 'background:#eff6ff;color:#2563eb';
   } else if (cover >= 2500) {
     icon = '⚠'; text = 'Surplus — Act Now'; sub = 'Remove surplus or rotate faster to avoid wastage';
-    bandLabel = 'Surplus 2500-3200'; bandColor = '#d97706'; bandBg = 'background:#fffbeb;color:#d97706';
+    bandLabel = '🟣 Surplus 2500-3200'; bandColor = '#7c3aed'; bandBg = 'background:#f5f3ff;color:#7c3aed';
   } else if (cover >= 1600) {
     icon = '✅'; text = 'Grazing Ready'; sub = 'Pre-grazing target reached (1,600 kg DM/ha) · Rotate stock in now';
-    bandLabel = 'Grazing 1600-2500'; bandColor = '#16a34a'; bandBg = 'background:#f0fdf4;color:#16a34a';
+    bandLabel = '🟢 Grazing 1600-2500'; bandColor = '#16a34a'; bandBg = 'background:#f0fdf4;color:#16a34a';
   } else if (cover >= 1200) {
     var gr2 = gm.growth_rate_kg_day || 0;
     var days = gr2 > 0 ? Math.ceil((1600 - cover) / gr2) : null;
     var daysStr = days ? days + 'd' : 'soon';
     if (days !== null && days <= 1) {
       icon = '✅'; text = 'Graze Now or Tomorrow'; sub = 'Within 1 day of 1,600 kg DM/ha target';
-      bandLabel = 'Near Grazing Target'; bandColor = '#1a4a8c'; bandBg = 'background:#eff6ff;color:#1a4a8c';
+      bandLabel = '🟢 Near Grazing Target'; bandColor = '#1a4a8c'; bandBg = 'background:#eff6ff;color:#1a4a8c';
     } else {
       icon = '⏳'; text = 'Building — graze in ' + daysStr; sub = 'Target: 1,600 kg DM/ha · Monitor daily';
-      bandLabel = 'Building 1200-1600'; bandColor = '#f97316'; bandBg = 'background:#fff7ed;color:#f97316';
+      bandLabel = '🟡 Building 1200-1600'; bandColor = '#a16207'; bandBg = 'background:#fefce8;color:#a16207';
     }
   } else {
     icon = '🔄'; text = 'Recovery Phase'; sub = 'Rest this paddock — below grazing threshold';
-    bandLabel = 'Low <1200'; bandColor = '#dc2626'; bandBg = 'background:#fff5f5;color:#dc2626';
+    bandLabel = '🔴 Low <1200'; bandColor = '#dc2626'; bandBg = 'background:#fff5f5;color:#dc2626';
   }
   document.getElementById('grass-decision-icon').textContent = icon;
   document.getElementById('grass-decision-text').textContent = text;
@@ -1924,11 +1925,11 @@ function savePlateMeter() {
         <!-- Cover Status Band -->
         <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
           <div style="display:flex;height:10px">
-            <div style="flex:1;background:#dc2626" title="Low"></div>
-            <div style="flex:1;background:#f97316" title="Building"></div>
-            <div style="flex:2;background:#16a34a" title="Grazing Ready"></div>
-            <div style="flex:1.5;background:#d97706" title="Surplus"></div>
-            <div style="flex:1;background:#6b7280" title="Silage"></div>
+            <div style="flex:1;background:#dc2626;border-radius:6px 0 0 6px" title="Low"></div>
+            <div style="flex:1;background:#eab308" title="Building"></div>
+            <div style="flex:2;background:#16a34a" title="Grazing"></div>
+            <div style="flex:1.5;background:#7c3aed" title="Surplus"></div>
+            <div style="flex:1;background:#2563eb;border-radius:0 6px 6px 0" title="Silage"></div>
           </div>
           <div id="grass-band-indicator" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
             <div style="font-size:24px" id="grass-decision-icon">—</div>
@@ -1939,11 +1940,11 @@ function savePlateMeter() {
             <div id="grass-band-badge" style="font-size:10px;font-weight:700;padding:4px 8px;border-radius:6px;text-align:center;flex-shrink:0"></div>
           </div>
           <div style="display:flex;border-top:1px solid var(--border)">
-            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#dc2626">Low</div><1200</div>
-            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#f97316">Building</div>1200-1600</div>
-            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#16a34a">Grazing</div>1600-2500</div>
-            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#d97706">Surplus</div>2500-3200</div>
-            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted)"><div style="font-weight:700;color:#6b7280">Silage</div>>3200</div>
+            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#dc2626">🔴 Low</div><1200</div>
+            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#a16207">🟡 Building</div>1200-1600</div>
+            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#16a34a">🟢 Grazing</div>1600-2500</div>
+            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted);border-right:1px solid var(--border)"><div style="font-weight:700;color:#7c3aed">🟣 Surplus</div>2500-3200</div>
+            <div style="flex:1;padding:6px 4px;text-align:center;font-size:9px;color:var(--muted)"><div style="font-weight:700;color:#2563eb">🔵 Silage</div>>3200</div>
           </div>
         </div>
 
