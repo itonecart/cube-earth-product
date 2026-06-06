@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cube Earth — Farm Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue1:#0a1525;--blue2:#1a4a8c;--blue3:#2d6abf;--blue4:#4a8fd4;
+  --surface:#f5f7fa;--white:#fff;--border:#e2e8f0;
+  --text:#0a0f1c;--muted:#6b7a90;
+  --green:#16a34a;--amber:#d97706;--red:#dc2626;
+  --sans:'Sora',sans-serif;--mono:'JetBrains Mono',monospace;
+  --nav:60px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--surface);color:var(--text);}
+
+/* PAGES */
+.page{position:fixed;inset:0;display:none;flex-direction:column;}
+.page.active{display:flex;}
+
+/* TOP BAR */
+.topbar{height:52px;display:flex;align-items:center;padding:0 16px;gap:10px;background:var(--blue1);flex-shrink:0;}
+.tb-logo{font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.3px;flex:1;}
+.tb-meta{font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--mono);}
+.tb-avatar{width:32px;height:32px;background:var(--blue2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;cursor:pointer;}
+
+/* SEARCH */
+.search-bar{padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border);}
+.search-input{width:100%;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;}
+.search-input:focus{border-color:var(--blue2);}
+
+/* FARM HERO */
+.farm-hero{background:linear-gradient(135deg,var(--blue1),var(--blue2));padding:14px 16px;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.farm-hero-name{font-size:17px;font-weight:800;letter-spacing:-0.3px;}
+.farm-hero-meta{font-size:11px;opacity:0.7;margin-top:2px;}
+.farm-pills{display:flex;gap:6px;margin-top:8px;}
+.fpill{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+.fpill-r{background:rgba(220,38,38,0.3);color:#fca5a5;}
+.fpill-a{background:rgba(217,119,6,0.3);color:#fde68a;}
+.fpill-g{background:rgba(255,255,255,0.15);color:#fff;}
+
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;padding-bottom:80px;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* SECTION HEADER */
+.sec-hd{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;padding:12px 16px 6px;}
+
+/* FIELD CARD */
+.field-card{background:var(--white);border-bottom:1px solid var(--border);overflow:hidden;}
+.field-card-header{display:flex;align-items:center;padding:14px 16px;cursor:pointer;gap:10px;}
+.field-card-header:active{background:var(--surface);}
+.fc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.fc-dot-r{background:var(--red);}
+.fc-dot-a{background:var(--amber);}
+.fc-dot-g{background:var(--green);}
+.fc-info{flex:1;min-width:0;}
+.fc-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fc-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.fc-trend{font-size:12px;font-weight:700;font-family:var(--mono);flex-shrink:0;text-align:right;}
+.fc-trend-r{color:var(--red);}
+.fc-trend-a{color:var(--amber);}
+.fc-trend-g{color:var(--green);}
+.fc-chevron{font-size:14px;color:var(--muted);margin-left:4px;transition:transform 0.2s;}
+.fc-chevron.open{transform:rotate(90deg);}
+
+/* FIELD EXPANDED */
+.field-expanded{display:none;border-top:1px solid var(--border);}
+.field-expanded.open{display:block;}
+
+/* INSPECT BUTTON */
+.btn-inspect{display:block;width:calc(100% - 32px);margin:12px 16px;padding:14px;background:var(--blue2);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:var(--sans);cursor:pointer;text-align:center;min-height:48px;}
+.btn-inspect:active{background:var(--blue1);}
+.btn-inspect-amber{background:linear-gradient(135deg,#78350f,#d97706);}
+
+/* ACCORDIONS */
+.accord{border-top:1px solid var(--border);}
+.accord-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);}
+.accord-hd:active{background:var(--surface);}
+.accord-hd span{font-size:14px;}
+.accord-body{display:none;padding:0 16px 12px;font-size:13px;}
+.accord-body.open{display:block;}
+.arow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);}
+.arow:last-child{border:none;}
+.arow-label{color:var(--muted);}
+.arow-val{font-weight:600;font-family:var(--mono);}
+.arow-val-g{color:var(--green);}
+.arow-val-a{color:var(--amber);}
+.arow-val-r{color:var(--red);}
+
+/* MINI CHART */
+.mini-bars{display:flex;gap:2px;align-items:flex-end;height:28px;margin-top:8px;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;height:var(--nav);background:var(--white);border-top:1px solid var(--border);display:flex;z-index:1000;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--muted);border:none;background:none;font-family:var(--sans);}
+.ni.active{color:var(--blue2);}
+.ni-icon{font-size:22px;line-height:1;}
+.ni-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;}
+
+/* INTEL PAGE */
+#field-map{height:42vh;width:100%;flex-shrink:0;position:relative;background:#111;}
+.map-overlay{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.7);color:#fff;font-size:10px;padding:5px 10px;border-radius:8px;z-index:400;font-family:var(--mono);pointer-events:none;}
+#layer-switcher{position:absolute;top:8px;right:8px;z-index:1000;background:rgba(0,0,0,0.75);border-radius:10px;padding:8px 12px;}
+.ls-title{font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.ls-label{display:flex;align-items:center;gap:6px;cursor:pointer;padding:3px 0;}
+.ls-label-text{font-size:12px;color:#fff;}
+.ls-label-sub{font-size:10px;color:rgba(255,255,255,0.5);}
+
+.decision{margin:12px 14px;border-radius:14px;padding:16px 18px;color:#fff;}
+.dec-label{font-size:10px;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.dec-action{font-size:20px;font-weight:800;letter-spacing:-0.3px;margin-bottom:6px;}
+.dec-reason{font-size:13px;opacity:0.88;line-height:1.5;}
+
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;margin-top:10px;}
+.mc{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px;}
+.mc-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.mc-val{font-size:22px;font-weight:800;font-family:var(--mono);color:var(--blue1);}
+.mc-unit{font-size:10px;color:var(--muted);margin-top:1px;}
+.mc-note{font-size:11px;font-weight:600;margin-top:4px;}
+
+/* INTEL ACCORDIONS */
+.intel-accord{background:var(--white);border:1px solid var(--border);border-radius:12px;margin:10px 14px 0;overflow:hidden;}
+.ia-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.ia-hd:active{background:var(--surface);}
+.ia-body{display:none;border-top:1px solid var(--border);}
+.ia-body.open{display:block;}
+.irow{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+.irow:last-child{border:none;}
+.irow-label{color:var(--muted);}
+.irow-val{font-weight:600;}
+.irow-val.g{color:var(--green);}.irow-val.a{color:var(--amber);}.irow-val.r{color:var(--red);}
+
+/* LOADING */
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--blue2);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* INSPECTION PAGE */
+.insp-hero{background:linear-gradient(135deg,var(--blue1),var(--blue2));padding:16px;color:#fff;}
+.insp-hero-title{font-size:18px;font-weight:800;}
+.insp-hero-meta{font-size:12px;opacity:0.75;margin-top:4px;}
+.insp-hero-gps{font-size:11px;opacity:0.6;margin-top:6px;}
+.issue-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.issue-btn{padding:14px 8px;border:2px solid var(--border);border-radius:12px;background:var(--white);font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans);}
+.issue-btn.selected{border-color:var(--blue2);background:#eff6ff;color:var(--blue2);}
+.issue-btn.selected-green{border-color:var(--green);background:#f0fdf4;color:var(--green);}
+.sev-row{display:flex;gap:8px;}
+.sev-btn{flex:1;padding:12px;border:2px solid var(--border);border-radius:10px;background:var(--white);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+.sev-btn.selected{border-color:var(--blue2);background:#eff6ff;color:var(--blue2);}
+.sec-label{font-size:11px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.add-photo{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;}
+.save-btn{width:100%;padding:14px;background:var(--blue2);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+
+/* ACTION PLAN */
+.ap-hero{background:linear-gradient(135deg,var(--blue1),var(--blue2));padding:16px;color:#fff;margin-bottom:12px;}
+.ap-step{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.ap-step:last-child{border:none;}
+.ap-num{width:24px;height:24px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--blue2);flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- FARM DASHBOARD -->
+<div class="page active" id="pg-farm">
+  <div class="topbar">
+    <div class="tb-logo">🌍 Cube Earth</div>
+    <div class="tb-meta" id="tb-pass-age"></div>
+    <div class="tb-avatar" onclick="alert('Account settings coming soon')">👤</div>
+  </div>
+
+  <div class="search-bar">
+    <input class="search-input" id="farm-search" placeholder="🔍 Search farm parcels..." oninput="filterFields(this.value)">
+  </div>
+
+  <div class="scroll" id="farm-scroll">
+    <div class="farm-hero" id="farm-hero-block">
+      <div>
+        <div class="farm-hero-name" id="hero-farm-name">My Farm</div>
+        <div class="farm-hero-meta" id="hero-farm-meta">Loading...</div>
+        <div class="farm-pills" id="hero-pills">
+          <div class="fpill fpill-r">🔴 <span id="cnt-r">0</span> Action</div>
+          <div class="fpill fpill-a">🟡 <span id="cnt-a">0</span> Monitor</div>
+          <div class="fpill fpill-g">🟢 <span id="cnt-g">0</span> Ready</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-hd">My Fields</div>
+    <div id="field-list"></div>
+  </div>
+
+  <div class="bnav">
+    <button class="ni active" id="ni-farm"><span class="ni-icon">🏠</span><span class="ni-label">Farm</span></button>
+    <button class="ni" onclick="showPage('pg-setup')"><span class="ni-icon">➕</span><span class="ni-label">Add Field</span></button>
+    <button class="ni" onclick="showPage('pg-plans')"><span class="ni-icon">💳</span><span class="ni-label">Plans</span></button>
+  </div>
+</div>
+
+<!-- FIELD INTELLIGENCE -->
+<div class="page" id="pg-intel">
+  <div class="topbar">
+    <button onclick="showPage('pg-farm')" style="background:none;border:none;font-size:22px;cursor:pointer;color:#fff;padding:0;margin-right:4px">←</button>
+    <div class="tb-logo" id="intel-title">Field</div>
+    <div id="intel-badge" style="font-size:18px">🟢</div>
+  </div>
+
+  <div class="scroll" id="intel-scroll">
+    <!-- Map -->
+    <div id="field-map" style="position:relative">
+      <div class="map-overlay" id="map-overlay">🛰 Sentinel-2</div>
+      <div id="layer-switcher">
+        <div class="ls-title">🗺 Layers</div>
+        <label class="ls-label"><input type="radio" name="ml" value="0" checked style="accent-color:#4a8fd4" onchange="switchMapLayer(0)">
+          <div><div class="ls-label-text">Aerial</div></div></label>
+        <label class="ls-label"><input type="radio" name="ml" value="1" style="accent-color:#4a8fd4" onchange="switchMapLayer(1)">
+          <div><div class="ls-label-text">Zones</div></div></label>
+        <label class="ls-label"><input type="radio" name="ml" value="2" style="accent-color:#4a8fd4" onchange="switchMapLayer(2)">
+          <div><div class="ls-label-text">Sentinel RGB</div><div class="ls-label-sub" id="sentinel-date-badge">Recent</div></div></label>
+      </div>
+    </div>
+
+    <!-- Decision -->
+    <div class="decision" id="intel-decision" style="background:linear-gradient(135deg,#0a1525,#1a4a8c)">
+      <div class="dec-label">Today's Decision</div>
+      <div class="dec-action" id="intel-dec-action">Analysing...</div>
+      <div class="dec-reason" id="intel-dec-reason">Loading satellite data</div>
+    </div>
+
+    <!-- Inspect button (primary action) -->
+    <div id="inspect-action-wrap" style="display:none;padding:0 14px;margin-top:4px">
+      <button class="btn-inspect" id="btn-inspect-primary" onclick="triggerInspect()">📋 Inspect Low Zone</button>
+    </div>
+
+    <!-- Core metrics -->
+    <div class="metrics">
+      <div class="mc"><div class="mc-label">🌾 Crop Vitality</div><div class="mc-val" id="m-ndvi">—</div><div class="mc-unit">NDVI · Sentinel-2</div><div class="mc-note" id="m-ndvi-note" style="color:var(--green)">—</div></div>
+      <div class="mc"><div class="mc-label">💧 Soil Moisture</div><div class="mc-val" id="m-smap">—</div><div class="mc-unit">m³/m³ · SMAP</div><div class="mc-note" id="m-smap-note">—</div></div>
+      <div class="mc"><div class="mc-label">📡 Canopy Structure</div><div class="mc-val" id="m-sar">—</div><div class="mc-unit">RVI · Sentinel-1</div><div class="mc-note" id="m-sar-note">—</div></div>
+      <div class="mc" id="veg-area-card" style="display:none"><div class="mc-label">🌿 Vegetated</div><div class="mc-val" id="m-grass-ha">—</div><div class="mc-unit">of <span id="m-total-ha">—</span> ha</div><div class="mc-note" id="m-veg-pct" style="color:var(--green)">—</div></div>
+    </div>
+
+    <!-- Zone card -->
+    <div id="zone-card" style="margin:10px 14px 0"></div>
+
+    <!-- ACCORDION: Technical -->
+    <div class="intel-accord" style="margin-top:10px">
+      <div class="ia-hd" onclick="toggleAccord(this)">
+        <span>📁 Technical Diagnostics</span><span>▶</span>
+      </div>
+      <div class="ia-body">
+        <div class="irow"><span class="irow-label">NDVI</span><span class="irow-val" id="t-ndvi">—</span></div>
+        <div class="irow"><span class="irow-label">SAR RVI</span><span class="irow-val" id="t-rvi">—</span></div>
+        <div class="irow"><span class="irow-label">Soil moisture</span><span class="irow-val" id="t-sm">—</span></div>
+        <div class="irow"><span class="irow-label">Trafficability</span><span class="irow-val" id="t-traf">—</span></div>
+        <div class="irow"><span class="irow-label">Image date</span><span class="irow-val" id="t-imgdate">—</span></div>
+        <div class="irow"><span class="irow-label">Confidence</span><span class="irow-val" id="t-conf">—</span></div>
+      </div>
+    </div>
+
+    <!-- ACCORDION: Historical -->
+    <div class="intel-accord">
+      <div class="ia-hd" onclick="toggleAccord(this)">
+        <span>📁 Historical Baseline</span><span>▶</span>
+      </div>
+      <div class="ia-body">
+        <div class="irow"><span class="irow-label">5-Year Mean NDVI</span><span class="irow-val" id="h-baseline">—</span></div>
+        <div class="irow"><span class="irow-label">Variability CV</span><span class="irow-val" id="h-cv">—</span></div>
+        <div class="irow"><span class="irow-label">Field history</span><span class="irow-val" id="h-cv-label">—</span></div>
+        <div class="irow"><span class="irow-label">vs 5-year avg</span><span class="irow-val" id="h-anomaly-pct">—</span></div>
+        <div style="padding:10px 16px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Annual NDVI</div>
+          <div style="display:flex;gap:4px;align-items:flex-end;height:44px" id="h-chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCORDION: Trend -->
+    <div class="intel-accord" id="trend-accord" style="display:none">
+      <div class="ia-hd" onclick="toggleAccord(this)">
+        <span>📁 Vegetation Trend</span><span>▶</span>
+      </div>
+      <div class="ia-body">
+        <div class="irow"><span class="irow-label">90-day trend</span><span class="irow-val" id="t-trend">—</span></div>
+        <div class="irow"><span class="irow-label">90-day change</span><span class="irow-val" id="t-diff">—</span></div>
+        <div class="irow"><span class="irow-label">14-day change</span><span class="irow-val" id="t-14d">—</span></div>
+        <div class="irow"><span class="irow-label">Latest obs</span><span class="irow-val" id="t-latest">—</span></div>
+        <div style="padding:10px 16px">
+          <div style="display:flex;gap:3px;align-items:flex-end;height:36px" id="trend-bars"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCORDION: Compliance -->
+    <div class="intel-accord" id="compliance-accord" style="display:none">
+      <div class="ia-hd" onclick="toggleAccord(this)">
+        <span>📁 Compliance</span><span>▶</span>
+      </div>
+      <div class="ia-body">
+        <div class="irow"><span class="irow-label">ACRES</span><span class="irow-val" id="c-acres">—</span></div>
+        <div class="irow"><span class="irow-label">Eco Scheme</span><span class="irow-val" id="c-eco">—</span></div>
+        <div class="irow"><span class="irow-label">BISS</span><span class="irow-val" id="c-biss">—</span></div>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- INSPECTION PAGE -->
+<div class="page" id="pg-inspection">
+  <div class="topbar">
+    <button onclick="showPage('pg-intel')" style="background:none;border:none;font-size:22px;cursor:pointer;color:#fff;padding:0;margin-right:4px">←</button>
+    <div class="tb-logo">Ground Inspection</div>
+  </div>
+  <div class="scroll">
+    <div class="insp-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="insp-hero-title" id="insp-zone-title">Low Zone</div>
+          <div class="insp-hero-meta" id="insp-zone-meta"></div>
+          <div class="insp-hero-gps">📍 GPS saved automatically</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;opacity:0.6">Date</div>
+          <div style="font-size:13px;font-weight:700" id="insp-date"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px">
+      <!-- Photos -->
+      <div style="margin-bottom:20px">
+        <div class="sec-label">Photos <span id="photo-counter">(0/5)</span></div>
+        <div class="photo-grid" id="photo-grid"></div>
+        <div class="add-photo" id="add-photo-btn" onclick="document.getElementById('insp-photo-input').click()">
+          <div style="font-size:28px">📷</div>
+          <div style="font-size:13px;font-weight:600;color:var(--blue2);margin-top:4px">Add Photo</div>
+          <div style="font-size:11px;color:var(--muted)">Opens camera</div>
+        </div>
+        <input type="file" id="insp-photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="addInspectionPhotos(this)">
+      </div>
+
+      <!-- Issues -->
+      <div style="margin-bottom:20px">
+        <div class="sec-label">What do you see?</div>
+        <div class="issue-grid">
+          <button onclick="toggleIssue('compaction',this)" class="issue-btn">🚜<br><span style="font-size:11px">Compaction</span></button>
+          <button onclick="toggleIssue('thin_sward',this)" class="issue-btn">🌱<br><span style="font-size:11px">Thin Sward</span></button>
+          <button onclick="toggleIssue('weeds',this)" class="issue-btn">🌿<br><span style="font-size:11px">Weeds</span></button>
+          <button onclick="toggleIssue('overgrazing',this)" class="issue-btn">🐄<br><span style="font-size:11px">Overgrazing</span></button>
+          <button onclick="toggleIssue('drainage',this)" class="issue-btn">💧<br><span style="font-size:11px">Drainage</span></button>
+          <button onclick="toggleIssue('no_issue',this)" class="issue-btn">✅<br><span style="font-size:11px">No Issue</span></button>
+        </div>
+      </div>
+
+      <!-- Severity (hidden when No Issue) -->
+      <div id="sev-section" style="margin-bottom:20px">
+        <div class="sec-label">Severity</div>
+        <div class="sev-row">
+          <button onclick="selectSeverity('mild',this)" class="sev-btn">🟡 Mild</button>
+          <button onclick="selectSeverity('moderate',this)" class="sev-btn">🟠 Moderate</button>
+          <button onclick="selectSeverity('severe',this)" class="sev-btn">🔴 Severe</button>
+        </div>
+      </div>
+
+      <!-- No Issue Reason (shown when No Issue) -->
+      <div id="no-issue-section" style="display:none;margin-bottom:20px">
+        <div class="sec-label" style="color:var(--green)">Reason</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" name="ni-reason" value="recovered" style="accent-color:var(--green);width:18px;height:18px"> <span style="font-size:14px">🌱 Grass recovered since last scan</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" name="ni-reason" value="recent_grazing" style="accent-color:var(--green);width:18px;height:18px"> <span style="font-size:14px">🐄 Recent grazing — regrowth underway</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" name="ni-reason" value="recent_cutting" style="accent-color:var(--green);width:18px;height:18px"> <span style="font-size:14px">✂️ Recent cutting / silage</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" name="ni-reason" value="cloud_shadow" style="accent-color:var(--green);width:18px;height:18px"> <span style="font-size:14px">☁️ Cloud or shadow effect</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" name="ni-reason" value="false_alarm" style="accent-color:var(--green);width:18px;height:18px"> <span style="font-size:14px">🛰 Satellite false alarm</span></label>
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer"><input type="checkbox" name="ni-reason" value="other_reason" style="accent-color:var(--green);width:18px;height:18px"> <span style="font-size:14px">❓ Other reason</span></label>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div style="margin-bottom:20px">
+        <div class="sec-label">Observations</div>
+        <textarea id="insp-notes" placeholder="What do you see on the ground?" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none;resize:none;height:80px"></textarea>
+      </div>
+
+      <button class="save-btn" onclick="saveInspectionAndPlan()">Save &amp; Get Action Plan →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION PLAN PAGE -->
+<div class="page" id="pg-action">
+  <div class="topbar">
+    <button onclick="showPage('pg-inspection')" style="background:none;border:none;font-size:22px;cursor:pointer;color:#fff;padding:0;margin-right:4px">←</button>
+    <div class="tb-logo">Action Plan</div>
+  </div>
+  <div class="scroll">
+    <div style="padding:14px">
+      <div class="ap-hero" style="border-radius:14px">
+        <div style="font-size:11px;opacity:0.7;margin-bottom:4px">ACTION PLAN</div>
+        <div style="font-size:18px;font-weight:800" id="action-zone-title"></div>
+        <div style="font-size:12px;opacity:0.75;margin-top:4px" id="action-date"></div>
+      </div>
+
+      <!-- Diagnosis -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Diagnosis</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px" id="action-issue"></div>
+        <div style="font-size:13px;color:var(--muted)" id="action-severity"></div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px" id="action-notes-summary"></div>
+      </div>
+
+      <!-- Steps -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Recommended Actions</div>
+        <div id="action-steps"></div>
+      </div>
+
+      <!-- Satellite context -->
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Satellite Context</div>
+        <div class="irow" style="padding:6px 0;border:none"><span class="irow-label">Zone NDVI</span><span class="irow-val" id="action-ndvi"></span></div>
+        <div class="irow" style="padding:6px 0;border:none"><span class="irow-label">Field average</span><span class="irow-val" id="action-field-avg"></span></div>
+        <div class="irow" style="padding:6px 0;border:none;border-top:1px solid var(--border)"><span class="irow-label">Likely type</span><span class="irow-val" style="color:var(--blue2)" id="action-type"></span></div>
+      </div>
+
+      <button onclick="startVerification()" style="width:100%;padding:14px;background:var(--blue2);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans)">Set Up Verification Check →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PLANS PAGE -->
+<div class="page" id="pg-plans">
+  <div class="topbar">
+    <button onclick="showPage('pg-farm')" style="background:none;border:none;font-size:22px;cursor:pointer;color:#fff;padding:0;margin-right:4px">←</button>
+    <div class="tb-logo">Plans</div>
+  </div>
+  <div class="scroll" style="padding:16px">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:22px;font-weight:800;margin-bottom:6px">Simple pricing</div>
+      <div style="font-size:13px;color:var(--muted)">Know your fields without walking them</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">🌱 Basic</div>
+      <div style="font-size:24px;font-weight:800;color:var(--blue2)">€30<span style="font-size:13px;font-weight:400;color:var(--muted)">/month</span></div>
+      <div style="font-size:12px;color:var(--muted);margin:8px 0;line-height:1.6">Up to 5 fields · NDVI + soil moisture · Grazing decisions · ACRES monitoring</div>
+      <button onclick="alert('Coming soon')" style="width:100%;padding:10px;background:var(--blue2);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Get Started →</button>
+    </div>
+    <div style="background:var(--white);border:2px solid var(--blue2);border-radius:14px;padding:18px;margin-bottom:12px;position:relative">
+      <div style="position:absolute;top:-10px;left:16px;background:var(--blue2);color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:100px">MOST POPULAR</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">🌾 Farm</div>
+      <div style="font-size:24px;font-weight:800;color:var(--blue2)">€50<span style="font-size:13px;font-weight:400;color:var(--muted)">/month</span></div>
+      <div style="font-size:12px;color:var(--muted);margin:8px 0;line-height:1.6">Unlimited fields · Daily updates · AI advisor · Trend analysis · PDF reports</div>
+      <button onclick="alert('Coming soon')" style="width:100%;padding:10px;background:var(--blue2);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Get Started →</button>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:4px">🚀 Pro</div>
+      <div style="font-size:24px;font-weight:800;color:var(--blue2)">€100<span style="font-size:13px;font-weight:400;color:var(--muted)">/month</span></div>
+      <div style="font-size:12px;color:var(--muted);margin:8px 0;line-height:1.6">Multi-farm · API access · Advisor portal · Custom reports</div>
+      <button onclick="alert('Contact: hello@cubed-earth.com')" style="width:100%;padding:10px;background:var(--blue1);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Contact Us →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP PAGE -->
+<div class="page" id="pg-setup">
+  <div class="topbar">
+    <button onclick="showPage('pg-farm')" style="background:none;border:none;font-size:22px;cursor:pointer;color:#fff;padding:0;margin-right:4px">←</button>
+    <div class="tb-logo">Add Farm Fields</div>
+  </div>
+  <div style="display:flex;flex-direction:column;height:100%">
+    <div style="padding:10px 14px;background:var(--white);border-bottom:1px solid var(--border);display:flex;gap:8px">
+      <input id="map-search-input" placeholder="🔍 Search townland..." style="flex:1;padding:10px 14px;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:var(--sans);outline:none">
+      <button onclick="searchOnMap()" style="padding:10px 16px;background:var(--blue2);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Go</button>
+    </div>
+    <div style="padding:8px 14px;background:rgba(26,74,140,0.9);color:#fff;font-size:12px;font-weight:500;text-align:center">
+      Tap fields to select · <span id="selected-count-hint">0 selected</span>
+    </div>
+    <div id="setup-map" style="flex:1;min-height:0"></div>
+    <div style="background:var(--white);border-top:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px">
+      <div style="flex:1;font-size:13px;font-weight:700;color:var(--blue2)" id="selected-count-bar">No fields selected</div>
+      <button id="btn-save" onclick="saveFarm()" disabled style="padding:10px 20px;background:var(--blue2);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">Save →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVING OVERLAY -->
+<div class="page" id="pg-saving">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div style="font-size:14px;font-weight:600;color:var(--text)">Analysing fields...</div>
+    <div style="font-size:12px;color:var(--muted);text-align:center;max-width:260px" id="setup-status">Loading satellite data</div>
+  </div>
+</div>
+
+<script>
+const API='https://cube-earth.onrender.com';
+let myFields=[];
+let currentField=null;
+let fieldMap=null;
+let setupMap=null;
+let selectedParcels=[];
+let parcelLayers={};
+let loadingParcels=false;
+let selectedIssues=[];
+let selectedSeverity=null;
+let inspectionPhotos=[];
+let inspectionHistory=[];
+let currentInspectionZone=null;
+window._lastZoneAnalysis=null;
+window._lastHistorical=null;
+
+// ── NAVIGATION ──
+function showPage(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+}
+
+function toggleAccord(hd){
+  var body=hd.nextElementSibling;
+  var arrow=hd.querySelector('span:last-child');
+  if(body.classList.contains('open')){
+    body.classList.remove('open');
+    arrow.textContent='▶';
+  } else {
+    body.classList.add('open');
+    arrow.textContent='▼';
+  }
+}
+
+// ── DEMO MODE ──
+// Load demo data if no fields saved
+window.onload=function(){
+  loadDemoFarm();
+};
+
+function loadDemoFarm(){
+  // Demo: load Kerry fields
+  var demoFields=[
+    {id:'kerry1',lat:52.06,lng:-9.52,crop:'Permanent Pasture (Extensive)',area:14.23,olr:'Owned',eco:true,biss:true,acres:false,status:'amber',action:'Monitor',cover:null,ndvi:null,geometry:null},
+    {id:'kerry2',lat:52.058,lng:-9.518,crop:'Permanent Pasture (Extensive)',area:8.65,olr:'Owned',eco:false,biss:true,acres:false,status:'green',action:'Graze Now',cover:null,ndvi:null,geometry:null},
+    {id:'kerry3',lat:52.062,lng:-9.524,crop:'Rough Grazing',area:22.1,olr:'Owned',eco:true,biss:false,acres:true,status:'red',action:'Check Field',cover:null,ndvi:null,geometry:null}
+  ];
+  myFields=demoFields;
+  var farmInfo={name:'Killarney Farm',county:'Kerry'};
+  renderFarmDashboard(farmInfo);
+}
+
+// ── FARM DASHBOARD ──
+function renderFarmDashboard(farmInfo){
+  var info=farmInfo||{name:'My Farm',county:'Ireland'};
+  document.getElementById('hero-farm-name').textContent=info.name;
+  var totalHa=myFields.reduce(function(s,f){return s+f.area;},0).toFixed(1);
+  document.getElementById('hero-farm-meta').textContent=(info.county||'Ireland')+' \u00b7 '+totalHa+' ha \u00b7 '+myFields.length+' fields';
+  updateFieldCounts();
+  renderFieldList(myFields);
+}
+
+function updateFieldCounts(){
+  document.getElementById('cnt-r').textContent=myFields.filter(function(f){return f.status==='red';}).length;
+  document.getElementById('cnt-a').textContent=myFields.filter(function(f){return f.status==='amber';}).length;
+  document.getElementById('cnt-g').textContent=myFields.filter(function(f){return f.status==='green';}).length;
+}
+
+function renderFieldList(fields){
+  var sorted=[...fields].sort(function(a,b){var o={red:0,amber:1,green:2};return o[a.status]-o[b.status];});
+  var el=document.getElementById('field-list');
+  el.innerHTML='';
+  sorted.forEach(function(f,i){
+    var fi=myFields.indexOf(f);
+    var dotClass=f.status==='green'?'fc-dot-g':f.status==='amber'?'fc-dot-a':'fc-dot-r';
+    var trendText=f.ndvi?getTrendIndicator(f):(f.status==='red'?'📉 Check':f.status==='amber'?'🟡 Monitor':'✅ Steady');
+    var trendClass=f.status==='red'?'fc-trend-r':f.status==='amber'?'fc-trend-a':'fc-trend-g';
+    var hasLowZone=f.status==='red'||(f.profileData&&f.profileData.vegetation&&f.profileData.vegetation.zone_analysis&&f.profileData.vegetation.zone_analysis.low_pct>20);
+    var displayCrop=f.crop||'Unknown';
+    if(displayCrop.toLowerCase().includes('extensive')) displayCrop='Permanent Pasture';
+    if(displayCrop.toLowerCase().includes('rough')) displayCrop='Rough Grazing';
+
+    var card=document.createElement('div');
+    card.className='field-card';
+    card.innerHTML='<div class="field-card-header" onclick="toggleFieldCard(this,'+fi+')">'
+      +'<div class="fc-dot '+dotClass+'"></div>'
+      +'<div class="fc-info">'
+      +'<div class="fc-name">Field '+(fi+1)+' \u00b7 '+displayCrop+'</div>'
+      +'<div class="fc-meta">'+f.area+' ha \u00b7 '+(f.olr||'Owned')+'</div>'
+      +'</div>'
+      +'<div class="fc-trend '+trendClass+'">'+trendText+'</div>'
+      +'<div class="fc-chevron" id="chev-'+fi+'">›</div>'
+      +'</div>'
+      +'<div class="field-expanded" id="exp-'+fi+'">'
+      +(hasLowZone?'<button class="btn-inspect" onclick="openFieldAndInspect('+fi+')">📋 Inspect Low Zone</button>':'')
+      +'<button class="btn-inspect" style="background:var(--surface);color:var(--blue2);border:1.5px solid var(--border);margin-top:'+(hasLowZone?'0':'12px')+'" onclick="openField('+fi+')">View Full Intelligence →</button>'
+      +'</div>';
+    el.appendChild(card);
+  });
+}
+
+function getTrendIndicator(f){
+  if(!f.ndvi) return '—';
+  var vt=f.profileData&&f.profileData.vegetation_trend;
+  if(vt&&vt.long_diff){
+    var d=vt.long_diff;
+    return d>0.05?'📈 +'+Math.round(d*100)+'%':d<-0.05?'📉 '+Math.round(d*100)+'%':'✅ Steady';
+  }
+  return f.status==='green'?'✅ Steady':f.status==='red'?'📉 Low':'🟡 Monitor';
+}
+
+function toggleFieldCard(hd, fi){
+  var exp=document.getElementById('exp-'+fi);
+  var chev=document.getElementById('chev-'+fi);
+  var isOpen=exp.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.field-expanded').forEach(function(e){e.classList.remove('open');});
+  document.querySelectorAll('.fc-chevron').forEach(function(c){c.classList.remove('open');c.textContent='›';});
+  if(!isOpen){
+    exp.classList.add('open');
+    chev.classList.add('open');
+    chev.textContent='⌄';
+    // Load data if needed
+    if(!myFields[fi].profileData) loadFieldData(fi);
+  }
+}
+
+async function loadFieldData(fi){
+  var f=myFields[fi];
+  if(!f.lat||!f.lng) return;
+  try{
+    var r=await fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:f.lat,lng:f.lng,year:2026,parcel_override:{crop:f.crop,claim_area:f.area,grassland:f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass'),eco:f.eco,biss:f.biss,olr:f.olr}})});
+    var d=await r.json();
+    if(d.success){
+      f.profileData=d;
+      var ndvi=d.vegetation&&d.vegetation.ndvi;
+      f.ndvi=ndvi;
+      if(ndvi){
+        var h=Math.max(0,(ndvi-0.15)*18);
+        f.cover=Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+        var isG=f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass');
+        if(isG){f.status=f.cover>1800?'green':f.cover>1200?'amber':'red';f.action=f.cover>1800?'Graze Now':f.cover>1200?'Monitor':'Check Field';}
+        else{f.status=ndvi>0.5?'green':ndvi>0.3?'amber':'red';f.action=ndvi>0.5?'Good':'Monitor';}
+      }
+      updateFieldCounts();
+      renderFieldList(myFields);
+    }
+  }catch(e){console.log('Field load error',e);}
+}
+
+function filterFields(q){
+  if(!q){renderFieldList(myFields);return;}
+  var filtered=myFields.filter(function(f){
+    return (f.crop||'').toLowerCase().includes(q.toLowerCase())||('field '+(myFields.indexOf(f)+1)).includes(q.toLowerCase());
+  });
+  renderFieldList(filtered);
+}
+
+// ── OPEN FIELD ──
+function openField(fi){
+  currentField=myFields[fi];
+  showPage('pg-intel');
+  var idx=fi;
+  document.getElementById('intel-title').textContent='Field '+(idx+1);
+  var isGrass=(currentField.crop||'').toLowerCase().includes('pasture')||(currentField.crop||'').toLowerCase().includes('grass');
+  document.getElementById('intel-badge').textContent=currentField.status==='green'?'🟢':currentField.status==='amber'?'🟡':'🔴';
+
+  // Show inspect button if low zone
+  var za=currentField.profileData&&currentField.profileData.vegetation&&currentField.profileData.vegetation.zone_analysis;
+  if(za&&za.low_pct>20){
+    document.getElementById('inspect-action-wrap').style.display='block';
+  } else {
+    document.getElementById('inspect-action-wrap').style.display='none';
+  }
+
+  if(currentField.profileData){renderIntel(currentField.profileData,currentField);}
+  else{
+    renderIntelLoading();
+    fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:currentField.lat,lng:currentField.lng,year:2026,parcel_override:{crop:currentField.crop,claim_area:currentField.area,grassland:isGrass,eco:currentField.eco,biss:currentField.biss,olr:currentField.olr}})})
+      .then(function(r){return r.json();}).then(function(d){if(d.success){currentField.profileData=d;renderIntel(d,currentField);}}).catch(function(e){console.log(e);});
+  }
+
+  setTimeout(function(){
+    if(fieldMap){fieldMap.remove();fieldMap=null;}
+    fieldMap=L.map('field-map',{zoomControl:false,dragging:true,scrollWheelZoom:false,touchZoom:true,attributionControl:false});
+    if(currentField.geometry){
+      var l=L.geoJSON({type:'Feature',geometry:currentField.geometry},{style:{color:'#4a8fd4',weight:2.5,fill:false}}).addTo(fieldMap);
+      fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
+    } else {
+      fieldMap.setView([currentField.lat,currentField.lng],15);
+    }
+    switchMapLayer(0);
+  },300);
+  document.getElementById('intel-scroll').scrollTop=0;
+}
+
+function openFieldAndInspect(fi){
+  openField(fi);
+  setTimeout(function(){triggerInspect();},800);
+}
+
+function triggerInspect(){
+  var za=window._lastZoneAnalysis||(currentField&&currentField.profileData&&currentField.profileData.vegetation&&currentField.profileData.vegetation.zone_analysis);
+  var zoneLabel=(za&&za.low_zone_direction||'Low')+' Zone';
+  var zoneNdvi=za&&za.low_ndvi||(currentField&&currentField.ndvi?currentField.ndvi*0.85:0.65);
+  var fieldMean=za&&za.ndvi_mean||(currentField&&currentField.ndvi)||0.75;
+  openInspectionPage(zoneLabel,zoneNdvi,fieldMean,(currentField&&currentField.crop)||'Field');
+}
+
+// ── INTEL RENDER ──
+function renderIntelLoading(){
+  document.getElementById('intel-dec-action').textContent='Loading...';
+  document.getElementById('intel-dec-reason').textContent='Fetching satellite data';
+}
+
+function renderIntel(d,f){
+  window._lastZoneAnalysis=d.vegetation&&d.vegetation.zone_analysis||null;
+  var v=d.vegetation||{};
+  var sm=d.soil_moisture||{};
+  var fr=d.freshness||{};
+  var s=d.sar||{};
+  var c=d.confidence||{};
+  var vt=d.vegetation_trend||{};
+  var isGrass=(f.crop||'').toLowerCase().includes('pasture')||(f.crop||'').toLowerCase().includes('grass');
+  var ndvi=v.ndvi;
+  var smapVal=sm.smap&&sm.smap.sm_surface_m3;
+  var rvi=s.rvi;
+
+  // NDVI
+  if(ndvi){
+    document.getElementById('m-ndvi').textContent=ndvi.toFixed(2);
+    document.getElementById('m-ndvi-note').textContent=ndvi>0.7?'Excellent':ndvi>0.55?'Good':ndvi>0.4?'Moderate':'Low';
+  }
+  // Moisture
+  if(smapVal){
+    document.getElementById('m-smap').textContent=smapVal.toFixed(2);
+    document.getElementById('m-smap-note').textContent=smapVal>0.35?'Wet':smapVal>0.25?'Adequate':smapVal>0.15?'Dry':'Very dry';
+  }
+  // SAR
+  if(rvi){
+    document.getElementById('m-sar').textContent=rvi.toFixed(3);
+    document.getElementById('m-sar-note').textContent=s.rvi_interpretation||'';
+  }
+  // Veg area
+  if(v.veg_pct&&v.grass_ha){
+    document.getElementById('veg-area-card').style.display='block';
+    document.getElementById('m-grass-ha').textContent=v.grass_ha.toFixed(1)+' ha';
+    document.getElementById('m-total-ha').textContent=f.area||'—';
+    document.getElementById('m-veg-pct').textContent=v.veg_pct+'% vegetated';
+  }
+
+  // Decision
+  var dec=document.getElementById('intel-decision');
+  if(isGrass){
+    var declining=vt.long_trend==='declining'||vt.long_trend==='strong_decline';
+    var bothAgree=ndvi>=0.70&&rvi&&rvi>=0.75;
+    var bothPositive=ndvi>=0.65&&rvi&&rvi>=0.60;
+    var ndviHighRviLow=ndvi>0.65&&rvi&&rvi<0.4;
+    var ndviLowRviHigh=ndvi<0.4&&rvi&&rvi>0.6;
+    var decAction,decReason,decBg;
+    if(bothAgree&&!declining){
+      decBg='linear-gradient(135deg,#0a1525,#1a4a8c)';
+      decAction='\u2713 Strong Growth \u2014 Both Sensors Agree';
+      decReason='NDVI '+ndvi.toFixed(2)+' \u00b7 RVI '+rvi.toFixed(2)+' \u2014 both optical and radar strongly confirm healthy growth.';
+    } else if(bothPositive&&!declining){
+      decBg='linear-gradient(135deg,#0a1525,#1a4a8c)';
+      decAction='\u2713 Strong Growth';
+      decReason='NDVI '+ndvi.toFixed(2)+' \u00b7 RVI '+(rvi?rvi.toFixed(2):'—')+' \u2014 optical and radar indicators are positive.';
+    } else if((bothAgree||bothPositive)&&declining){
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='\u26a0 Strong Cover \u2014 Growth Slowing';
+      decReason='High canopy density but trend declining. Monitor grazing pressure.';
+    } else if(ndviHighRviLow){
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='\u26a0 Drought Stress Detected';
+      decReason='NDVI '+ndvi.toFixed(2)+' shows green but RVI '+rvi.toFixed(2)+' shows collapsed structure. Verify on ground.';
+    } else if(ndviLowRviHigh){
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='\ud83d\udc41 Post-Grazing Residual';
+      decReason='Low chlorophyll but canopy structure remains. Allow recovery time.';
+    } else if(ndvi&&ndvi>0.45){
+      decBg='linear-gradient(135deg,#78350f,#d97706)';
+      decAction='\ud83d\udc41 Monitor \u2014 Growth Building';
+      decReason='NDVI '+ndvi.toFixed(2)+' \u2014 vegetation building. Check again in 3-5 days.';
+    } else {
+      decBg='linear-gradient(135deg,#7f1d1d,#dc2626)';
+      decAction='\u26a0 Low Vegetation \u2014 Rest Field';
+      decReason='NDVI '+(ndvi?ndvi.toFixed(2):'—')+' \u2014 field needs recovery time.';
+    }
+    dec.style.background=decBg;
+    document.getElementById('intel-dec-action').textContent=decAction;
+    document.getElementById('intel-dec-reason').textContent=decReason;
+  } else {
+    dec.style.background='linear-gradient(135deg,#0a1525,#1a4a8c)';
+    document.getElementById('intel-dec-action').textContent=ndvi>0.5?'\u2713 Good Condition':'\ud83d\udc41 Monitor';
+    document.getElementById('intel-dec-reason').textContent='NDVI '+(ndvi?ndvi.toFixed(2):'—')+' \u2014 '+(v.ndvi_status||'Crop condition assessed from satellite');
+  }
+
+  // Show inspect button if low zone
+  var za=v.zone_analysis;
+  if(za&&za.low_pct>20){
+    document.getElementById('inspect-action-wrap').style.display='block';
+  }
+
+  // Zone card
+  renderZoneCard(za);
+
+  // Technical accordion data
+  if(ndvi) document.getElementById('t-ndvi').textContent=ndvi.toFixed(3);
+  if(rvi) document.getElementById('t-rvi').textContent=rvi.toFixed(3);
+  if(smapVal){
+    document.getElementById('t-sm').textContent=smapVal.toFixed(3)+' m\u00b3/m\u00b3';
+    var traf=smapVal>0.38?'Poor':smapVal>0.32?'Moderate':smapVal>0.25?'Good':'Excellent';
+    document.getElementById('t-traf').textContent=traf;
+  }
+  var imgDate=(fr.sentinel2&&fr.sentinel2.date)||(v.granule_date&&v.granule_date.substring(0,10))||'';
+  var imgAge=fr.sentinel2&&fr.sentinel2.age_days;
+  if(imgDate){
+    document.getElementById('t-imgdate').textContent=imgDate+(imgAge!=null?' ('+imgAge+'d old)':'');
+    var badge=document.getElementById('sentinel-date-badge');
+    if(badge) badge.textContent=imgDate;
+    document.getElementById('map-overlay').textContent='\ud83d\udef0 Sentinel-2 \u00b7 '+imgDate;
+  }
+  if(c.score) document.getElementById('t-conf').textContent=c.score+'/10 '+(c.score>=8?'High':'Moderate');
+
+  // Compliance
+  if(f.acres||f.eco||f.biss){
+    document.getElementById('compliance-accord').style.display='block';
+    document.getElementById('c-acres').textContent=f.acres?'\u2705 Active':'Not active';
+    document.getElementById('c-eco').textContent=f.eco?'\u2705 Active':'Not active';
+    document.getElementById('c-biss').textContent=f.biss?'\u2705 Eligible':'Not eligible';
+  }
+
+  // Historical
+  var hist=d.historical_analysis;
+  if(hist&&hist.available){
+    window._lastHistorical=hist;
+    populateHistorical(hist);
+  } else {
+    setTimeout(function(){
+      if(!currentField) return;
+      fetch(API+'/test_historical?lat='+currentField.lat+'&lng='+currentField.lng)
+        .then(function(r){return r.json();})
+        .then(function(h){if(h.available){window._lastHistorical=h;populateHistorical(h);}})
+        .catch(function(e){});
+    },2000);
+  }
+
+  // Trend
+  if(vt.available&&vt.series&&vt.series.length>=2){
+    document.getElementById('trend-accord').style.display='block';
+    var tc=vt.long_trend==='increasing'||vt.long_trend==='strong_increase'?'#16a34a':vt.long_trend==='stable'?'#6b7a90':'#dc2626';
+    var ta=vt.long_trend==='strong_increase'?'📈 Strong Growth':vt.long_trend==='increasing'?'↗ Improving':vt.long_trend==='stable'?'→ Stable':'↘ Declining';
+    document.getElementById('t-trend').textContent=ta;
+    document.getElementById('t-diff').textContent=(vt.long_diff>0?'+':'')+vt.long_diff.toFixed(3)+' NDVI';
+    var recent=vt.series.slice(-3);
+    if(recent.length>=2){
+      var c14=recent[recent.length-1].ndvi-recent[0].ndvi;
+      document.getElementById('t-14d').textContent=(c14>=0?'+':'')+c14.toFixed(3);
+    }
+    document.getElementById('t-latest').textContent=(vt.latest_date||'—')+' · '+(vt.latest_ndvi||'—');
+    var bars=document.getElementById('trend-bars');
+    var mx=Math.max.apply(null,vt.series.map(function(s){return s.ndvi;}));
+    bars.innerHTML=vt.series.map(function(s){
+      var bh=Math.round((s.ndvi/mx)*34);
+      var bc=s.ndvi>0.6?'#16a34a':s.ndvi>0.4?'#d97706':'#dc2626';
+      return '<div style="flex:1;height:'+bh+'px;background:'+bc+';border-radius:2px 2px 0 0;min-width:4px"></div>';
+    }).join('');
+  }
+}
+
+function populateHistorical(h){
+  document.getElementById('h-baseline').textContent=h.baseline_mean?h.baseline_mean.toFixed(3):'-';
+  document.getElementById('h-cv').textContent=h.cv_percent?h.cv_percent+'%':'-';
+  document.getElementById('h-cv-label').textContent=h.cv_label||'-';
+  document.getElementById('h-anomaly-pct').textContent=h.anomaly_pct?(h.anomaly_pct>0?'+':'')+h.anomaly_pct+'% vs 5yr avg':'';
+  var hc=document.getElementById('h-chart');
+  if(!hc) return;
+  hc.innerHTML='';
+  var yrs=Object.keys(h.yearly_ndvi||{}).sort();
+  var vals=yrs.map(function(y){return h.yearly_ndvi[y];});
+  var mx=Math.max.apply(null,vals);
+  yrs.forEach(function(yr,i){
+    var v=vals[i];
+    var ratio=v/(h.baseline_mean||v);
+    var col=ratio>=0.92?'#16a34a':ratio>=0.80?'#d97706':'#dc2626';
+    hc.innerHTML+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px"><div style="width:100%;background:'+col+';height:'+Math.round(v/mx*100)+'%;border-radius:3px 3px 0 0;min-height:4px"></div><div style="font-size:9px;color:#9ca3af">'+yr.slice(2)+'</div></div>';
+  });
+  // Inject acute tag
+  injectAcuteTag(h);
+}
+
+function injectAcuteTag(h){
+  setTimeout(function(){
+    var el=document.getElementById('zone-card');
+    if(!el||el.querySelector('.acute-tag')||!h||!h.available) return;
+    var atag='';
+    var title=h.cv_percent<5?'<div style="background:#1a4a8c;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#128202; LIKELY TEMPORARY \u00b7 CV '+h.cv_percent+'%</div>':h.cv_percent<15?'<div style="background:#78350f;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#9888; RECURRING VARIATION \u00b7 CV '+h.cv_percent+'%</div>':'<div style="background:#7f1d1d;padding:8px 10px;font-weight:700;color:#fff;font-size:11px">&#9888; SIGNIFICANT VARIATION \u00b7 CV '+h.cv_percent+'%</div>';
+    if(h.variability_type==='stable'||h.variability_type==='temporary'||h.variability_type==='mixed'){
+      atag='<div class="acute-tag" style="margin-top:8px;border:1px solid #dbeafe;border-radius:8px;overflow:hidden;font-size:12px">'+title
+        +'<div style="padding:10px;background:#eff6ff;color:#1e3a5f;line-height:1.6">'
+        +'<div style="margin-bottom:8px">Field history is stable. The low-performing zone is likely a <strong>temporary management issue</strong>, not a chronic soil or drainage problem.</div>'
+        +'<div style="margin-bottom:6px;font-weight:600;color:#374151">&#128270; Less Likely (satellite only)</div>'
+        +'<div style="color:#6b7280;margin-bottom:4px">\u2022 Chronic drainage \u2014 satellite evidence weak (CV '+h.cv_percent+'%)</div>'
+        +'<div style="color:#6b7280;margin-bottom:8px">\u2022 Field-wide N deficiency \u2014 overall NDVI healthy</div>'
+        +'<div style="background:#fff;border:1px solid #dbeafe;border-radius:6px;padding:8px">'
+        +'<div style="font-weight:700;margin-bottom:6px;color:#1a4a8c">&#128205; Field Walk \u2014 Low-Cover Zone</div>'
+        +'<div>&#128193; Step 1 \u2014 Sward density: bare patches?</div>'
+        +'<div>&#128193; Step 2 \u2014 Plant mix: weed competition?</div>'
+        +'<div>&#128193; Step 3 \u2014 Penetration test: compaction?</div>'
+        +'</div></div></div>';
+    } else if(h.variability_type==='chronic'){
+      atag='<div class="acute-tag" style="margin-top:6px;padding:8px 10px;background:rgba(220,38,38,0.1);border-left:3px solid #dc2626;border-radius:0 6px 6px 0;font-size:12px;color:#dc2626;font-weight:600">&#9888; Chronic Zone \u2014 Underperformed across '+h.years_analysed+' years. Soil testing recommended.</div>';
+    }
+    if(atag) el.insertAdjacentHTML('beforeend',atag);
+  },200);
+}
+
+function renderZoneCard(za){
+  var el=document.getElementById('zone-card');
+  if(!za){el.innerHTML='';return;}
+  window._lastZoneAnalysis=za;
+  var uColor=za.uniformity_score>=8?'#16a34a':za.uniformity_score>=6?'#d97706':'#dc2626';
+  var anomalyHtml='';
+  if(za.anomaly){
+    anomalyHtml='<div data-zone-anomaly style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;font-size:12px;color:#92400e;line-height:1.5">&#9888; '+za.anomaly+'</div>';
+  }
+  var h='<div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden">';
+  h+='<div style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--border)">&#128506; Field Variability</div>';
+  h+='<div style="padding:12px 16px">';
+  h+='<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">';
+  h+='<div style="text-align:center"><div style="font-size:28px;font-weight:800;color:'+uColor+';font-family:var(--mono)">'+za.uniformity_score+'<span style="font-size:12px;color:var(--muted);font-weight:400">/10</span></div></div>';
+  h+='<div style="font-size:12px;color:var(--muted);line-height:1.5">'+za.uniformity_label+'</div>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">';
+  h+='<div style="background:#f0fdf4;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:700;color:#16a34a">'+za.high_ha+'ha</div><div style="font-size:9px;color:var(--muted)">&#128994; High '+za.high_pct+'%</div></div>';
+  h+='<div style="background:#fffbeb;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:700;color:#d97706">'+za.med_ha+'ha</div><div style="font-size:9px;color:var(--muted)">&#128993; Med '+za.med_pct+'%</div></div>';
+  h+='<div style="background:#fff5f5;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:700;color:#dc2626">'+za.low_ha+'ha</div><div style="font-size:9px;color:var(--muted)">&#128308; Low '+za.low_pct+'%</div></div>';
+  h+='</div>';
+  h+=anomalyHtml;
+  if(za.low_pct>20){
+    h+='<button onclick="triggerInspect()" style="width:100%;padding:11px;background:#1a4a8c;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);margin-top:8px">&#128203; Inspect Low Zone</button>';
+  }
+  h+='</div></div>';
+  el.innerHTML=h;
+}
+
+// ── MAP LAYER SWITCHER ──
+function switchMapLayer(idx){
+  if(!fieldMap) return;
+  fieldMap.eachLayer(function(l){if(l instanceof L.TileLayer) fieldMap.removeLayer(l);});
+  var leg=document.getElementById('zone-legend');
+  if(leg) leg.remove();
+  var f=currentField;
+  if(!f) return;
+  var today=new Date();
+  var tTo=today.toISOString().split('T')[0];
+  var tFrom=new Date(today-60*24*60*60*1000).toISOString().split('T')[0];
+  var ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+  if(idx===0){
+    L.tileLayer(ESRI,{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent='🗺 Aerial';
+  } else if(idx===1){
+    L.tileLayer(ESRI,{attribution:'© Esri',maxZoom:19}).addTo(fieldMap);
+    var za=window._lastZoneAnalysis;
+    var quad=za&&za.quad_ndvi;
+    if(f.geometry&&quad){
+      var pCoords=f.geometry.coordinates[0];
+      var pLngs=pCoords.map(function(c){return c[0];});
+      var pLats=pCoords.map(function(c){return c[1];});
+      var midLon=(Math.min.apply(null,pLngs)+Math.max.apply(null,pLngs))/2;
+      var midLt=(Math.min.apply(null,pLats)+Math.max.apply(null,pLats))/2;
+      var vals=Object.values(quad).filter(function(v){return v!=null;});
+      if(vals.length>0){
+        var sorted2=[].concat(vals).sort(function(a,b){return a-b;});
+        var p25=sorted2[Math.floor(sorted2.length*0.25)];
+        var p75=sorted2[Math.floor(sorted2.length*0.75)];
+        var quadCoords={NE:[],NW:[],SE:[],SW:[]};
+        pCoords.forEach(function(c){
+          var lng=c[0],lat=c[1];
+          if(lng>=midLon&&lat>=midLt) quadCoords.NE.push([lat,lng]);
+          else if(lng<midLon&&lat>=midLt) quadCoords.NW.push([lat,lng]);
+          else if(lng>=midLon&&lat<midLt) quadCoords.SE.push([lat,lng]);
+          else quadCoords.SW.push([lat,lng]);
+        });
+        Object.keys(quadCoords).forEach(function(n){quadCoords[n].push([midLt,midLon]);});
+        Object.entries(quadCoords).forEach(function(entry){
+          var name=entry[0],pts=entry[1];
+          if(pts.length<3) return;
+          var v=quad[name];
+          if(v==null) return;
+          var color=v>=p75?'#16a34a':v>=p25?'#d97706':'#dc2626';
+          var cLat=pts.reduce(function(s,p){return s+p[0];},0)/pts.length;
+          var cLng=pts.reduce(function(s,p){return s+p[1];},0)/pts.length;
+          var dLat=cLat-midLt,dLng=cLng-midLon;
+          var compassDir='';
+          if(Math.abs(dLat)>Math.abs(dLng)*0.5) compassDir=dLat>0?'North':'South';
+          else if(Math.abs(dLng)>Math.abs(dLat)*0.5) compassDir=dLng>0?'East':'West';
+          if(Math.abs(dLat)>0.3*Math.max(Math.abs(dLat),Math.abs(dLng))&&Math.abs(dLng)>0.3*Math.max(Math.abs(dLat),Math.abs(dLng))){
+            compassDir=(dLat>0?'North':'South')+(dLng>0?'East':'West');
+          }
+          var compassLabel=compassDir||name;
+          var poly=L.polygon(pts,{color:'none',fillColor:color,fillOpacity:0.65,weight:0});
+          poly.on('click',function(){
+            if(v<p25){
+              openInspectionPage(compassLabel+' Low Zone',v,(vals.reduce(function(a,b){return a+b;},0)/vals.length),(currentField&&currentField.crop)||'Field');
+            }
+          });
+          poly.addTo(fieldMap);
+        });
+      }
+    }
+    document.getElementById('map-overlay').textContent='🗺 Variability Zones';
+  } else if(idx===2){
+    L.tileLayer(API+'/wms_proxy?z={z}&x={x}&y={y}&layer=TRUE_COLOR&time='+tFrom+'/'+tTo,{maxZoom:18,tileSize:256,attribution:'© Copernicus'}).addTo(fieldMap);
+    document.getElementById('map-overlay').textContent='\ud83d\udef0 Sentinel RGB \u00b7 '+tTo;
+  }
+  if(f.geometry){
+    L.geoJSON({type:'Feature',geometry:f.geometry},{style:{color:'#4a8fd4',weight:2.5,fill:false}}).addTo(fieldMap);
+  }
+}
+
+// ── INSPECTION ──
+function openInspectionPage(zoneLabel,zoneNdvi,fieldMean,cropName){
+  inspectionPhotos=[];selectedIssues=[];selectedSeverity=null;
+  document.getElementById('insp-zone-title').textContent=zoneLabel;
+  var diff=fieldMean?((zoneNdvi-fieldMean)/fieldMean*100).toFixed(1):null;
+  document.getElementById('insp-zone-meta').textContent='NDVI '+zoneNdvi.toFixed(3)+(diff?' ('+diff+'% vs field avg)':'');
+  document.getElementById('insp-notes').value='';
+  document.getElementById('photo-grid').innerHTML='';
+  document.getElementById('photo-counter').textContent='(0/5)';
+  document.getElementById('add-photo-btn').style.display='block';
+  document.getElementById('sev-section').style.display='block';
+  document.getElementById('no-issue-section').style.display='none';
+  document.querySelectorAll('.issue-btn,.sev-btn').forEach(function(b){b.classList.remove('selected','selected-green');});
+  document.querySelectorAll('input[name="ni-reason"]').forEach(function(c){c.checked=false;});
+  var today=new Date();
+  document.getElementById('insp-date').textContent=today.getDate()+' '+(today.toLocaleString('en',{month:'short'}))+' '+today.getFullYear();
+  currentInspectionZone={zone:zoneLabel,ndvi:zoneNdvi,fieldMean:fieldMean,field:cropName,lat:currentField&&currentField.lat||0,lng:currentField&&currentField.lng||0,date:today.toISOString().split('T')[0]};
+  showPage('pg-inspection');
+}
+
+function toggleIssue(issue,btn){
+  if(issue==='no_issue'){
+    selectedIssues=['no_issue'];
+    document.querySelectorAll('.issue-btn').forEach(function(b){b.classList.remove('selected','selected-green');});
+    btn.classList.add('selected-green');
+    document.getElementById('sev-section').style.display='none';
+    document.getElementById('no-issue-section').style.display='block';
+    return;
+  }
+  document.getElementById('sev-section').style.display='block';
+  document.getElementById('no-issue-section').style.display='none';
+  var noBtn=document.querySelector('.issue-btn.selected-green');
+  if(noBtn){noBtn.classList.remove('selected-green');}
+  selectedIssues=selectedIssues.filter(function(i){return i!=='no_issue';});
+  var idx=selectedIssues.indexOf(issue);
+  if(idx>=0){selectedIssues.splice(idx,1);btn.classList.remove('selected');}
+  else{selectedIssues.push(issue);btn.classList.add('selected');}
+}
+
+function selectSeverity(sev,btn){
+  selectedSeverity=sev;
+  document.querySelectorAll('.sev-btn').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');
+}
+
+function addInspectionPhotos(input){
+  if(!input.files) return;
+  Array.from(input.files).slice(0,5-inspectionPhotos.length).forEach(function(file){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      inspectionPhotos.push(e.target.result);
+      renderPhotoGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoGrid(){
+  var grid=document.getElementById('photo-grid');
+  grid.innerHTML='';
+  inspectionPhotos.forEach(function(src,i){
+    grid.innerHTML+='<div style="position:relative"><img src="'+src+'" style="width:100%;height:80px;object-fit:cover;border-radius:8px"><button onclick="removePhoto('+i+')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer">✕</button></div>';
+  });
+  document.getElementById('photo-counter').textContent='('+inspectionPhotos.length+'/5)';
+  document.getElementById('add-photo-btn').style.display=inspectionPhotos.length>=5?'none':'block';
+}
+
+function removePhoto(i){
+  inspectionPhotos.splice(i,1);
+  renderPhotoGrid();
+}
+
+function saveInspectionAndPlan(){
+  if(selectedIssues.length===0){alert('Please select what you see');return;}
+  if(!selectedIssues.includes('no_issue')&&!selectedSeverity){alert('Please select severity');return;}
+  var notes=document.getElementById('insp-notes').value;
+  currentInspectionZone.issue=selectedIssues[0];
+  currentInspectionZone.issues=selectedIssues;
+  currentInspectionZone.severity=selectedSeverity;
+  currentInspectionZone.notes=notes;
+  currentInspectionZone.photos=inspectionPhotos;
+  inspectionHistory.push(JSON.parse(JSON.stringify(currentInspectionZone)));
+  renderActionPlan();
+  showPage('pg-action');
+}
+
+function renderActionPlan(){
+  var z=currentInspectionZone;
+  var hist=window._lastHistorical||{};
+  document.getElementById('action-zone-title').textContent=z.zone||'Zone';
+  document.getElementById('action-date').textContent=z.date+' \u00b7 '+(z.field||'Field');
+  var issueLabels={compaction:'🚜 Compaction',thin_sward:'🌱 Thin Sward',weeds:'🌿 Weed Pressure',overgrazing:'🐄 Overgrazing',drainage:'💧 Poor Drainage',no_issue:'✅ No Issue Found',other:'❓ Other'};
+  document.getElementById('action-issue').textContent=(z.issues||[z.issue]).map(function(i){return issueLabels[i]||i;}).join(' + ');
+  document.getElementById('action-severity').textContent=z.severity?'Severity: '+z.severity.charAt(0).toUpperCase()+z.severity.slice(1):'No issue confirmed by farmer';
+  if(z.notes) document.getElementById('action-notes-summary').textContent='"'+z.notes+'"';
+  var steps={
+    compaction:['Aerate or subsoil after next grazing rotation','Avoid heavy machinery on this zone until ground firms','Monitor NDVI weekly — expect improvement in 3-4 weeks'],
+    thin_sward:['Direct-drill oversowing with perennial ryegrass','Target late summer or autumn for best establishment','Delay grazing 6-8 weeks after oversowing'],
+    weeds:['Spot-spray before next grazing rotation','Identify weed species for correct herbicide selection','Re-assess via satellite in 4 weeks'],
+    overgrazing:['Rest zone minimum 3 weeks','Reduce stocking rate on this paddock','Apply 20 units N/ha when conditions allow'],
+    drainage:['Check drain network for blockages','Consider mole drainage or gravel slit','Avoid heavy grazing in wet periods'],
+    no_issue:['No action required — farmer confirmed no visible issue','Satellite anomaly logged for model improvement','Continue monitoring via satellite weekly'],
+    other:['Walk zone during next farm walk','Record observations and monitor via satellite']
+  };
+  var stepList=steps[z.issue]||steps.other;
+  document.getElementById('action-steps').innerHTML=stepList.map(function(s,i){
+    return '<div class="ap-step"><div class="ap-num">'+(i+1)+'</div><div style="font-size:13px;line-height:1.5">'+s+'</div></div>';
+  }).join('');
+  if(z.ndvi) document.getElementById('action-ndvi').textContent=z.ndvi.toFixed(3);
+  if(z.fieldMean) document.getElementById('action-field-avg').textContent=z.fieldMean.toFixed(3);
+  document.getElementById('action-type').textContent=hist.variability_type==='stable'||hist.variability_type==='temporary'?'Temporary / Acute':'Chronic / Structural';
+}
+
+function startVerification(){
+  var toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a4a8c;color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;text-align:center';
+  toast.innerHTML='✓ Verification check set<br><span style="font-size:11px;opacity:0.8">Satellite will track this zone weekly</span>';
+  document.body.appendChild(toast);
+  setTimeout(function(){toast.remove();showPage('pg-farm');},3000);
+}
+
+// ── SETUP MAP ──
+function initSetupMap(){
+  if(setupMap) return;
+  setupMap=L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'© Esri'}).addTo(setupMap);
+  setupMap.on('moveend',function(){
+    if(setupMap.getZoom()>=13){var c=setupMap.getCenter();loadParcelsOnMap(c.lat,c.lng);}
+  });
+}
+
+async function loadParcelsOnMap(lat,lng){
+  if(loadingParcels) return;
+  loadingParcels=true;
+  try{
+    var b=setupMap.getBounds();
+    var url=API+'/parcels_in_bbox?minlng='+b.getWest()+'&minlat='+b.getSouth()+'&maxlng='+b.getEast()+'&maxlat='+b.getNorth();
+    var r=await fetch(url);
+    var data=await r.json();
+    (data.features||[]).forEach(function(f){
+      var id=f.properties&&f.properties.PAR_LAB||Math.random().toString();
+      if(parcelLayers[id]) return;
+      var sel=selectedParcels.find(function(p){return p.id===id;});
+      var layer=L.geoJSON(f,{style:{color:sel?'#4a8fd4':'rgba(255,255,255,0.6)',weight:sel?3:1.5,fillColor:sel?'#4a8fd4':'transparent',fillOpacity:sel?0.2:0}}).addTo(setupMap);
+      layer.on('click',function(){toggleParcel(id,f,layer);});
+      parcelLayers[id]={layer:layer,feature:f};
+    });
+  }catch(e){}
+  loadingParcels=false;
+}
+
+function toggleParcel(id,feature,layer){
+  var idx=selectedParcels.findIndex(function(p){return p.id===id;});
+  if(idx>=0){
+    selectedParcels.splice(idx,1);
+    layer.setStyle({color:'rgba(255,255,255,0.6)',weight:1.5,fillColor:'transparent',fillOpacity:0});
+  } else {
+    var p=feature.properties||{};
+    var coords=feature.geometry&&feature.geometry.coordinates&&feature.geometry.coordinates[0]||[];
+    var lat=coords.length?coords.reduce(function(s,c){return s+c[1];},0)/coords.length:0;
+    var lng=coords.length?coords.reduce(function(s,c){return s+c[0];},0)/coords.length:0;
+    selectedParcels.push({id:id,lat:lat,lng:lng,crop:p.CROP||'Unknown',area:parseFloat(p.CLAIM_AREA||0),olr:p.OLR||'Owned',eco:p.ECO==='Y',biss:p.BISS==='Y',acres:p.ACRES==='Y',geometry:feature.geometry,status:'amber',action:'Loading...'});
+    layer.setStyle({color:'#4a8fd4',weight:3,fillColor:'#4a8fd4',fillOpacity:0.2});
+  }
+  var n=selectedParcels.length;
+  document.getElementById('selected-count-hint').textContent=n+' selected';
+  document.getElementById('selected-count-bar').textContent=n===0?'No fields selected':n+' field'+(n>1?'s':'')+' selected';
+  document.getElementById('btn-save').disabled=n===0;
+}
+
+async function searchOnMap(){
+  var q=document.getElementById('map-search-input').value.trim();
+  if(!q) return;
+  try{
+    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q+', Ireland')+'&format=json&limit=1');
+    var data=await r.json();
+    if(data.length){setupMap.setView([data[0].lat,data[0].lon],14);loadParcelsOnMap(data[0].lat,data[0].lon);}
+  }catch(e){}
+}
+
+async function saveFarm(){
+  showPage('pg-saving');
+  myFields=[...selectedParcels];
+  for(var i=0;i<myFields.length;i++){
+    var f=myFields[i];
+    document.getElementById('setup-status').textContent='Analysing field '+(i+1)+' of '+myFields.length;
+    try{
+      var r=await fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:f.lat,lng:f.lng,year:2026,parcel_override:{crop:f.crop,claim_area:f.area,grassland:f.crop.toLowerCase().includes('pasture'),eco:f.eco,biss:f.biss,olr:f.olr}})});
+      var d=await r.json();
+      if(d.success){
+        f.profileData=d;
+        var ndvi=d.vegetation&&d.vegetation.ndvi;
+        f.ndvi=ndvi;
+        if(ndvi){
+          var h=Math.max(0,(ndvi-0.15)*18);
+          f.cover=Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+          var isG=f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass');
+          if(isG){f.status=f.cover>1800?'green':f.cover>1200?'amber':'red';f.action=f.cover>1800?'Graze Now':f.cover>1200?'Monitor':'Check Field';}
+          else{f.status=ndvi>0.5?'green':ndvi>0.3?'amber':'red';f.action=ndvi>0.5?'Good':'Monitor';}
+        }
+      }
+    }catch(e){f.status='amber';}
+  }
+  renderFarmDashboard({name:'My Farm',county:'Ireland'});
+  showPage('pg-farm');
+}
+
+// Init setup map when page shown
+document.getElementById('pg-setup').addEventListener('click',function(){
+  setTimeout(initSetupMap,100);
+},{ once:true });
+</script>
+</body>
+</html>
