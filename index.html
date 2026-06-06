@@ -1178,14 +1178,71 @@ var inspectionPhotos = [];
 
 function addInspectionPhotos(input){
   if(!input.files) return;
-  Array.from(input.files).slice(0, 5-inspectionPhotos.length).forEach(function(file){
+  Array.from(input.files).slice(0,5-inspectionPhotos.length).forEach(function(file){
     var reader=new FileReader();
     reader.onload=function(e){
       inspectionPhotos.push(e.target.result);
       renderPhotoGrid();
+      if(inspectionPhotos.length===1) analysePhotoWithAI(e.target.result);
     };
     reader.readAsDataURL(file);
   });
+}
+
+async function analysePhotoWithAI(base64img){
+  var panel=document.getElementById('ai-analysis-panel');
+  if(!panel) return;
+  panel.style.display='block';
+  panel.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:#1a4a8c"><div class="spinner" style="width:16px;height:16px;border-width:2px"></div><span style="font-size:13px;font-weight:600">AI analysing photo...</span></div>';
+
+  try{
+    var response=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:base64img.split(',')[1]}},
+            {type:'text',text:'You are an expert Irish grassland agronomist. Analyse this field photo. Respond ONLY in JSON with this exact structure: {"detected":"main issue in 2-4 words","confidence":85,"species":["species1","species2"],"recommendation":"one clear action sentence","issue_type":"weeds|compaction|thin_sward|overgrazing|drainage|healthy|other"}. If the field looks healthy, set detected to "Healthy pasture" and confidence to 90. Be concise and practical for Irish dairy/beef farmers.'}
+          ]
+        }]
+      })
+    });
+    var data=await response.json();
+    var text=data.content&&data.content[0]&&data.content[0].text||'{}';
+    var clean=text.replace(/```json|```/g,'').trim();
+    var result=JSON.parse(clean);
+
+    // Auto-select issue type if detected
+    if(result.issue_type&&result.issue_type!=='healthy'&&result.issue_type!=='other'){
+      var btn=document.querySelector('.issue-btn[onclick*="'+result.issue_type+'"]');
+      if(btn){
+        toggleIssue(result.issue_type,btn);
+      }
+    }
+
+    var confColor=result.confidence>=80?'#16a34a':result.confidence>=60?'#d97706':'#dc2626';
+    var speciesHtml=result.species&&result.species.length?'<div style="margin-top:6px"><span style="font-size:11px;color:var(--muted)">Possible species: </span>'+result.species.map(function(s){return '<span style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px;margin-right:4px">'+s+'</span>';}).join('')+'</div>':'';
+
+    panel.innerHTML='<div style="background:#f8fafc;border:1px solid #dbeafe;border-radius:10px;overflow:hidden">'
+      +'<div style="background:#1a4a8c;padding:8px 12px;color:#fff;font-size:11px;font-weight:700">&#129302; AI Photo Analysis</div>'
+      +'<div style="padding:10px 12px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<div style="font-size:14px;font-weight:700">'+result.detected+'</div>'
+      +'<div style="font-size:12px;font-weight:700;color:'+confColor+'">'+result.confidence+'% confidence</div>'
+      +'</div>'
+      +speciesHtml
+      +'<div style="margin-top:8px;padding:8px;background:#eff6ff;border-radius:6px;font-size:12px;color:#1e3a5f">'
+      +'<strong>Recommendation:</strong> '+result.recommendation
+      +'</div>'
+      +'</div></div>';
+  }catch(e){
+    panel.innerHTML='<div style="font-size:12px;color:var(--muted);padding:8px">Photo analysis unavailable — continue with manual selection</div>';
+    console.log('AI analysis error:',e);
+  }
 }
 
 function renderPhotoGrid(){
@@ -1280,11 +1337,16 @@ function renderActionPlan(){
   if(z.fieldMean) document.getElementById('action-field-avg').textContent=z.fieldMean.toFixed(3);
   if(hist.cv_percent) document.getElementById('action-cv').textContent=hist.cv_percent+'% ('+hist.variability_type+')';
   document.getElementById('action-type').textContent=hist.variability_type==='stable'?'Temporary / Acute':'Chronic / Structural';
-  var recovery={compaction:{opt:'10d',nom:'14d',pes:'21d'},thin_sward:{opt:'6wk',nom:'8wk',pes:'12wk'},weeds:{opt:'2wk',nom:'4wk',pes:'6wk'},overgrazing:{opt:'10d',nom:'21d',pes:'28d'},drainage:{opt:'1mo',nom:'2mo',pes:'3mo'},other:{opt:'1wk',nom:'2wk',pes:'4wk'}};
-  var rec=recovery[z.issue]||recovery.other;
-  document.getElementById('rec-opt').textContent=rec.opt;
-  document.getElementById('rec-nom').textContent=rec.nom;
-  document.getElementById('rec-pes').textContent=rec.pes;
+  // Satellite verification plan
+  var reviewDays={compaction:21,thin_sward:42,weeds:28,overgrazing:21,drainage:42,no_issue:14,other:21};
+  var days=reviewDays[z.issue]||21;
+  var verifyDate=new Date();
+  verifyDate.setDate(verifyDate.getDate()+days);
+  var vd=verifyDate.getDate()+' '+(verifyDate.toLocaleString('en',{month:'short'}))+' '+verifyDate.getFullYear();
+  document.getElementById('rec-review').textContent=days>=28?'4–6 weeks':'2–4 weeks';
+  document.getElementById('rec-next-pass').textContent='Within 5 days (Sentinel-2)';
+  document.getElementById('rec-target').textContent=z.fieldMean?'Target >'+(Math.min(0.85,((z.fieldMean||0.70)+0.05)).toFixed(2)):'Target >0.70';
+  document.getElementById('rec-date').textContent=vd;
 }
 
 function startVerification(){
@@ -1410,6 +1472,7 @@ function newSearch(){
           <div style="font-size:11px;color:#6b7a90">Tap to open camera</div>
         </div>
         <input type="file" id="insp-photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="addInspectionPhotos(this)">
+        <div id="ai-analysis-panel" style="display:none;margin-top:10px"></div>
       </div>
 
       <!-- Issue type -->
@@ -1509,13 +1572,12 @@ function newSearch(){
 
       <!-- Recovery timeline -->
       <div class="icard" style="margin:0 0 16px">
-        <div class="icard-hd">⏱ Expected Recovery</div>
+        <div class="icard-hd">📡 Satellite Verification Plan</div>
         <div style="padding:14px 16px">
-          <div style="display:flex;gap:8px;text-align:center">
-            <div style="flex:1;background:#f5f7fa;border-radius:8px;padding:10px"><div style="font-size:18px;font-weight:800;color:#1a4a8c" id="rec-opt">—</div><div style="font-size:10px;color:var(--muted)">Optimistic</div></div>
-            <div style="flex:1;background:#eff6ff;border-radius:8px;padding:10px;border:2px solid #1a4a8c"><div style="font-size:18px;font-weight:800;color:#1a4a8c" id="rec-nom">—</div><div style="font-size:10px;color:var(--muted)">Expected</div></div>
-            <div style="flex:1;background:#f5f7fa;border-radius:8px;padding:10px"><div style="font-size:18px;font-weight:800;color:#6b7a90" id="rec-pes">—</div><div style="font-size:10px;color:var(--muted)">If dry</div></div>
-          </div>
+          <div class="irow" style="padding:7px 0;border:none"><span class="irow-label">Expected satellite review</span><span class="irow-val" id="rec-review">14–28 days</span></div>
+          <div class="irow" style="padding:7px 0;border:none;border-top:1px solid var(--border)"><span class="irow-label">Next Sentinel pass</span><span class="irow-val" id="rec-next-pass">Within 5 days</span></div>
+          <div class="irow" style="padding:7px 0;border:none;border-top:1px solid var(--border)"><span class="irow-label">NDVI recovery target</span><span class="irow-val" id="rec-target" style="color:#1a4a8c">Target &gt;0.70</span></div>
+          <div class="irow" style="padding:7px 0;border:none;border-top:1px solid var(--border)"><span class="irow-label">Verification date</span><span class="irow-val" id="rec-date">—</span></div>
         </div>
       </div>
 
