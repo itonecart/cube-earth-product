@@ -1901,11 +1901,23 @@ function savePlateMeter() {
           </div>
           <div style="font-size:12px;opacity:0.7;margin-bottom:14px" id="grass-cover-range">Range: — to —</div>
           <!-- Cover bar -->
-          <div style="background:rgba(255,255,255,0.15);border-radius:100px;height:8px;margin-bottom:8px">
-            <div id="grass-cover-bar" style="height:100%;border-radius:100px;background:#4ade80;transition:width 0.8s ease"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:10px;opacity:0.5">
-            <span>0</span><span>Post-graze 400</span><span>Building 1,200</span><span>Graze 1,600</span><span>Max 3,500</span>
+            <!-- Cover bar with floating marker -->
+            <div style="position:relative;margin-bottom:4px;padding-top:28px">
+              <div id="grass-cover-marker" style="position:absolute;top:0;transition:left 0.8s ease;transform:translateX(-50%)">
+                <div id="grass-cover-marker-badge" style="font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;white-space:nowrap;font-family:var(--mono)"></div>
+                <div id="grass-cover-marker-line" style="width:2px;height:8px;margin:0 auto"></div>
+              </div>
+              <div style="background:rgba(255,255,255,0.15);border-radius:100px;height:8px">
+                <div id="grass-cover-bar" style="height:100%;border-radius:100px;background:#4ade80;transition:width 0.8s ease"></div>
+              </div>
+            </div>
+            <div style="position:relative;height:16px;margin-bottom:4px">
+              <span style="position:absolute;left:0;font-size:9px;opacity:0.5;transform:translateX(-50%)">0</span>
+              <span style="position:absolute;left:11.4%;font-size:9px;opacity:0.5;transform:translateX(-50%)">400</span>
+              <span style="position:absolute;left:34.3%;font-size:9px;opacity:0.5;transform:translateX(-50%)">1,200</span>
+              <span style="position:absolute;left:45.7%;font-size:9px;opacity:0.5;transform:translateX(-50%)">1,600</span>
+              <span style="position:absolute;right:0;font-size:9px;opacity:0.5">3,500</span>
+            </div>
           </div>
         </div>
 
