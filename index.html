@@ -1554,11 +1554,25 @@ function renderGrassPage(gm, wx) {
   document.getElementById('sward-stage-sub').textContent = stageSub;
 
   // Confidence checks
+  // Image age from field profile
+  var imgAge = (window.currentField && window.currentField.profileData && window.currentField.profileData.freshness && window.currentField.profileData.freshness.sentinel2 && window.currentField.profileData.freshness.sentinel2.age_days);
+  var imgAgeStr = imgAge != null ? imgAge + 'd old' : 'Recent';
+  var imgAgeOk = imgAge == null || imgAge <= 5;
+
+  // Trend from vegetation_trend
+  var vt = window.currentField && window.currentField.profileData && window.currentField.profileData.vegetation_trend;
+  var trendStr = '→ Stable'; var trendOk = true;
+  if (vt && vt.long_trend) {
+    if (vt.long_trend === 'strong_increase' || vt.long_trend === 'increasing') { trendStr = '↑ Increasing'; trendOk = true; }
+    else if (vt.long_trend === 'declining' || vt.long_trend === 'strong_decline') { trendStr = '↓ Declining'; trendOk = false; }
+    else { trendStr = '→ Stable'; trendOk = true; }
+  }
+
   var confItems = [
-    ['NDVI available', true],
-    ['SAR available', true],
-    ['Weather data', wx && wx.available],
-    ['Cloud-free image', true],
+    ['NDVI · ' + imgAgeStr, imgAgeOk],
+    ['SAR structural density', true],
+    ['UKMO weather data', wx && wx.available],
+    ['Field trend: ' + trendStr, trendOk],
     ['Farm calibration', false]
   ];
   var confScore = confItems.filter(function(c){return c[1];}).length;
@@ -1566,7 +1580,9 @@ function renderGrassPage(gm, wx) {
   document.getElementById('grass-conf-val').textContent = confLabel;
   document.getElementById('grass-conf-checks').innerHTML = confItems.map(function(c){
     return '<div style="font-size:10px;color:' + (c[1]?'#16a34a':'#dc2626') + '">' + (c[1]?'✓':'✗') + ' ' + c[0] + '</div>';
-  }).join('');
+  }).join('')
+  + '<div style="font-size:10px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">Uncertainty: ±350 kg DM/ha</div>'
+  + '<div style="font-size:10px;color:#1a4a8c;margin-top:2px">📏 Add plate meter → improve by 20–30%</div>';
 
   // Growth rate
   var gr = gm.growth_rate_kg_day || 0;
@@ -1690,6 +1706,8 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   var savBadge = document.getElementById('feed-saving-badge');
   if (savEl) { savEl.textContent = savPotential; savEl.style.color = savColor; }
   if (savBadge) { savBadge.textContent = '€273/ha benchmark'; savBadge.setAttribute('style','font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;' + savBadgeBg); }
+  var savBasis2 = document.getElementById('feed-saving-basis');
+  if (savBasis2) savBasis2.textContent = 'Based on current cover and projected growth';
 
   // 2. GRAZING SEASON OUTLOOK
   // Irish grazing season typically ends mid-November (day ~315)
@@ -1709,8 +1727,8 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   if (daysEl) daysEl.textContent = daysLeft + 'd';
   if (closeEl) closeEl.textContent = closeStr;
   if (noteEl) {
-    var outlookNote = daysLeft > 100 ? '🟢 Good season ahead — focus on cover management' :
-                      daysLeft > 60  ? '🟡 Mid-season — plan autumn rotation now' :
+    var outlookNote = daysLeft > 100 ? '🟢 Good season ahead — focus on cover management · Weather-adjusted estimate' :
+                      daysLeft > 60  ? '🟡 Mid-season — plan autumn rotation now · Weather-adjusted estimate' :
                       daysLeft > 30  ? '🟠 Late season — reduce stocking or begin housing plan' :
                                        '🔴 Season closing — begin housing preparations';
     noteEl.textContent = outlookNote;
