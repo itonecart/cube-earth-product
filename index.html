@@ -1488,13 +1488,20 @@ function renderGrassPage(gm, wx) {
 
   // Cover bar (0-3500 scale)
   var barPct = Math.min(100, Math.round(cover / 3500 * 100));
-  var barColor = cover >= 2500 ? '#d97706' : cover >= 1600 ? '#16a34a' : cover >= 1200 ? '#f97316' : '#dc2626';
+  var markerColor = cover >= 2500 ? '#d97706' : cover >= 1600 ? '#16a34a' : cover >= 1200 ? '#f97316' : '#dc2626';
   var bar = document.getElementById('grass-cover-bar');
   bar.style.width = barPct + '%';
-  bar.style.background = barColor;
-  // Add position label on bar
-  bar.innerHTML = barPct > 20 ? '<span style="position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:#fff;white-space:nowrap">' + cover.toLocaleString() + '</span>' : '';
-  bar.style.position = 'relative';
+  bar.style.background = markerColor;
+  // Floating marker
+  var marker = document.getElementById('grass-cover-marker');
+  var badge = document.getElementById('grass-cover-marker-badge');
+  var line = document.getElementById('grass-cover-marker-line');
+  if (marker && badge && line) {
+    marker.style.left = Math.min(95, Math.max(5, barPct)) + '%';
+    badge.textContent = cover.toLocaleString();
+    badge.style.cssText = 'font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;white-space:nowrap;font-family:var(--mono);background:' + markerColor + ';color:#fff';
+    line.style.cssText = 'width:2px;height:8px;margin:0 auto;background:' + markerColor;
+  }
 
   // Cover band + decision
   var icon, text, sub, bandLabel, bandColor, bandBg;
