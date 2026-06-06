@@ -1747,7 +1747,13 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   else if (gm.forecast_cover_7d && gm.forecast_cover_7d >= 1600) utilScore += 1;
   utilScore = Math.min(10, utilScore);
   var utilColor = utilScore >= 8 ? '#16a34a' : utilScore >= 6 ? '#d97706' : '#dc2626';
-  var utilLabel = utilScore >= 8 ? 'Excellent' : utilScore >= 6 ? 'Good' : utilScore >= 4 ? 'Moderate' : 'Poor';
+  var utilLabel;
+  if (cover < 1200) utilLabel = 'Low cover';
+  else if (cover < 1600) utilLabel = 'Building';
+  else if (utilScore >= 8) utilLabel = 'Excellent';
+  else if (utilScore >= 6) utilLabel = 'Good';
+  else if (utilScore >= 4) utilLabel = 'Moderate';
+  else utilLabel = 'Poor';
   var utilEl = document.getElementById('util-score-val');
   var utilLEl = document.getElementById('util-score-label');
   if (utilEl) { utilEl.textContent = utilScore; utilEl.style.color = utilColor; }
