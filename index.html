@@ -1677,7 +1677,7 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
 
   // 1. FEED SAVING POTENTIAL — qualitative only, not a financial promise
   var savPotential, savColor, savBadgeBg;
-  if (cover >= 1600 && cover <= 2500 && gr >= 50) {
+  if (cover >= 1600 && cover <= 2500 && gr >= 40) {
     savPotential = 'High potential'; savColor = '#16a34a'; savBadgeBg = 'background:#f0fdf4;color:#16a34a';
   } else if (cover >= 1200 && gr >= 30) {
     savPotential = 'Moderate potential'; savColor = '#d97706'; savBadgeBg = 'background:#fffbeb;color:#d97706';
@@ -2073,7 +2073,7 @@ function savePlateMeter() {
                 <div id="grass-cover-bar" style="height:100%;border-radius:100px;background:#4ade80;transition:width 0.8s ease"></div>
               </div>
             </div>
-            <div style="position:relative;height:16px;margin-bottom:4px">
+            <div style="position:relative;height:18px;margin-bottom:4px">
               <span style="position:absolute;left:0%;font-size:9px;opacity:0.5">0</span>
               <span style="position:absolute;left:11.4%;font-size:9px;opacity:0.5;transform:translateX(-50%)">400</span>
               <span style="position:absolute;left:34.3%;font-size:9px;opacity:0.5;transform:translateX(-50%)">1,200</span>
