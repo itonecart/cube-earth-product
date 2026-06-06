@@ -1520,7 +1520,7 @@ function renderGrassPage(gm, wx) {
     var gr2 = gm.growth_rate_kg_day || 0;
     var days = gr2 > 0 ? Math.ceil((1600 - cover) / gr2) : null;
     var daysStr = days ? days + 'd' : 'soon';
-    if (days !== null && days <= 1) {
+    if (days !== null && days === 0) {
       icon = '✅'; text = 'Graze Now or Tomorrow'; sub = 'Within 1 day of 1,600 kg DM/ha target';
       bandLabel = '🟢 Near Grazing Target'; bandColor = '#1a4a8c'; bandBg = 'background:#eff6ff;color:#1a4a8c';
     } else {
