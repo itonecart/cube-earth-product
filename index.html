@@ -1505,17 +1505,13 @@ function renderGrassPage(gm, wx) {
     icon = '⚠'; text = 'Surplus — Act Now'; sub = 'Remove surplus or rotate faster to avoid wastage';
     bandLabel = 'Surplus 2500-3200'; bandColor = '#d97706'; bandBg = 'background:#fffbeb;color:#d97706';
   } else if (cover >= 1600) {
-    icon = '✅'; text = 'Grazing Ready'; sub = 'Pre-grazing target reached · Rotate stock in now';
+    icon = '✅'; text = 'Grazing Ready'; sub = 'Pre-grazing target reached (1,600 kg DM/ha) · Rotate stock in now';
     bandLabel = 'Grazing 1600-2500'; bandColor = '#16a34a'; bandBg = 'background:#f0fdf4;color:#16a34a';
   } else if (cover >= 1200) {
     var gr2 = gm.growth_rate_kg_day || 0;
-    var days = gm.rotation_days || (gr2 > 0 ? Math.ceil((1600 - cover) / gr2) : null);
+    var days = gr2 > 0 ? Math.ceil((1600 - cover) / gr2) : null;
     var daysStr = days ? days + 'd' : 'soon';
-    if (days && days <= 2) {
-      icon = '✅'; text = 'Graze within ' + daysStr; sub = 'At or near pre-grazing target — prepare to rotate';
-    } else {
-      icon = '⏳'; text = 'Building — graze in ' + daysStr; sub = 'Approaching grazing target — monitor daily';
-    }
+    icon = '⏳'; text = 'Building — graze in ' + daysStr; sub = 'Target: 1,600 kg DM/ha · Monitor daily';
     bandLabel = 'Building 1200-1600'; bandColor = '#f97316'; bandBg = 'background:#fff7ed;color:#f97316';
   } else {
     icon = '🔄'; text = 'Recovery Phase'; sub = 'Rest this paddock — below grazing threshold';
@@ -1897,7 +1893,7 @@ function savePlateMeter() {
             <div id="grass-cover-bar" style="height:100%;border-radius:100px;background:#4ade80;transition:width 0.8s ease"></div>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:10px;opacity:0.5">
-            <span>0</span><span>Post-graze 400</span><span>Graze 1,400</span><span>Max 3,500</span>
+            <span>0</span><span>Post-graze 400</span><span>Building 1,200</span><span>Graze 1,600</span><span>Max 3,500</span>
           </div>
         </div>
 
