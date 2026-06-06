@@ -278,9 +278,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     </div>
     <div class="metrics">
       <div class="mc">
-        <div class="mc-label">🌾 Crop Vitality</div>
+        <div class="mc-label">🌾 Pasture Cover</div>
         <div class="mc-val" id="m-ndvi">—</div>
-        <div class="mc-unit">NDVI · Sentinel-2</div>
+        <div class="mc-unit" id="ndvi-raw-val" style="font-size:9px;color:var(--muted)">NDVI —</div>
         <div class="mc-note note-g" id="m-ndvi-note">—</div>
       </div>
       <div class="mc">
@@ -290,9 +290,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
         <div class="mc-note" id="m-smap-note">—</div>
       </div>
       <div class="mc">
-        <div class="mc-label">📡 Canopy Structure</div>
+        <div class="mc-label">📡 Canopy Density</div>
         <div class="mc-val" id="m-sar">—</div>
-        <div class="mc-unit">SAR RVI · Sentinel-1</div>
+        <div class="mc-unit" id="rvi-raw-val" style="font-size:9px;color:var(--muted)">RVI —</div>
         <div class="mc-note" id="m-sar-note">—</div>
       </div>
       <div class="mc" id="veg-area-card" style="display:none">
@@ -319,8 +319,14 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       <div class="irow"><span class="irow-label">Machinery</span><span class="irow-val" id="w-mach">—</span></div>
     </div>
     <div class="icard" id="historical-card" style="display:none">
-      <div class="icard-hd">📅 Historical Baseline</div>
-      <div style="padding:14px 16px">
+      <div class="icard-hd" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="var b=document.getElementById('hist-body');var a=document.getElementById('hist-arrow');b.style.display=b.style.display==='none'?'block':'none';a.textContent=b.style.display==='none'?'▶':'▼'">
+        <span>📅 Historical Baseline</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="h-summary" style="font-size:11px;font-weight:600;color:var(--muted)"></span>
+          <span id="hist-arrow" style="font-size:11px">▶</span>
+        </span>
+      </div>
+      <div id="hist-body" style="display:none;padding:14px 16px">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px">
           <div>
             <div style="font-size:11px;color:var(--muted)">5-Year Mean</div>
@@ -340,29 +346,41 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
       </div>
     </div>
     <div class="icard" id="trend-card" style="display:none">
-      <div class="icard-hd">📈 Vegetation Health Trend</div>
-      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div>
-            <div style="font-size:22px;font-weight:800" id="trend-arrow-val">—</div>
-            <div style="font-size:12px;color:var(--muted)" id="trend-label-val">—</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:11px;color:var(--muted)">90-day change</div>
-            <div style="font-size:18px;font-weight:700" id="trend-diff-val">—</div>
-          </div>
-        </div>
-        <div id="trend-bars" style="display:flex;gap:3px;align-items:flex-end;height:40px"></div>
+      <div class="icard-hd" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="var b=document.getElementById('trend-body');var a=document.getElementById('trend-arrow');b.style.display=b.style.display==='none'?'block':'none';a.textContent=b.style.display==='none'?'▶':'▼'">
+        <span>📈 Vegetation Trend</span>
+        <span style="display:flex;align-items:center;gap:8px">
+          <span id="trend-summary" style="font-size:11px;font-weight:600;color:var(--muted)"></span>
+          <span id="trend-arrow" style="font-size:11px">▶</span>
+        </span>
       </div>
-      <div class="irow"><span class="irow-label">14-day change</span><span class="irow-val" id="trend-14d">—</span></div>
-      <div class="irow"><span class="irow-label">vs seasonal baseline</span><span class="irow-val" id="trend-seasonal">—</span></div>
-      <div class="irow"><span class="irow-label">Latest observation</span><span class="irow-val" id="trend-latest">—</span></div>
+      <div id="trend-body" style="display:none">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div>
+              <div style="font-size:20px;font-weight:800" id="trend-arrow-val">—</div>
+              <div style="font-size:12px;color:var(--muted)" id="trend-label-val">—</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:11px;color:var(--muted)">90-day change</div>
+              <div style="font-size:16px;font-weight:700" id="trend-diff-val">—</div>
+            </div>
+          </div>
+          <div id="trend-bars" style="display:flex;gap:3px;align-items:flex-end;height:36px"></div>
+        </div>
+        <div class="irow"><span class="irow-label">14-day change</span><span class="irow-val" id="trend-14d">—</span></div>
+        <div class="irow"><span class="irow-label">vs seasonal baseline</span><span class="irow-val" id="trend-seasonal">—</span></div>
+        <div class="irow"><span class="irow-label">Latest observation</span><span class="irow-val" id="trend-latest">—</span></div>
+      </div>
     </div>
     <div class="icard" id="compliance-card" style="display:none">
-      <div class="icard-hd">📋 Compliance</div>
-      <div class="irow"><span class="irow-label">ACRES</span><span class="irow-val g" id="c-acres">—</span></div>
-      <div class="irow"><span class="irow-label">Eco Scheme</span><span class="irow-val g" id="c-eco">—</span></div>
-      <div class="irow"><span class="irow-label">BISS</span><span class="irow-val g" id="c-biss">—</span></div>
+      <div class="icard-hd" style="cursor:pointer;display:flex;justify-content:space-between" onclick="var b=document.getElementById('comp-body');var a=document.getElementById('comp-arrow');b.style.display=b.style.display==='none'?'block':'none';a.textContent=b.style.display==='none'?'▶':'▼'">
+        <span>📋 Compliance</span><span id="comp-arrow">▶</span>
+      </div>
+      <div id="comp-body" style="display:none">
+        <div class="irow"><span class="irow-label">ACRES</span><span class="irow-val g" id="c-acres">—</span></div>
+        <div class="irow"><span class="irow-label">Eco Scheme</span><span class="irow-val g" id="c-eco">—</span></div>
+        <div class="irow"><span class="irow-label">BISS</span><span class="irow-val g" id="c-biss">—</span></div>
+      </div>
     </div>
     <div class="icard" style="margin-bottom:12px">
       <div class="icard-hd" style="cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">Field Details ▼</div>
@@ -689,6 +707,11 @@ function populateHistoricalCard(h){
   document.getElementById('historical-card').style.display='block';
   document.getElementById('h-baseline').textContent=h.baseline_mean?h.baseline_mean.toFixed(3):'-';
   document.getElementById('h-cv').textContent=h.cv_percent?h.cv_percent+'%':'-';
+  var hsum=document.getElementById('h-summary');
+  if(hsum){
+    var anomSign=h.anomaly_pct>0?'+':'';
+    hsum.textContent='CV '+(h.cv_percent||'—')+'% · '+(h.anomaly_pct?anomSign+h.anomaly_pct+'% vs avg':'');
+  }
   document.getElementById('h-cv-label').textContent=h.cv_label||'-';
   var ac=h.anomaly_pct>5?'#16a34a':h.anomaly_pct<-5?'#dc2626':'#d97706';
   document.getElementById('h-anomaly').style.color=ac;
@@ -726,7 +749,9 @@ function renderIntel(d,f){
   var ndvi=v.ndvi;
   if(ndvi){
     document.getElementById('m-ndvi').textContent=ndvi.toFixed(2);
-    document.getElementById('m-ndvi-note').textContent=ndvi>0.7?'Excellent':ndvi>0.55?'Good':ndvi>0.4?'Moderate':'Low';
+    document.getElementById('m-ndvi-note').textContent=ndvi>0.7?'Excellent cover':ndvi>0.55?'Good cover':ndvi>0.4?'Moderate':'Low cover';
+    var ndviRaw=document.getElementById('ndvi-raw-val');
+    if(ndviRaw) ndviRaw.textContent='NDVI '+ndvi.toFixed(3);
   }
   var smapVal=sm.smap&&sm.smap.sm_surface_m3;
   if(smapVal){
@@ -744,7 +769,10 @@ function renderIntel(d,f){
   }
   if(s.rvi){
     document.getElementById('m-sar').textContent=s.rvi.toFixed(3);
-    document.getElementById('m-sar-note').textContent=s.rvi_interpretation||'';
+    var rviLabel=s.rvi>0.75?'Dense canopy':s.rvi>0.5?'Moderate density':s.rvi>0.3?'Open canopy':'Sparse';
+    document.getElementById('m-sar-note').textContent=rviLabel;
+    var rviRaw=document.getElementById('rvi-raw-val');
+    if(rviRaw) rviRaw.textContent='RVI '+s.rvi.toFixed(3);
   }
   var dec=document.getElementById('intel-decision');
   if(isGrass){
@@ -836,6 +864,8 @@ function renderIntel(d,f){
     document.getElementById('trend-arrow-val').textContent=trendArrow;
     document.getElementById('trend-arrow-val').style.color=trendColor;
     document.getElementById('trend-label-val').textContent=(vt.interpretation&&vt.interpretation.trend_label)||'';
+    var tsum=document.getElementById('trend-summary');
+    if(tsum) tsum.textContent=trendArrow+' · '+(vt.long_diff>0?'+':'')+vt.long_diff.toFixed(3)+' NDVI 90d';
     var diffSign=vt.long_diff>0?'+':'';
     document.getElementById('trend-diff-val').textContent=diffSign+vt.long_diff.toFixed(3)+' NDVI';
     document.getElementById('trend-diff-val').style.color=trendColor;
