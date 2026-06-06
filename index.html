@@ -1592,6 +1592,38 @@ function renderGrassPage(gm, wx) {
   var htPct = Math.min(100, ht / 12 * 100);
   document.getElementById('grass-height-bar').style.width = htPct + '%';
 
+  // Grazing Window
+  var gwEl = document.getElementById('grazing-window-body');
+  if (gwEl && gr > 0) {
+    var daysToIdeal = cover < 1600 ? Math.ceil((1800 - cover) / gr) : 0;
+    var coverIn3 = Math.round(cover + gr * 3);
+    var coverIn7 = Math.round(cover + gr * 7);
+    var windowOpen = cover >= 1600 || daysToIdeal <= 3;
+    if (windowOpen) {
+      var daysOpen = Math.max(1, Math.round((2500 - Math.max(cover, 1600)) / Math.max(gr, 1)));
+      daysOpen = Math.min(daysOpen, 14);
+      gwEl.innerHTML = '<div style="background:#f0fdf4;border-radius:8px;padding:12px;margin-bottom:8px">'
+        + '<div style="font-size:13px;font-weight:700;color:#16a34a;margin-bottom:8px">✅ Graze now — window open ~' + daysOpen + ' days</div>'
+        + '<div style="display:flex;gap:8px">'
+        + '<div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px"><div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)">' + cover.toLocaleString() + '</div><div style="font-size:10px;color:var(--muted)">Today</div></div>'
+        + '<div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px"><div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)">' + coverIn3.toLocaleString() + '</div><div style="font-size:10px;color:var(--muted)">In 3 days</div></div>'
+        + '<div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px"><div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)">' + coverIn7.toLocaleString() + '</div><div style="font-size:10px;color:var(--muted)">In 7 days</div></div>'
+        + '</div></div>'
+        + '<div style="font-size:11px;color:var(--muted)">kg DM/ha · Growth rate ' + gr + ' kg/day · Graze before ' + coverIn7.toLocaleString() + ' kg/ha to avoid surplus</div>';
+    } else {
+      gwEl.innerHTML = '<div style="background:#fffbeb;border-radius:8px;padding:12px;margin-bottom:8px">'
+        + '<div style="font-size:13px;font-weight:700;color:#d97706;margin-bottom:8px">⏳ Window opens in ~' + daysToIdeal + ' days</div>'
+        + '<div style="display:flex;gap:8px">'
+        + '<div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px"><div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)">' + cover.toLocaleString() + '</div><div style="font-size:10px;color:var(--muted)">Today</div></div>'
+        + '<div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px"><div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)">' + coverIn3.toLocaleString() + '</div><div style="font-size:10px;color:var(--muted)">In 3 days</div></div>'
+        + '<div style="flex:1;text-align:center;background:#fff;border-radius:6px;padding:8px"><div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)">' + coverIn7.toLocaleString() + '</div><div style="font-size:10px;color:var(--muted)">In 7 days</div></div>'
+        + '</div></div>'
+        + '<div style="font-size:11px;color:var(--muted)">kg DM/ha · Growth rate ' + gr + ' kg/day · Target: 1,600 kg/ha</div>';
+    }
+  } else if (gwEl) {
+    gwEl.innerHTML = '<div style="font-size:12px;color:var(--muted)">Growth rate data needed for window calculation</div>';
+  }
+
   // Render all 6 insight cards
   var fieldHa = (window.currentField && window.currentField.area) || 20;
   renderGrassInsights(gm, wx, cover, fieldHa);
@@ -1643,21 +1675,21 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   var rain7d = wx && wx.available ? (wx.growth_conditions && wx.growth_conditions.rain_7d_mm || 0) : 0;
   var temp = wx && wx.available ? (wx.growth_conditions && wx.growth_conditions.avg_temp_c || 12) : 12;
 
-  // 1. FEED SAVING POTENTIAL
-  // Based on Hanrahan et al. 2018: +1t DM/ha = +€273/ha
-  // Farms using grass measurement tools graze 244 kg DM/cow more (Palma-Molina et al.)
-  // At ~2.75 cows/ha that's ~671 kg DM/ha = 0.67t → €183/ha
-  var coverGap = Math.max(0, 3500 - cover); // potential above current
-  var utilGain = Math.min(1000, gr * 30); // kg DM/ha from better utilisation over a month
-  var savingPerHa = Math.round((utilGain / 1000) * 273);
-  var totalSaving = Math.round(savingPerHa * fieldHa);
-  var savEl = document.getElementById('feed-saving-val');
-  var savBasis = document.getElementById('feed-saving-basis');
-  if (savEl) {
-    savEl.textContent = '€' + totalSaving.toLocaleString() + '/yr';
-    savEl.style.color = totalSaving > 500 ? '#16a34a' : '#d97706';
+  // 1. FEED SAVING POTENTIAL — qualitative only, not a financial promise
+  var savPotential, savColor, savBadgeBg;
+  if (cover >= 1600 && cover <= 2500 && gr >= 50) {
+    savPotential = 'High potential'; savColor = '#16a34a'; savBadgeBg = 'background:#f0fdf4;color:#16a34a';
+  } else if (cover >= 1200 && gr >= 30) {
+    savPotential = 'Moderate potential'; savColor = '#d97706'; savBadgeBg = 'background:#fffbeb;color:#d97706';
+  } else if (cover < 1200) {
+    savPotential = 'Limited — build cover first'; savColor = '#dc2626'; savBadgeBg = 'background:#fff5f5;color:#dc2626';
+  } else {
+    savPotential = 'Surplus — utilise faster'; savColor = '#7c3aed'; savBadgeBg = 'background:#f5f3ff;color:#7c3aed';
   }
-  if (savBasis) savBasis.innerHTML = '€' + savingPerHa + '/ha<br>' + fieldHa + ' ha field';
+  var savEl = document.getElementById('feed-saving-val');
+  var savBadge = document.getElementById('feed-saving-badge');
+  if (savEl) { savEl.textContent = savPotential; savEl.style.color = savColor; }
+  if (savBadge) { savBadge.textContent = '€273/ha benchmark'; savBadge.setAttribute('style','font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;' + savBadgeBg); }
 
   // 2. GRAZING SEASON OUTLOOK
   // Irish grazing season typically ends mid-November (day ~315)
@@ -1701,7 +1733,12 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   var utilEl = document.getElementById('util-score-val');
   var utilLEl = document.getElementById('util-score-label');
   if (utilEl) { utilEl.textContent = utilScore; utilEl.style.color = utilColor; }
-  if (utilLEl) { utilLEl.textContent = utilLabel; utilLEl.style.color = utilColor; }
+  if (utilLEl) {
+    var coverCheck = (cover >= 1600 && cover <= 2500) ? '✓' : '○';
+    var grCheck = gr >= 40 ? '✓' : '○';
+    var fcCheck = (gm.forecast_cover_7d && gm.forecast_cover_7d > cover) ? '✓' : '○';
+    utilLEl.innerHTML = utilLabel + '<div style="font-size:9px;color:var(--muted);margin-top:4px">' + coverCheck + ' Cover &nbsp;' + grCheck + ' Growth &nbsp;' + fcCheck + ' Forecast</div>';
+  }
 
   // 4. GRAZING EFFICIENCY SCORE (0-10)
   // How close cover is to ideal 1600-2000 target, and growth matching demand
@@ -1714,20 +1751,23 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   var effEl = document.getElementById('eff-score-val');
   var effLEl = document.getElementById('eff-score-label');
   if (effEl) { effEl.textContent = effScore; effEl.style.color = effColor; }
-  if (effLEl) { effLEl.textContent = effLabel; effLEl.style.color = effColor; }
+  if (effLEl) {
+    var gapKg = Math.abs(cover - 1800);
+    effLEl.innerHTML = effLabel + '<div style="font-size:9px;color:var(--muted);margin-top:4px">vs 1,800 kg/ha target<br>' + (gapKg < 100 ? 'On target ✓' : gapKg + ' kg from ideal') + '</div>';
+  }
 
   // 5. CARBON EFFICIENCY INDICATOR
   // More grazed grass = lower CO2/kg FPCM (Teagasc: grass-based = 1.04 vs 1.13 kg CO2eq/kg)
   // Proxy: if cover in grazing band + growing = low carbon
   var carbonLabel, carbonSub, carbonColor;
   if (cover >= 1600 && cover <= 2500 && gr >= 40) {
-    carbonLabel = '🟢 Low'; carbonSub = 'Optimal grass diet → low CO₂/kg milk'; carbonColor = '#16a34a';
+    carbonLabel = '🟢 Good'; carbonSub = 'Grass conditions favour lower carbon footprint'; carbonColor = '#16a34a';
   } else if (cover >= 1200 && gr >= 20) {
-    carbonLabel = '🟡 Moderate'; carbonSub = 'Growing towards optimal — monitor'; carbonColor = '#d97706';
+    carbonLabel = '🟡 Moderate'; carbonSub = 'Improving cover will support carbon efficiency'; carbonColor = '#d97706';
   } else if (cover > 2500) {
-    carbonLabel = '🟠 Surplus risk'; carbonSub = 'Excess cover → topping waste → higher CO₂'; carbonColor = '#f97316';
+    carbonLabel = '🟠 Review'; carbonSub = 'Surplus may indicate utilisation inefficiency'; carbonColor = '#f97316';
   } else {
-    carbonLabel = '🔴 Higher risk'; carbonSub = 'Low cover → likely supplement reliance'; carbonColor = '#dc2626';
+    carbonLabel = '🔴 Watch'; carbonSub = 'Low cover may increase supplement dependency'; carbonColor = '#dc2626';
   }
   var carbEl = document.getElementById('carbon-label');
   var carbSub = document.getElementById('carbon-sub');
@@ -1738,13 +1778,13 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   // High rain + high cover + warm = high N mineralisation + leaching risk
   var nRisk, nSub, nColor;
   if (rain7d > 50 && temp > 10 && cover > 2000) {
-    nRisk = '🔴 High'; nSub = 'Wet + warm + high cover → leaching risk'; nColor = '#dc2626';
+    nRisk = '🔴 High'; nSub = 'Rainfall conditions may increase leaching risk'; nColor = '#dc2626';
   } else if (rain7d > 35 || (cover > 2500 && temp > 8)) {
-    nRisk = '🟠 Moderate'; nSub = 'Monitor — avoid N application this week'; nColor = '#f97316';
+    nRisk = '🟠 Moderate'; nSub = 'Rainfall pattern warrants attention this week'; nColor = '#f97316';
   } else if (rain7d < 15 && cover < 1600) {
-    nRisk = '🟡 Low-Mod'; nSub = 'Dry conditions — N uptake limited'; nColor = '#d97706';
+    nRisk = '🟡 Low-Mod'; nSub = 'Dry conditions — monitor soil moisture'; nColor = '#d97706';
   } else {
-    nRisk = '🟢 Low'; nSub = 'Conditions suitable for N application'; nColor = '#16a34a';
+    nRisk = '🟢 Low'; nSub = 'Current conditions indicate lower loss risk'; nColor = '#16a34a';
   }
   var nEl = document.getElementById('nloss-label');
   var nSub2 = document.getElementById('nloss-sub');
@@ -2158,12 +2198,12 @@ function savePlateMeter() {
           <div style="padding:14px 16px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
               <div>
-                <div style="font-size:26px;font-weight:800;color:#16a34a;font-family:var(--mono)" id="feed-saving-val">—</div>
-                <div style="font-size:11px;color:var(--muted)">estimated annual saving vs no measurement</div>
+                <div style="font-size:20px;font-weight:800;font-family:var(--mono)" id="feed-saving-val">—</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px" id="feed-saving-basis">Pasture utilisation potential</div>
               </div>
-              <div style="text-align:right;font-size:11px;color:var(--muted)" id="feed-saving-basis">—</div>
+              <div style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px" id="feed-saving-badge"></div>
             </div>
-            <div style="font-size:11px;color:var(--muted);background:#f0fdf4;border-radius:6px;padding:8px">Based on Teagasc research: +1 tonne DM/ha grazed = +€273/ha profit (Hanrahan et al. 2018)</div>
+            <div style="font-size:11px;color:var(--muted);background:#f0fdf4;border-radius:6px;padding:8px">Benchmark: +1 tonne DM/ha grazed → +€273/ha profit · Hanrahan et al. 2018 (Teagasc)</div>
           </div>
         </div>
 
@@ -2207,16 +2247,22 @@ function savePlateMeter() {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
           <!-- Carbon Efficiency -->
           <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px">
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">🌍 Carbon</div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">🌍 Carbon Potential</div>
             <div style="font-size:15px;font-weight:800" id="carbon-label">—</div>
             <div style="font-size:11px;color:var(--muted);margin-top:4px" id="carbon-sub">—</div>
           </div>
           <!-- Nitrogen Loss Risk -->
           <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:12px">
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">⚗️ N Loss Risk</div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">⚗️ N Loss Indicator</div>
             <div style="font-size:15px;font-weight:800" id="nloss-label">—</div>
             <div style="font-size:11px;color:var(--muted);margin-top:4px" id="nloss-sub">—</div>
           </div>
+        </div>
+
+        <!-- Grazing Window -->
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px" id="grazing-window-card">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">🪟 Ideal Grazing Window</div>
+          <div style="padding:14px 16px" id="grazing-window-body">—</div>
         </div>
 
         <!-- Accuracy note -->
