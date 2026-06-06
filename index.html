@@ -1611,7 +1611,7 @@ function renderGrassPage(gm, wx) {
   // Grazing Window
   var gwEl = document.getElementById('grazing-window-body');
   if (gwEl && gr > 0) {
-    var daysToIdeal = cover < 1600 ? Math.ceil((1800 - cover) / gr) : 0;
+    var daysToIdeal = cover < 1600 ? Math.ceil((1600 - cover) / gr) : 0;
     var coverIn3 = Math.round(cover + gr * 3);
     var coverIn7 = Math.round(cover + gr * 7);
     var windowOpen = cover >= 1600 || daysToIdeal <= 3;
