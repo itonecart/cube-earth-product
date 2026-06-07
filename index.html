@@ -1689,8 +1689,7 @@ function openGrassPage(field) {
 
   // Load plate meter history — after content shown
   window._plateMeterHistory = [];
-  var dbg = document.getElementById('session-debug');
-  if(dbg) dbg.textContent = 'Session: ' + (localStorage.getItem('cube_session_id')||'none');
+
 
   // Use cached data if available
   var d = f.profileData;
@@ -2208,15 +2207,12 @@ function loadPlateMeterHistory(){
   var url = API + '/plate_meter_history?session_id=' + sid;
   // Don't filter by field_id — load all readings for this session
   console.log('Loading history from:', url);
-  var dbg2 = document.getElementById('session-debug');
-  if(dbg2) dbg2.textContent = 'URL: ' + url;
+
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(d){
       console.log('History response:', JSON.stringify(d));
-      // Show raw response for debugging
-      var el2 = document.getElementById('plate-meter-history');
-      if(el2) el2.innerHTML = '<div style="font-size:10px;font-family:monospace;color:#666">'+JSON.stringify(d).substring(0,200)+'</div>';
+
       if(d.success && d.readings && d.readings.length > 0){
         console.log('Readings found:', d.readings.length);
         window._plateMeterHistory = d.readings.map(function(r){
@@ -2763,9 +2759,6 @@ function loadPlateMeterHistory(){
             <button onclick="savePlateMeter()" style="padding:10px 14px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Save</button>
           </div>
         </div>
-
-        <!-- Session debug -->
-        <div id="session-debug" style="background:#f5f7fa;border-radius:8px;padding:8px;margin-bottom:8px;font-size:10px;color:var(--muted);font-family:var(--mono)"></div>
 
         <!-- Plate meter history -->
         <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
