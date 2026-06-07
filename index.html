@@ -666,6 +666,11 @@ async function searchOnMap(){
       var lat=parseFloat(coords[0].trim());
       var lng=parseFloat(coords[1].trim());
       setupMap.setView([lat,lng],16);
+      Object.values(parcelLayers).forEach(function(pl){
+        if(pl.layer) setupMap.removeLayer(pl.layer);
+        if(pl.label) setupMap.removeLayer(pl.label);
+      });
+      parcelLayers={};
       setTimeout(function(){loadParcelsOnMap(lat,lng);},300);
       document.getElementById('map-hint').textContent='📍 '+lat.toFixed(4)+', '+lng.toFixed(4)+' · Tap fields to select';
       return;
@@ -677,6 +682,12 @@ async function searchOnMap(){
       var lat=parseFloat(data[0].lat);
       var lon=parseFloat(data[0].lon);
       setupMap.setView([lat,lon],16);
+      // Clear existing parcel layers so new ones get fresh click handlers
+      Object.values(parcelLayers).forEach(function(pl){
+        if(pl.layer) setupMap.removeLayer(pl.layer);
+        if(pl.label) setupMap.removeLayer(pl.label);
+      });
+      parcelLayers={};
       setTimeout(function(){loadParcelsOnMap(lat,lon);},300);
       document.getElementById('map-hint').textContent='📍 '+data[0].display_name.split(',').slice(0,2).join(',').trim()+' · Tap fields to select';
     } else {
