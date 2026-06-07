@@ -461,6 +461,7 @@ let myFields = [];
 let setupMap = null;
 let fieldMap = null;
 let currentField = null;
+let allFarms = [];
 window._lastZoneAnalysis = null;
 window._lastHistorical = null;
 
@@ -484,27 +485,40 @@ function loadSavedFarm() {
   fetch(API + '/load_farm?session_id=' + savedSession)
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      if (d.success && d.fields && d.fields.length > 0) {
-        // Restore farm
-        farmData = {
-          name: d.farm.farm_name || 'My Farm',
-          county: d.farm.county || '',
-          type: d.farm.enterprise_type || '',
-          acres: d.farm.acres_scheme || 'no'
-        };
-        myFields = d.fields.map(function(f) {
-          return {
-            id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
-            lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
-            geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
-            status: f.status || 'amber', action: f.action || 'Monitor',
-            profileData: f.profile_data, supabase_id: f.id
+      if (d.success && d.farms && d.farms.length > 0) {
+        // Load all fields from all farms
+        myFields = [];
+        allFarms = d.farms;
+        d.farms.forEach(function(fd) {
+          farmData = {
+            name: fd.farm.farm_name || 'My Farm',
+            county: fd.farm.county || '',
+            type: fd.farm.enterprise_type || '',
+            acres: fd.farm.acres_scheme || 'no'
           };
+          fd.fields.forEach(function(f) {
+            myFields.push({
+              id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
+              lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
+              geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
+              status: f.status || 'amber', action: f.action || 'Monitor',
+              profileData: f.profile_data, supabase_id: f.id
+            });
+          });
         });
-        renderFarmDashboard();
-        showPage('pg-farm');
-        document.getElementById('bnav').classList.add('show');
-        console.log('Farm restored from database');
+        if (myFields.length > 0) {
+          // Use most recent farm name
+          farmData = {
+            name: d.farms[0].farm.farm_name || 'My Farm',
+            county: d.farms[0].farm.county || '',
+            type: d.farms[0].farm.enterprise_type || '',
+            acres: d.farms[0].farm.acres_scheme || 'no'
+          };
+          renderFarmDashboard();
+          showPage('pg-farm');
+          document.getElementById('bnav').classList.add('show');
+          console.log('Farms restored:', d.farms.length, 'farms,', myFields.length, 'fields');
+        }
       }
     })
     .catch(function(e) { console.log('Load farm error:', e); });
