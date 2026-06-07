@@ -2203,11 +2203,15 @@ function renderBioPage() {
     riparianConf,
     'SMAP soil moisture ' + (smap ? smap.toFixed(3) : '—') + ' m³/m³ · Wet areas support greater habitat diversity'
   );
+  var cvInterp = cvPct > 25 ? 'High variation' : cvPct > 15 ? 'Moderate variation' : cvPct > 5 ? 'Low-moderate variation' : 'Very uniform sward';
+  var cvNote = cvPct > 15 ? 'Within-field variation suggests mixed sward or habitat mosaic'
+    : cvPct > 5 ? 'Some within-field variation — possible mixed sward'
+    : 'Very uniform sward — single species or managed grassland likely';
   html += evidenceRow(
     'Sward Diversity',
-    !!swardDiv,
-    swardConf,
-    'Within-field NDVI variation suggests mixed sward composition'
+    cvPct > 5,
+    swardConf + ' · ' + cvInterp,
+    cvNote
   );
 
   var bioRows = document.getElementById('bio-rows');
@@ -2224,7 +2228,7 @@ function renderBioPage() {
     if(permHabitat && !isRotational) acresItems.push('✅ Permanent habitat evidence available');
     if(permHabitat && isRotational) acresItems.push('✅ Ecological value observed');
     if(f.eco) acresItems.push('✅ Eco scheme eligible field');
-    if(rvi > 0.5) acresItems.push('✅ Biodiversity indicators detected');
+    if(rvi > 0.5) acresItems.push('✅ Habitat indicators detected');
     if(isRotational) acresItems.push('ℹ Rotational crop — habitat permanence requires ground verification');
     if(acresItems.length === 0) acresItems.push('⚠ Limited satellite evidence — ground survey recommended');
     acresEl.innerHTML = acresItems.map(function(a){
