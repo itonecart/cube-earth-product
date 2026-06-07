@@ -887,7 +887,7 @@ function openField(idx){
     fieldMap=L.map('field-map',{zoomControl:false,dragging:false,scrollWheelZoom:false,touchZoom:false,attributionControl:false});
     if(currentField.geometry){
       var l=L.geoJSON({type:'Feature',geometry:currentField.geometry},{style:{color:'#4a8fd4',weight:2.5,fill:false}}).addTo(fieldMap);
-      fieldMap.fitBounds(l.getBounds(),{padding:[20,20]});
+      fieldMap.fitBounds(l.getBounds(),{padding:[20,20],maxZoom:16});
       switchMapLayer(0);
     } else {
       fieldMap.setView([currentField.lat,currentField.lng],15);
