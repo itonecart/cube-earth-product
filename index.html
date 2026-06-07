@@ -448,6 +448,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
 
 <script>
 const API = 'https://cube-earth.onrender.com';
+
+// Session ID — persists in localStorage
+var SESSION_ID = localStorage.getItem('cube_session_id');
+if (!SESSION_ID) {
+  SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+  localStorage.setItem('cube_session_id', SESSION_ID);
+}
 let farmData = {name:'',county:'',type:'',acres:'no'};
 let selectedParcels = [];
 let myFields = [];
@@ -456,6 +463,9 @@ let fieldMap = null;
 let currentField = null;
 window._lastZoneAnalysis = null;
 window._lastHistorical = null;
+
+// Try to restore previous session on load
+setTimeout(loadSavedFarm, 500);
 
 function showPage(id){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
@@ -467,6 +477,38 @@ function navTo(id,btn){
   if(btn) btn.classList.add('active');
 }
 function goSetup(){ showPage('pg-setup1'); }
+
+function loadSavedFarm() {
+  var savedSession = localStorage.getItem('cube_session_id');
+  if (!savedSession) return;
+  fetch(API + '/load_farm?session_id=' + savedSession)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.success && d.fields && d.fields.length > 0) {
+        // Restore farm
+        farmData = {
+          name: d.farm.farm_name || 'My Farm',
+          county: d.farm.county || '',
+          type: d.farm.enterprise_type || '',
+          acres: d.farm.acres_scheme || 'no'
+        };
+        myFields = d.fields.map(function(f) {
+          return {
+            id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
+            lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
+            geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
+            status: f.status || 'amber', action: f.action || 'Monitor',
+            profileData: f.profile_data, supabase_id: f.id
+          };
+        });
+        renderFarmDashboard();
+        showPage('pg-farm');
+        document.getElementById('bnav').classList.add('show');
+        console.log('Farm restored from database');
+      }
+    })
+    .catch(function(e) { console.log('Load farm error:', e); });
+}
 function goSetup2(){
   var name=document.getElementById('farm-name').value.trim();
   if(!name){alert('Please enter your farm name');return;}
@@ -580,6 +622,32 @@ async function saveFarm(){
   renderFarmDashboard();
   showPage('pg-farm');
   document.getElementById('bnav').classList.add('show');
+
+  // Save to Supabase
+  fetch(API + '/save_farm', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      session_id: SESSION_ID,
+      farm_data: farmData,
+      fields: myFields.map(function(f) {
+        return {
+          id: f.id, crop: f.crop, area: f.area, olr: f.olr,
+          lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
+          geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
+          status: f.status, action: f.action, profileData: f.profileData
+        };
+      })
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) {
+      localStorage.setItem('cube_farm_id', d.farm_id);
+      console.log('Farm saved to database:', d.farm_id);
+    }
+  })
+  .catch(function(e) { console.log('Farm save error:', e); });
 }
 
 function renderFarmDashboard(){
@@ -1819,6 +1887,21 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
 function savePlateMeter() {
   var val = document.getElementById('plate-meter-input').value;
   if (!val) return;
+  var fieldId = currentField && currentField.supabase_id;
+  var satelliteEst = window._lastGrassCover || null;
+
+  // Save to Supabase
+  fetch(API + '/save_plate_meter', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      session_id: SESSION_ID,
+      field_id: fieldId,
+      reading: parseInt(val),
+      satellite_estimate: satelliteEst
+    })
+  }).catch(function(e) { console.log('Plate meter save error:', e); });
+
   var toast = document.createElement('div');
   toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999';
   toast.textContent = '✓ Plate meter reading saved — ' + parseInt(val).toLocaleString() + ' kg DM/ha';
