@@ -1689,6 +1689,8 @@ function openGrassPage(field) {
 
   // Load plate meter history
   window._plateMeterHistory = [];
+  var dbg = document.getElementById('session-debug');
+  if(dbg) dbg.textContent = 'Session: ' + (localStorage.getItem('cube_session_id')||'none');
   setTimeout(loadPlateMeterHistory, 800);
 
   // Use cached data if available
@@ -2751,6 +2753,9 @@ function loadPlateMeterHistory(){
             <button onclick="savePlateMeter()" style="padding:10px 14px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Save</button>
           </div>
         </div>
+
+        <!-- Session debug -->
+        <div id="session-debug" style="background:#f5f7fa;border-radius:8px;padding:8px;margin-bottom:8px;font-size:10px;color:var(--muted);font-family:var(--mono)"></div>
 
         <!-- Plate meter history -->
         <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
