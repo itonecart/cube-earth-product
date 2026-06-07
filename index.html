@@ -461,7 +461,6 @@ let myFields = [];
 let setupMap = null;
 let fieldMap = null;
 let currentField = null;
-let allFarms = [];
 window._lastZoneAnalysis = null;
 window._lastHistorical = null;
 
@@ -485,40 +484,27 @@ function loadSavedFarm() {
   fetch(API + '/load_farm?session_id=' + savedSession)
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      if (d.success && d.farms && d.farms.length > 0) {
-        // Load all fields from all farms
-        myFields = [];
-        allFarms = d.farms;
-        d.farms.forEach(function(fd) {
-          farmData = {
-            name: fd.farm.farm_name || 'My Farm',
-            county: fd.farm.county || '',
-            type: fd.farm.enterprise_type || '',
-            acres: fd.farm.acres_scheme || 'no'
+      if (d.success && d.fields && d.fields.length > 0) {
+        // Restore farm
+        farmData = {
+          name: d.farm.farm_name || 'My Farm',
+          county: d.farm.county || '',
+          type: d.farm.enterprise_type || '',
+          acres: d.farm.acres_scheme || 'no'
+        };
+        myFields = d.fields.map(function(f) {
+          return {
+            id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
+            lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
+            geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
+            status: f.status || 'amber', action: f.action || 'Monitor',
+            profileData: f.profile_data, supabase_id: f.id
           };
-          fd.fields.forEach(function(f) {
-            myFields.push({
-              id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
-              lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
-              geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
-              status: f.status || 'amber', action: f.action || 'Monitor',
-              profileData: f.profile_data, supabase_id: f.id
-            });
-          });
         });
-        if (myFields.length > 0) {
-          // Use most recent farm name
-          farmData = {
-            name: d.farms[0].farm.farm_name || 'My Farm',
-            county: d.farms[0].farm.county || '',
-            type: d.farms[0].farm.enterprise_type || '',
-            acres: d.farms[0].farm.acres_scheme || 'no'
-          };
-          renderFarmDashboard();
-          showPage('pg-farm');
-          document.getElementById('bnav').classList.add('show');
-          console.log('Farms restored:', d.farms.length, 'farms,', myFields.length, 'fields');
-        }
+        renderFarmDashboard();
+        showPage('pg-farm');
+        document.getElementById('bnav').classList.add('show');
+        console.log('Farm restored from database');
       }
     })
     .catch(function(e) { console.log('Load farm error:', e); });
@@ -537,49 +523,12 @@ function goSetup2(){
 function initSetupMap(){
   if(setupMap) return;
   setupMap=L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
-  // Google satellite — most current imagery for Ireland
-  var googleSat = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
-  var googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{maxZoom:20,attribution:'© Google'});
-  googleHybrid.addTo(setupMap);
-  // Layer toggle button
-  var showingStreet = false;
-  var layerBtn = L.control({position:'topright'});
-  layerBtn.onAdd = function(){
-    var div = L.DomUtil.create('div');
-    div.innerHTML = '<button onclick="toggleBaseLayer()" style="padding:6px 10px;background:#fff;border:1px solid #ccc;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif">🗺 Street</button>';
-    L.DomEvent.disableClickPropagation(div);
-    return div;
-  };
-  layerBtn.addTo(setupMap);
-  window.toggleBaseLayer = function(){
-    if(showingStreet){
-      setupMap.removeLayer(L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'));
-      googleHybrid.addTo(setupMap);
-      showingStreet=false;
-      document.querySelector('[onclick="toggleBaseLayer()"]').textContent='🗺 Street';
-    } else {
-      setupMap.eachLayer(function(l){ if(l instanceof L.TileLayer) setupMap.removeLayer(l); });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(setupMap);
-      showingStreet=true;
-      document.querySelector('[onclick="toggleBaseLayer()"]').textContent='🛰 Satellite';
-    }
-  };
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'© Esri'}).addTo(setupMap);
   var countyCoords={'Kerry':[52.1,-9.5],'Cork':[51.9,-8.5],'Tipperary':[52.5,-8.0],'Galway':[53.3,-9.0],'Mayo':[53.9,-9.2],'Clare':[52.8,-9.0],'Limerick':[52.5,-8.6],'Waterford':[52.2,-7.6],'Wexford':[52.3,-6.5],'Wicklow':[52.9,-6.4],'Kildare':[53.2,-6.8],'Dublin':[53.3,-6.3],'Meath':[53.6,-6.7],'Louth':[53.9,-6.5],'Monaghan':[54.2,-6.9],'Cavan':[54.0,-7.4],'Donegal':[54.8,-8.1],'Sligo':[54.0,-8.5],'Leitrim':[54.1,-8.0],'Roscommon':[53.6,-8.2],'Longford':[53.7,-7.8],'Westmeath':[53.5,-7.5],'Offaly':[53.2,-7.7],'Laois':[52.9,-7.3],'Kilkenny':[52.6,-7.2],'Carlow':[52.7,-6.9]};
   if(farmData.county&&countyCoords[farmData.county]){
     setupMap.setView(countyCoords[farmData.county],12);
     loadParcelsOnMap(countyCoords[farmData.county][0],countyCoords[farmData.county][1]);
   }
-  setupMap.on('zoomend',function(){
-    var zoom=setupMap.getZoom();
-    Object.values(parcelLayers).forEach(function(pl){
-      if(!pl.label) return;
-      if(zoom>=15){
-        if(!setupMap.hasLayer(pl.label)) pl.label.addTo(setupMap);
-      } else {
-        if(setupMap.hasLayer(pl.label)) setupMap.removeLayer(pl.label);
-      }
-    });
-  });
   setupMap.on('moveend',function(){
     var c=setupMap.getCenter();
     if(setupMap.getZoom()>=13) loadParcelsOnMap(c.lat,c.lng);
@@ -606,7 +555,7 @@ async function loadParcelsOnMap(lat,lng){
       var id=f.properties&&f.properties.PAR_LAB||Math.random().toString();
       if(parcelLayers[id]) return;
       var selected=selectedParcels.find(function(p){return p.id===id;});
-      var layer=L.geoJSON(f,{style:{color:selected?'#4a8fd4':cropColor,weight:selected?3:2,fillColor:selected?'#4a8fd4':'transparent',fillOpacity:selected?0.2:0}}).addTo(setupMap);
+      var layer=L.geoJSON(f,{style:{color:selected?'#4a8fd4':'rgba(255,255,255,0.6)',weight:selected?3:1.5,fillColor:selected?'#4a8fd4':'transparent',fillOpacity:selected?0.2:0}}).addTo(setupMap);
       layer.on('click',function(){toggleParcel(id,f,layer);});
 
       // Add label inside parcel
@@ -619,11 +568,10 @@ async function loadParcelsOnMap(lat,lng){
         var shortCrop=crop.replace('Permanent ','').replace('Temporary ','').replace(' - Spring','').replace(' - Winter','');
         var labelIcon=L.divIcon({
           className:'',
-          html:'<div style="background:rgba(0,0,0,0.75);color:#fff;padding:3px 7px;border-radius:4px;font-size:11px;font-weight:800;white-space:nowrap;font-family:sans-serif;text-align:center;letter-spacing:0.02em">'+shortCrop+'<br>'+area+'ha</div>',
+          html:'<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 5px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;font-family:sans-serif;text-align:center">'+shortCrop+'<br>'+area+'ha</div>',
           iconAnchor:[30,16]
         });
-        var label=L.marker([clat,clng],{icon:labelIcon,interactive:false});
-        if(setupMap.getZoom()>=15) label.addTo(setupMap);
+        var label=L.marker([clat,clng],{icon:labelIcon,interactive:false}).addTo(setupMap);
         parcelLayers[id]={layer:layer,feature:f,label:label};
       } else {
         parcelLayers[id]={layer:layer,feature:f};
@@ -660,38 +608,29 @@ async function searchOnMap(){
   var q=document.getElementById('map-search-input').value.trim();
   if(!q) return;
   try{
-    // Try coordinates first (lat,lng)
-    var coords=q.split(',');
-    if(coords.length===2&&!isNaN(coords[0].trim())&&!isNaN(coords[1].trim())){
-      var lat=parseFloat(coords[0].trim());
-      var lng=parseFloat(coords[1].trim());
-      setupMap.setView([lat,lng],16);
-      Object.values(parcelLayers).forEach(function(pl){
-        if(pl.layer) setupMap.removeLayer(pl.layer);
-        if(pl.label) setupMap.removeLayer(pl.label);
-      });
-      parcelLayers={};
-      setTimeout(function(){loadParcelsOnMap(lat,lng);},300);
-      document.getElementById('map-hint').textContent='📍 '+lat.toFixed(4)+', '+lng.toFixed(4)+' · Tap fields to select';
-      return;
-    }
-    // Search by name/eircode
-    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q+', Ireland')+'&format=json&limit=3&countrycodes=ie');
+    // Try Eircode format first (e.g. E45 EA09)
+    var eircodePattern=/^[A-Z0-9]{3}\s?[A-Z0-9]{4}$/i;
+    var searchQ = eircodePattern.test(q.trim()) ? q+', Ireland' : q+', Ireland';
+    
+    // Try with full Ireland context
+    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(searchQ)+'&format=json&limit=5&countrycodes=ie');
     var data=await r.json();
+    
     if(data.length){
-      var lat=parseFloat(data[0].lat);
-      var lon=parseFloat(data[0].lon);
-      setupMap.setView([lat,lon],16);
-      // Clear existing parcel layers so new ones get fresh click handlers
-      Object.values(parcelLayers).forEach(function(pl){
-        if(pl.layer) setupMap.removeLayer(pl.layer);
-        if(pl.label) setupMap.removeLayer(pl.label);
-      });
-      parcelLayers={};
-      setTimeout(function(){loadParcelsOnMap(lat,lon);},300);
-      document.getElementById('map-hint').textContent='📍 '+data[0].display_name.split(',').slice(0,2).join(',').trim()+' · Tap fields to select';
+      setupMap.setView([parseFloat(data[0].lat),parseFloat(data[0].lon)],15);
+      loadParcelsOnMap(parseFloat(data[0].lat),parseFloat(data[0].lon));
+      document.getElementById('map-hint').textContent='📍 '+data[0].display_name.split(',').slice(0,2).join(',');
     } else {
-      document.getElementById('map-hint').textContent='⚠ Location not found — try townland name or lat,lng coordinates';
+      // Fallback — try coordinates if entered as lat,lng
+      var coords=q.split(',');
+      if(coords.length===2&&!isNaN(coords[0])&&!isNaN(coords[1])){
+        var lat=parseFloat(coords[0]);
+        var lng=parseFloat(coords[1]);
+        setupMap.setView([lat,lng],15);
+        loadParcelsOnMap(lat,lng);
+      } else {
+        document.getElementById('map-hint').textContent='⚠ Location not found — try townland name or coordinates';
+      }
     }
   }catch(e){
     document.getElementById('map-hint').textContent='⚠ Search error — try again';
