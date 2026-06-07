@@ -731,6 +731,8 @@ function renderFarmDashboard(){
     }
 
     var gr = (gm && gm.growth_rate_kg_day) || f.growth_rate || 0;
+    // Estimate growth from NDVI if no grass model — approx 40-60 kg/day in summer
+    if(!gr && f.ndvi && f.ndvi > 0.5) gr = Math.round(30 + (f.ndvi - 0.5) * 100);
 
     if(cover >= 2500) cntSurplus++;
     else if(cover >= 1600) cntGrazing++;
