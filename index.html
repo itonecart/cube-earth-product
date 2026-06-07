@@ -722,6 +722,7 @@ function renderFarmDashboard(){
     var gm = f.profileData && f.profileData.grass_model;
     var cover = 0;
     if(gm && gm.kg_dm_ha && gm.kg_dm_ha > 100) cover = gm.kg_dm_ha;
+    else if(f.cover_kg && f.cover_kg > 100) cover = f.cover_kg;
     else if(f.cover && f.cover > 100) cover = f.cover;
     // Derive cover from NDVI if nothing else available
     else if(f.ndvi && f.ndvi > 0.15){
@@ -729,7 +730,7 @@ function renderFarmDashboard(){
       cover = Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
     }
 
-    var gr = (gm && gm.growth_rate_kg_day) || 0;
+    var gr = (gm && gm.growth_rate_kg_day) || f.growth_rate || 0;
 
     if(cover >= 2500) cntSurplus++;
     else if(cover >= 1600) cntGrazing++;
@@ -1847,6 +1848,12 @@ function renderGrassPage(gm, wx) {
     }
   } else if (gwEl) {
     gwEl.innerHTML = '<div style="font-size:12px;color:var(--muted)">Growth rate data needed for window calculation</div>';
+  }
+
+  // Store growth on currentField for dashboard
+  if (window.currentField) {
+    window.currentField.growth_rate = gr;
+    window.currentField.cover_kg = cover;
   }
 
   // Render all 6 insight cards
