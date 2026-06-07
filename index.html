@@ -233,10 +233,27 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     <div class="farm-hero">
       <div class="farm-name" id="hero-farm-name">My Farm</div>
       <div class="farm-meta" id="hero-farm-meta">Loading...</div>
+      <!-- Summary stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:800;font-family:var(--mono)" id="avg-cover-val">—</div>
+          <div style="font-size:9px;opacity:0.7;margin-top:2px">Avg Cover kg/ha</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:800;font-family:var(--mono)" id="avg-growth-val">—</div>
+          <div style="font-size:9px;opacity:0.7;margin-top:2px">Avg Growth kg/day</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:800;font-family:var(--mono)" id="total-fields-val">—</div>
+          <div style="font-size:9px;opacity:0.7;margin-top:2px">Total Fields</div>
+        </div>
+      </div>
+      <!-- Status pills -->
       <div class="farm-pills" id="hero-pills">
-        <div class="fpill fpill-g">🟢 <span id="cnt-g">0</span> Ready</div>
-        <div class="fpill fpill-a">🟡 <span id="cnt-a">0</span> Monitor</div>
+        <div class="fpill fpill-g">🟢 <span id="cnt-g">0</span> Grazing</div>
+        <div class="fpill fpill-a">🟡 <span id="cnt-a">0</span> Building</div>
         <div class="fpill fpill-r">🔴 <span id="cnt-r">0</span> Action</div>
+        <div class="fpill fpill-g" style="background:rgba(124,58,237,0.3);color:#e9d5ff">🟣 <span id="cnt-s">0</span> Surplus</div>
       </div>
     </div>
     <div class="section-hd">My Fields</div>
@@ -696,12 +713,42 @@ function renderFarmDashboard(){
   document.getElementById('hero-farm-name').textContent=name;
   var totalHa=myFields.reduce(function(s,f){return s+f.area;},0).toFixed(2);
   document.getElementById('hero-farm-meta').textContent=(farmData.county||'Ireland')+' · '+totalHa+' ha · '+myFields.length+' fields';
-  var g=myFields.filter(function(f){return f.status==='green';}).length;
-  var a=myFields.filter(function(f){return f.status==='amber';}).length;
-  var red=myFields.filter(function(f){return f.status==='red';}).length;
-  document.getElementById('cnt-g').textContent=g;
-  document.getElementById('cnt-a').textContent=a;
-  document.getElementById('cnt-r').textContent=red;
+  // Status counts using cover bands
+  var cntGrazing=0, cntBuilding=0, cntAction=0, cntSurplus=0;
+  var totalCover=0, coverCount=0, totalGrowth=0, growthCount=0;
+
+  myFields.forEach(function(f){
+    var cover = f.cover || 0;
+    if(cover >= 2500) cntSurplus++;
+    else if(cover >= 1600) cntGrazing++;
+    else if(cover >= 1200) cntBuilding++;
+    else cntAction++;
+
+    if(cover > 0){ totalCover += cover; coverCount++; }
+
+    // Get growth from profileData
+    var gr = f.profileData && f.profileData.grass_model && f.profileData.grass_model.growth_rate_kg_day;
+    if(gr){ totalGrowth += gr; growthCount++; }
+  });
+
+  var avgCover = coverCount ? Math.round(totalCover/coverCount) : null;
+  var avgGrowth = growthCount ? Math.round(totalGrowth/growthCount) : null;
+
+  document.getElementById('cnt-g').textContent=cntGrazing;
+  document.getElementById('cnt-a').textContent=cntBuilding;
+  document.getElementById('cnt-r').textContent=cntAction;
+  var cntS=document.getElementById('cnt-s');
+  if(cntS) cntS.textContent=cntSurplus;
+
+  var avgCoverEl=document.getElementById('avg-cover-val');
+  var avgGrowthEl=document.getElementById('avg-growth-val');
+  var totalFieldsEl=document.getElementById('total-fields-val');
+  if(avgCoverEl) avgCoverEl.textContent=avgCover?avgCover.toLocaleString():'—';
+  if(avgGrowthEl) avgGrowthEl.textContent=avgGrowth?avgGrowth:'—';
+  if(totalFieldsEl) totalFieldsEl.textContent=myFields.length;
+
+  // Backward compat
+  var g=cntGrazing, a=cntBuilding, red=cntAction;
   var sorted=[...myFields].sort(function(a,b){var o={red:0,amber:1,green:2};return o[a.status]-o[b.status];});
   var el=document.getElementById('field-list');
   el.innerHTML=sorted.map(function(f,i){
