@@ -557,7 +557,25 @@ async function loadParcelsOnMap(lat,lng){
       var selected=selectedParcels.find(function(p){return p.id===id;});
       var layer=L.geoJSON(f,{style:{color:selected?'#4a8fd4':'rgba(255,255,255,0.6)',weight:selected?3:1.5,fillColor:selected?'#4a8fd4':'transparent',fillOpacity:selected?0.2:0}}).addTo(setupMap);
       layer.on('click',function(){toggleParcel(id,f,layer);});
-      parcelLayers[id]={layer:layer,feature:f};
+
+      // Add label inside parcel
+      var coords=f.geometry&&f.geometry.coordinates&&f.geometry.coordinates[0]||[];
+      if(coords.length>0){
+        var clat=coords.reduce(function(s,c){return s+c[1];},0)/coords.length;
+        var clng=coords.reduce(function(s,c){return s+c[0];},0)/coords.length;
+        var crop=f.properties&&f.properties.CROP||'';
+        var area=parseFloat(f.properties&&f.properties.CLAIM_AREA||0);
+        var shortCrop=crop.replace('Permanent ','').replace('Temporary ','').replace(' - Spring','').replace(' - Winter','');
+        var labelIcon=L.divIcon({
+          className:'',
+          html:'<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 5px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;font-family:sans-serif;text-align:center">'+shortCrop+'<br>'+area+'ha</div>',
+          iconAnchor:[30,16]
+        });
+        var label=L.marker([clat,clng],{icon:labelIcon,interactive:false}).addTo(setupMap);
+        parcelLayers[id]={layer:layer,feature:f,label:label};
+      } else {
+        parcelLayers[id]={layer:layer,feature:f};
+      }
     });
   }catch(e){}
   loadingParcels=false;
