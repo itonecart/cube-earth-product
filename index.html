@@ -2200,8 +2200,9 @@ function renderPlateMeterHistory(){
 }
 
 function loadPlateMeterHistory(){
-  if(!currentField || !currentField.supabase_id) return;
-  fetch(API + '/plate_meter_history?field_id=' + currentField.supabase_id + '&session_id=' + SESSION_ID)
+  if(!currentField) return;
+  var fieldId = currentField.supabase_id || '';
+  fetch(API + '/plate_meter_history?field_id=' + fieldId + '&session_id=' + SESSION_ID)
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.success && d.readings){
