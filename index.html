@@ -2212,7 +2212,10 @@ function loadPlateMeterHistory(){
     .then(function(r){ return r.json(); })
     .then(function(d){
       console.log('History response:', JSON.stringify(d));
-      if(d.success && d.readings){
+      // Show raw response for debugging
+      var el2 = document.getElementById('plate-meter-history');
+      if(el2) el2.innerHTML = '<div style="font-size:10px;font-family:monospace;color:#666">'+JSON.stringify(d).substring(0,200)+'</div>';
+      if(d.success && d.readings && d.readings.length > 0){
         console.log('Readings found:', d.readings.length);
         window._plateMeterHistory = d.readings.map(function(r){
           var factor = r.satellite_estimate ? (r.reading_kg_dm_ha / r.satellite_estimate).toFixed(3) : null;
