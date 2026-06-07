@@ -529,6 +529,17 @@ function initSetupMap(){
     setupMap.setView(countyCoords[farmData.county],12);
     loadParcelsOnMap(countyCoords[farmData.county][0],countyCoords[farmData.county][1]);
   }
+  setupMap.on('zoomend',function(){
+    var zoom=setupMap.getZoom();
+    Object.values(parcelLayers).forEach(function(pl){
+      if(!pl.label) return;
+      if(zoom>=15){
+        if(!setupMap.hasLayer(pl.label)) pl.label.addTo(setupMap);
+      } else {
+        if(setupMap.hasLayer(pl.label)) setupMap.removeLayer(pl.label);
+      }
+    });
+  });
   setupMap.on('moveend',function(){
     var c=setupMap.getCenter();
     if(setupMap.getZoom()>=13) loadParcelsOnMap(c.lat,c.lng);
@@ -571,7 +582,8 @@ async function loadParcelsOnMap(lat,lng){
           html:'<div style="background:rgba(0,0,0,0.6);color:#fff;padding:2px 5px;border-radius:4px;font-size:10px;font-weight:600;white-space:nowrap;font-family:sans-serif;text-align:center">'+shortCrop+'<br>'+area+'ha</div>',
           iconAnchor:[30,16]
         });
-        var label=L.marker([clat,clng],{icon:labelIcon,interactive:false}).addTo(setupMap);
+        var label=L.marker([clat,clng],{icon:labelIcon,interactive:false});
+        if(setupMap.getZoom()>=15) label.addTo(setupMap);
         parcelLayers[id]={layer:layer,feature:f,label:label};
       } else {
         parcelLayers[id]={layer:layer,feature:f};
