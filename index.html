@@ -460,6 +460,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   <button class="ni active" onclick="navTo('pg-farm',this)" id="ni-farm"><span class="ni-icon">🏠</span><span class="ni-label">Farm</span></button>
   <button class="ni" onclick="navTo('pg-plans',this)" id="ni-plans"><span class="ni-icon">💳</span><span class="ni-label">Plans</span></button>
   <button class="ni" onclick="openGrassPage(currentField)" id="ni-grass"><span class="ni-icon">🌾</span><span class="ni-label">Grass</span></button>
+  <button class="ni" onclick="openWedge()" id="ni-wedge"><span class="ni-icon">📊</span><span class="ni-label">Wedge</span></button>
   <button class="ni" onclick="newSearch()" id="ni-search"><span class="ni-icon">🔍</span><span class="ni-label">New Search</span></button>
 </div>
 
@@ -2061,6 +2062,67 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   if (nSub2) nSub2.textContent = nSub;
 }
 
+function openWedge() {
+  renderWedge();
+  showPage('pg-wedge');
+}
+
+function renderWedge() {
+  var fields = myFields.filter(function(f) {
+    var gm = f.profileData && f.profileData.grass_model;
+    var cover = (gm && gm.kg_dm_ha) || (f.cover_kg) || 0;
+    if(!cover && f.ndvi && f.ndvi > 0.15){
+      var h = Math.max(0,(f.ndvi-0.15)*18);
+      cover = Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+    }
+    f._wedgeCover = cover;
+    return cover > 0;
+  });
+
+  // Sort highest to lowest
+  fields.sort(function(a,b){ return b._wedgeCover - a._wedgeCover; });
+
+  var covers = fields.map(function(f){ return f._wedgeCover; });
+  var avg = covers.length ? Math.round(covers.reduce(function(a,b){return a+b;},0)/covers.length) : 0;
+  var high = covers.length ? Math.max.apply(null,covers) : 0;
+  var low = covers.length ? Math.min.apply(null,covers) : 0;
+  var maxCover = Math.max(high, 2000); // scale
+
+  document.getElementById('wedge-avg').textContent = avg.toLocaleString();
+  document.getElementById('wedge-high').textContent = high.toLocaleString();
+  document.getElementById('wedge-low').textContent = low.toLocaleString();
+
+  var targetPct = Math.min(100, Math.round(1600 / maxCover * 100));
+
+  var html = '';
+  fields.forEach(function(f, i) {
+    var cover = f._wedgeCover;
+    var pct = Math.min(100, Math.round(cover / maxCover * 100));
+    var color = cover >= 3200 ? '#2563eb' : cover >= 2500 ? '#7c3aed' : cover >= 1600 ? '#16a34a' : cover >= 1200 ? '#eab308' : '#dc2626';
+    var bandLabel = cover >= 3200 ? 'Silage' : cover >= 2500 ? 'Surplus' : cover >= 1600 ? 'Grazing' : cover >= 1200 ? 'Building' : 'Low';
+    var cropShort = (f.crop||'Field').replace('Permanent ','').replace('Temporary ','');
+
+    html += '<div style="cursor:pointer" onclick="openField('+myFields.indexOf(f)+')">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
+      + '<div style="font-size:12px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Field '+(myFields.indexOf(f)+1)+' · '+cropShort+'</div>'
+      + '<div style="font-size:12px;font-weight:800;font-family:var(--mono);color:'+color+'">'+cover.toLocaleString()+'</div>'
+      + '<div style="font-size:10px;color:var(--muted);width:50px;text-align:right">'+bandLabel+'</div>'
+      + '</div>'
+      + '<div style="position:relative;height:20px;background:#f0f4f8;border-radius:6px;overflow:hidden">'
+      + '<div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:6px;transition:width 0.6s ease"></div>'
+      // Target line at 1600
+      + '<div style="position:absolute;top:0;bottom:0;left:'+targetPct+'%;width:2px;background:#16a34a;opacity:0.7"></div>'
+      + '</div>'
+      + '</div>';
+  });
+
+  if(fields.length === 0){
+    html = '<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:32px;margin-bottom:8px">🌾</div><div>Open fields to load cover data</div></div>';
+  }
+
+  document.getElementById('wedge-bars').innerHTML = html;
+}
+
 function savePlateMeter() {
   var val = document.getElementById('plate-meter-input').value;
   if (!val) return;
@@ -2159,6 +2221,55 @@ function loadPlateMeterHistory(){
 }
 
 </script>
+<!-- GRASS WEDGE PAGE -->
+<div class="page" id="pg-wedge">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-farm')">←</button>
+    <div class="tb-title">🌾 Grass Wedge</div>
+  </div>
+  <div class="scroll">
+    <div style="padding:14px">
+
+      <!-- Summary -->
+      <div style="background:linear-gradient(135deg,#0a1525,#1a4a8c);border-radius:16px;padding:16px;color:#fff;margin-bottom:14px">
+        <div style="font-size:11px;opacity:0.6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Farm Cover Summary</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div style="text-align:center">
+            <div style="font-size:22px;font-weight:800;font-family:var(--mono)" id="wedge-avg">—</div>
+            <div style="font-size:9px;opacity:0.7">Avg kg/ha</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:22px;font-weight:800;font-family:var(--mono)" id="wedge-high">—</div>
+            <div style="font-size:9px;opacity:0.7">Highest</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:22px;font-weight:800;font-family:var(--mono)" id="wedge-low">—</div>
+            <div style="font-size:9px;opacity:0.7">Lowest</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Target line note -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;color:var(--muted)">
+        <div style="width:20px;height:2px;background:#16a34a;border-top:2px dashed #16a34a"></div>
+        <span>Grazing target: 1,600 kg DM/ha</span>
+      </div>
+
+      <!-- Wedge bars -->
+      <div id="wedge-bars" style="display:flex;flex-direction:column;gap:8px"></div>
+
+      <!-- Legend -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;padding:12px;background:#f5f7fa;border-radius:10px">
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;background:#dc2626"></div>Low</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;background:#eab308"></div>Building</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a"></div>Grazing</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;background:#7c3aed"></div>Surplus</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:11px"><div style="width:10px;height:10px;border-radius:2px;background:#2563eb"></div>Silage</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- INSPECTION PAGE -->
 <div class="page" id="pg-inspection">
   <div class="topbar">
