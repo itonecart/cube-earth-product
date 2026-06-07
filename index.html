@@ -2206,7 +2206,7 @@ function loadPlateMeterHistory(){
   if(!currentField) return;
   var sid = localStorage.getItem('cube_session_id') || SESSION_ID;
   var url = API + '/plate_meter_history?session_id=' + sid;
-  if(currentField.supabase_id) url += '&field_id=' + currentField.supabase_id;
+  // Don't filter by field_id — load all readings for this session
   console.log('Loading history from:', url);
   var dbg2 = document.getElementById('session-debug');
   if(dbg2) dbg2.textContent = 'URL: ' + url;
