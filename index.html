@@ -2206,10 +2206,13 @@ function loadPlateMeterHistory(){
   var sid = localStorage.getItem('cube_session_id') || SESSION_ID;
   var url = API + '/plate_meter_history?session_id=' + sid;
   if(currentField.supabase_id) url += '&field_id=' + currentField.supabase_id;
+  console.log('Loading history from:', url);
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(d){
+      console.log('History response:', JSON.stringify(d));
       if(d.success && d.readings){
+        console.log('Readings found:', d.readings.length);
         window._plateMeterHistory = d.readings.map(function(r){
           var factor = r.satellite_estimate ? (r.reading_kg_dm_ha / r.satellite_estimate).toFixed(3) : null;
           return {
