@@ -1600,6 +1600,10 @@ function openGrassPage(field) {
   document.getElementById('grass-content').style.display = 'none';
   showPage('pg-grass');
 
+  // Load plate meter history
+  window._plateMeterHistory = [];
+  setTimeout(loadPlateMeterHistory, 800);
+
   // Use cached data if available
   var d = f.profileData;
   if (d && d.grass_model && d.grass_model.available) {
@@ -1969,7 +1973,12 @@ function savePlateMeter() {
   var val = document.getElementById('plate-meter-input').value;
   if (!val) return;
   var fieldId = currentField && currentField.supabase_id;
-  var satelliteEst = window._lastGrassCover || null;
+  var coverEl = document.getElementById('grass-cover-val');
+  var satelliteEst = coverEl ? parseInt(coverEl.textContent.replace(/,/g,'')) : null;
+  var reading = parseInt(val);
+
+  // Calculate calibration factor
+  var factor = satelliteEst ? (reading / satelliteEst).toFixed(3) : null;
 
   // Save to Supabase
   fetch(API + '/save_plate_meter', {
@@ -1978,16 +1987,83 @@ function savePlateMeter() {
     body: JSON.stringify({
       session_id: SESSION_ID,
       field_id: fieldId,
-      reading: parseInt(val),
+      reading: reading,
       satellite_estimate: satelliteEst
     })
-  }).catch(function(e) { console.log('Plate meter save error:', e); });
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(d.success){
+      // Add to local history
+      if(!window._plateMeterHistory) window._plateMeterHistory = [];
+      window._plateMeterHistory.unshift({
+        date: new Date().toLocaleDateString('en-IE'),
+        reading: reading,
+        satellite: satelliteEst,
+        factor: factor
+      });
+      renderPlateMeterHistory();
+    }
+  })
+  .catch(function(e){ console.log('Plate meter save error:', e); });
 
   var toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999';
-  toast.textContent = '✓ Plate meter reading saved — ' + parseInt(val).toLocaleString() + ' kg DM/ha';
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;text-align:center';
+  toast.innerHTML = '✓ Reading saved: ' + reading.toLocaleString() + ' kg DM/ha'
+    + (factor ? '<br><span style="font-size:11px;opacity:0.9">Calibration factor: ×' + factor + '</span>' : '');
   document.body.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 3000);
+
+  document.getElementById('plate-meter-input').value = '';
+}
+
+function renderPlateMeterHistory(){
+  var el = document.getElementById('plate-meter-history');
+  if(!el) return;
+  var history = window._plateMeterHistory || [];
+  if(history.length === 0){
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No readings yet</div>';
+    return;
+  }
+  // Calculate average correction factor
+  var factors = history.filter(function(h){ return h.factor; }).map(function(h){ return parseFloat(h.factor); });
+  var avgFactor = factors.length ? (factors.reduce(function(a,b){return a+b;},0)/factors.length).toFixed(3) : null;
+
+  el.innerHTML = '<div style="margin-bottom:8px">'
+    + (avgFactor ? '<div style="font-size:11px;font-weight:700;color:#1a4a8c;background:#eff6ff;border-radius:6px;padding:6px 10px;margin-bottom:8px">📏 Farm correction factor: ×' + avgFactor + ' (based on ' + factors.length + ' reading' + (factors.length>1?'s':'') + ')</div>' : '')
+    + history.map(function(h){
+      var diff = h.satellite ? Math.round(h.reading - h.satellite) : null;
+      var diffStr = diff !== null ? (diff >= 0 ? '+' : '') + diff.toLocaleString() + ' kg' : '—';
+      var diffColor = diff === null ? 'var(--muted)' : diff > 200 ? '#dc2626' : diff < -200 ? '#dc2626' : '#16a34a';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">'
+        + '<div><div style="font-weight:700">' + h.reading.toLocaleString() + ' kg DM/ha</div>'
+        + '<div style="color:var(--muted);font-size:10px">' + h.date + ' · Satellite: ' + (h.satellite ? h.satellite.toLocaleString() : '—') + '</div></div>'
+        + '<div style="text-align:right"><div style="font-weight:700;color:' + diffColor + '">' + diffStr + '</div>'
+        + '<div style="font-size:10px;color:var(--muted)">vs satellite</div></div>'
+        + '</div>';
+    }).join('')
+    + '</div>';
+}
+
+function loadPlateMeterHistory(){
+  if(!currentField || !currentField.supabase_id) return;
+  fetch(API + '/plate_meter_history?field_id=' + currentField.supabase_id + '&session_id=' + SESSION_ID)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d.success && d.readings){
+        window._plateMeterHistory = d.readings.map(function(r){
+          var factor = r.satellite_estimate ? (r.reading_kg_dm_ha / r.satellite_estimate).toFixed(3) : null;
+          return {
+            date: new Date(r.date).toLocaleDateString('en-IE'),
+            reading: r.reading_kg_dm_ha,
+            satellite: r.satellite_estimate,
+            factor: factor
+          };
+        });
+        renderPlateMeterHistory();
+      }
+    })
+    .catch(function(e){ console.log('History load error:', e); });
 }
 
 </script>
@@ -2468,6 +2544,14 @@ function savePlateMeter() {
             <input type="number" id="plate-meter-input" placeholder="e.g. 1650" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--sans);outline:none;text-align:center">
             <div style="font-size:11px;color:var(--muted);align-self:center;white-space:nowrap">kg DM/ha</div>
             <button onclick="savePlateMeter()" style="padding:10px 14px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Save</button>
+          </div>
+        </div>
+
+        <!-- Plate meter history -->
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">📋 Reading History</div>
+          <div style="padding:12px 16px" id="plate-meter-history">
+            <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No readings yet</div>
           </div>
         </div>
 
