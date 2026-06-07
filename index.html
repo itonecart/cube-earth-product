@@ -1886,6 +1886,12 @@ function renderGrassPage(gm, wx) {
   if (window.currentField) {
     window.currentField.growth_rate = gr;
     window.currentField.cover_kg = cover;
+    // Update myFields array too so dashboard reflects it
+    var fi = myFields.indexOf(window.currentField);
+    if(fi >= 0){
+      myFields[fi].growth_rate = gr;
+      myFields[fi].cover_kg = cover;
+    }
   }
 
   // Render all 6 insight cards
