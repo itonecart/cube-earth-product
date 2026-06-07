@@ -2203,9 +2203,10 @@ function renderPlateMeterHistory(){
 
 function loadPlateMeterHistory(){
   if(!currentField) return;
-  var fieldId = currentField.supabase_id || '';
   var sid = localStorage.getItem('cube_session_id') || SESSION_ID;
-  fetch(API + '/plate_meter_history?field_id=' + fieldId + '&session_id=' + sid)
+  var url = API + '/plate_meter_history?session_id=' + sid;
+  if(currentField.supabase_id) url += '&field_id=' + currentField.supabase_id;
+  fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(d){
       if(d.success && d.readings){
