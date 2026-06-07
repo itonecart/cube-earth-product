@@ -1380,6 +1380,31 @@ function saveInspectionAndPlan(){
   currentInspectionZone.notes=notes;
   currentInspectionZone.photos=inspectionPhotos;
   inspectionHistory.push(JSON.parse(JSON.stringify(currentInspectionZone)));
+
+  // Save to Supabase
+  fetch(API + '/save_inspection', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      session_id: SESSION_ID,
+      field_id: currentField && currentField.supabase_id,
+      zone: currentInspectionZone.zone,
+      ndvi: currentInspectionZone.ndvi,
+      field_mean: currentInspectionZone.fieldMean,
+      issues: selectedIssues,
+      severity: selectedSeverity,
+      notes: document.getElementById('insp-notes').value,
+      date: currentInspectionZone.date,
+      lat: currentInspectionZone.lat,
+      lng: currentInspectionZone.lng
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) currentInspectionZone.supabase_id = d.id;
+  })
+  .catch(function(e) { console.log('Inspection save error:', e); });
+
   renderActionPlan();
   showPage('pg-action');
 }
@@ -1424,6 +1449,22 @@ function renderActionPlan(){
 }
 
 function startVerification(){
+  // Save verification to Supabase
+  fetch(API + '/save_verification', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      session_id: SESSION_ID,
+      inspection_id: currentInspectionZone && currentInspectionZone.supabase_id,
+      field_id: currentField && currentField.supabase_id,
+      issue: currentInspectionZone && currentInspectionZone.issue,
+      target_ndvi: currentInspectionZone && currentInspectionZone.fieldMean ? 
+        Math.min(0.85, (currentInspectionZone.fieldMean + 0.05)) : 0.70,
+      verify_by_date: document.getElementById('rec-date') && 
+        document.getElementById('rec-date').textContent
+    })
+  }).catch(function(e) { console.log('Verification save error:', e); });
+
   var toast=document.createElement('div');
   toast.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a4a8c;color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;text-align:center;';
   toast.innerHTML='✓ Verification check set<br><span style="font-size:11px;opacity:0.8">Satellite will track this zone weekly</span>';
