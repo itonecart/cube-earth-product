@@ -2158,10 +2158,10 @@ function renderBioPage() {
     'C-band SAR RVI ' + (rvi ? rvi.toFixed(3) : '—') + ' · Higher values indicate structural diversity'
   );
   html += evidenceRow(
-    'Woody / Dense Cover',
+    'Dense Biomass Signal',
     treecover,
     treecover ? 'Detected' : 'Not detected',
-    'High RVI + NDVI combination suggests woody or dense perennial vegetation'
+    'High SAR RVI + NDVI combination indicates dense or structurally complex vegetation'
   );
   html += evidenceRow(
     'Permanent Habitat',
@@ -2188,10 +2188,16 @@ function renderBioPage() {
   // ACRES relevance
   var acresEl = document.getElementById('bio-acres');
   if(acresEl){
+    var cropLower = (f.crop||'').toLowerCase();
+    var isRotational = cropLower.includes('clover')||cropLower.includes('tillage')||
+                       cropLower.includes('barley')||cropLower.includes('wheat')||
+                       cropLower.includes('oat')||cropLower.includes('arable');
     var acresItems = [];
-    if(permHabitat) acresItems.push('✅ Permanent habitat evidence available');
+    if(permHabitat && !isRotational) acresItems.push('✅ Permanent habitat evidence available');
+    if(permHabitat && isRotational) acresItems.push('✅ Ecological value observed');
     if(f.eco) acresItems.push('✅ Eco scheme eligible field');
-    if(rvi > 0.5) acresItems.push('✅ Vegetation complexity detected');
+    if(rvi > 0.5) acresItems.push('✅ Biodiversity indicators detected');
+    if(isRotational) acresItems.push('ℹ Rotational crop — habitat permanence requires ground verification');
     if(acresItems.length === 0) acresItems.push('⚠ Limited satellite evidence — ground survey recommended');
     acresEl.innerHTML = acresItems.map(function(a){
       return '<div style="font-size:12px;padding:6px 0;border-bottom:1px solid var(--border)">' + a + '</div>';
