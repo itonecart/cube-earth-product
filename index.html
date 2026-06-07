@@ -1691,7 +1691,7 @@ function openGrassPage(field) {
   window._plateMeterHistory = [];
   var dbg = document.getElementById('session-debug');
   if(dbg) dbg.textContent = 'Session: ' + (localStorage.getItem('cube_session_id')||'none');
-  setTimeout(loadPlateMeterHistory, 800);
+  setTimeout(loadPlateMeterHistory, 1500);
 
   // Use cached data if available
   var d = f.profileData;
