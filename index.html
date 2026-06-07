@@ -1726,7 +1726,7 @@ function renderGrassPage(gm, wx) {
     ['SAR structural density', true],
     ['UKMO weather data', wx && wx.available],
     ['Field trend: ' + trendStr, trendOk],
-    ['Farm calibration', false]
+    ['Farm calibration', !!(window._plateMeterHistory && window._plateMeterHistory.length > 0)]
   ];
   var confScore = confItems.filter(function(c){return c[1];}).length;
   var confLabel = confScore >= 4 ? 'Moderate' : confScore >= 3 ? 'Low-Moderate' : 'Low';
