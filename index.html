@@ -606,7 +606,7 @@ async function loadParcelsOnMap(lat,lng){
       var id=f.properties&&f.properties.PAR_LAB||Math.random().toString();
       if(parcelLayers[id]) return;
       var selected=selectedParcels.find(function(p){return p.id===id;});
-      var layer=L.geoJSON(f,{style:{color:selected?'#4a8fd4':'rgba(255,255,255,0.6)',weight:selected?3:1.5,fillColor:selected?'#4a8fd4':'transparent',fillOpacity:selected?0.2:0}}).addTo(setupMap);
+      var layer=L.geoJSON(f,{style:{color:selected?'#4a8fd4':cropColor,weight:selected?3:2,fillColor:selected?'#4a8fd4':'transparent',fillOpacity:selected?0.2:0}}).addTo(setupMap);
       layer.on('click',function(){toggleParcel(id,f,layer);});
 
       // Add label inside parcel
