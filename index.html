@@ -718,10 +718,18 @@ function renderFarmDashboard(){
   var totalCover=0, coverCount=0, totalGrowth=0, growthCount=0;
 
   myFields.forEach(function(f){
-    // Get cover from grass_model if available, else from f.cover
+    // Get cover — grass_model first, then f.cover if > 100 (not NDVI)
     var gm = f.profileData && f.profileData.grass_model;
-    var cover = (gm && gm.kg_dm_ha) || (f.cover && f.cover > 100 ? f.cover : 0);
-    var gr = gm && gm.growth_rate_kg_day;
+    var cover = 0;
+    if(gm && gm.kg_dm_ha && gm.kg_dm_ha > 100) cover = gm.kg_dm_ha;
+    else if(f.cover && f.cover > 100) cover = f.cover;
+    // Derive cover from NDVI if nothing else available
+    else if(f.ndvi && f.ndvi > 0.15){
+      var h = Math.max(0,(f.ndvi-0.15)*18);
+      cover = Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
+    }
+
+    var gr = (gm && gm.growth_rate_kg_day) || 0;
 
     if(cover >= 2500) cntSurplus++;
     else if(cover >= 1600) cntGrazing++;
@@ -729,7 +737,7 @@ function renderFarmDashboard(){
     else if(cover > 0) cntAction++;
 
     if(cover > 0){ totalCover += cover; coverCount++; }
-    if(gr){ totalGrowth += gr; growthCount++; }
+    if(gr > 0){ totalGrowth += gr; growthCount++; }
   });
 
   var avgCover = coverCount ? Math.round(totalCover/coverCount) : null;
