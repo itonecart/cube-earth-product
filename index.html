@@ -793,11 +793,24 @@ function renderFarmDashboard(){
   var el=document.getElementById('field-list');
   el.innerHTML=sorted.map(function(f,i){
     var fi=myFields.indexOf(f);
-    var coverHtml=f.cover?'<div class="fr-cover">'+f.cover.toLocaleString()+' kg DM/ha</div>':'';
+    // Derive cover and action from grass model or NDVI
+    var gm2 = f.profileData && f.profileData.grass_model;
+    var displayCover = (gm2 && gm2.kg_dm_ha) || f.cover_kg || (f.cover && f.cover > 100 ? f.cover : 0);
+    if(!displayCover && f.ndvi && f.ndvi > 0.15){
+      var h2 = Math.max(0,(f.ndvi-0.15)*18);
+      displayCover = Math.round(Math.min(3500,Math.max(0,(h2-4)*250)));
+    }
+    var displayAction, displayColor, dotClass;
+    if(displayCover >= 2500){ displayAction='Surplus'; displayColor='a'; dotClass='fd-a'; }
+    else if(displayCover >= 1600){ displayAction='Graze Now'; displayColor='g'; dotClass='fd-g'; }
+    else if(displayCover >= 1200){ displayAction='Monitor'; displayColor='a'; dotClass='fd-a'; }
+    else if(displayCover > 0){ displayAction='Check Field'; displayColor='r'; dotClass='fd-r'; }
+    else { displayAction=f.action||'Monitor'; displayColor='a'; dotClass='fd-a'; }
+    var coverHtml=displayCover?'<div class="fr-cover">'+displayCover.toLocaleString()+' kg DM/ha</div>':'';
     return '<div class="field-row" onclick="openField('+fi+')">'
-      +'<div class="fd fd-'+f.status[0]+'"></div>'
+      +'<div class="fd '+dotClass+'"></div>'
       +'<div class="fr-info"><div class="fr-name">Field '+(fi+1)+' \u00b7 '+f.crop+'</div><div class="fr-meta">'+f.area+' ha \u00b7 '+(f.olr||'Owned')+'</div></div>'
-      +'<div class="fr-right"><div class="fr-action '+f.status[0]+'">'+f.action+'</div>'+coverHtml+'</div>'
+      +'<div class="fr-right"><div class="fr-action '+displayColor+'">'+displayAction+'</div>'+coverHtml+'</div>'
       +'<div style="color:var(--muted);font-size:18px;margin-left:6px">›</div>'
       +'</div>';
   }).join('');
