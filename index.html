@@ -204,7 +204,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   </div>
   <div class="setup-progress"><div class="step-dot done"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
   <div class="map-search-bar">
-    <input class="map-search-input" id="map-search-input" placeholder="🔍 Search townland or village...">
+    <input class="map-search-input" id="map-search-input" placeholder="🔍 Eircode, townland, or lat,lng...">
     <button class="map-search-btn" onclick="searchOnMap()">Go</button>
   </div>
   <div class="map-hint-bar" id="map-hint">Tap fields to select them · <span id="selected-count-hint">0 selected</span></div>
@@ -590,11 +590,33 @@ async function searchOnMap(){
   var q=document.getElementById('map-search-input').value.trim();
   if(!q) return;
   try{
-    var county=farmData.county||'Ireland';
-    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q+', '+county+', Ireland')+'&format=json&limit=1');
+    // Try Eircode format first (e.g. E45 EA09)
+    var eircodePattern=/^[A-Z0-9]{3}\s?[A-Z0-9]{4}$/i;
+    var searchQ = eircodePattern.test(q.trim()) ? q+', Ireland' : q+', Ireland';
+    
+    // Try with full Ireland context
+    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(searchQ)+'&format=json&limit=5&countrycodes=ie');
     var data=await r.json();
-    if(data.length){setupMap.setView([data[0].lat,data[0].lon],14);loadParcelsOnMap(data[0].lat,data[0].lon);}
-  }catch(e){}
+    
+    if(data.length){
+      setupMap.setView([parseFloat(data[0].lat),parseFloat(data[0].lon)],15);
+      loadParcelsOnMap(parseFloat(data[0].lat),parseFloat(data[0].lon));
+      document.getElementById('map-hint').textContent='📍 '+data[0].display_name.split(',').slice(0,2).join(',');
+    } else {
+      // Fallback — try coordinates if entered as lat,lng
+      var coords=q.split(',');
+      if(coords.length===2&&!isNaN(coords[0])&&!isNaN(coords[1])){
+        var lat=parseFloat(coords[0]);
+        var lng=parseFloat(coords[1]);
+        setupMap.setView([lat,lng],15);
+        loadParcelsOnMap(lat,lng);
+      } else {
+        document.getElementById('map-hint').textContent='⚠ Location not found — try townland name or coordinates';
+      }
+    }
+  }catch(e){
+    document.getElementById('map-hint').textContent='⚠ Search error — try again';
+  }
 }
 
 async function saveFarm(){
