@@ -2115,13 +2115,14 @@ function renderBioPage() {
   var permConf = hist && hist.cv_percent < 8 ? 'High stability' : hist && hist.cv_percent < 15 ? 'Moderate stability' : 'Variable';
 
   // Soil moisture diversity — wet areas support more species
-  var riparian = smap > 0.28;
-  var riparianConf = smap > 0.35 ? 'High moisture detected' : smap > 0.28 ? 'Moderate moisture' : 'Dry conditions';
+  var riparian = smap > 0.22;
+  var riparianConf = smap > 0.35 ? 'High moisture detected' : smap > 0.28 ? 'Good moisture' : smap > 0.22 ? 'Adequate moisture' : 'Dry conditions';
 
   // Sward diversity — variation in NDVI = mixed species
   var za = d && d.vegetation && d.vegetation.zone_analysis;
-  var swardDiv = za && za.cv_pct > 10;
-  var swardConf = za ? 'CV ' + (za.cv_pct || '—') + '%' : 'No zone data';
+  var cvPct = (za && za.cv_pct) || (hist && hist.cv_percent) || 0;
+  var swardDiv = cvPct > 10;
+  var swardConf = cvPct ? 'CV ' + cvPct + '%' : 'No zone data';
 
   // Render
   var bioEl = document.getElementById('bio-field-name');
