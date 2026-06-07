@@ -2107,7 +2107,7 @@ function renderBioPage() {
   var hedgerowConf = rvi > 0.7 ? 'Strong signal' : rvi > 0.5 ? 'Moderate signal' : 'Weak signal';
 
   // Tree/woody cover — high RVI + high NDVI
-  var treecover = rvi > 0.75 && ndvi > 0.7;
+  var treecover = rvi > 0.75 && ndvi > 0.55;
   var treecoverConf = rvi > 0.8 ? 'Strong signal' : 'Moderate signal';
 
   // Permanent habitat — multi-year stable NDVI
@@ -2131,7 +2131,7 @@ function renderBioPage() {
   var ndviEl = document.getElementById('bio-ndvi');
   if(ndviEl) ndviEl.textContent = ndvi.toFixed(3);
   var rviEl = document.getElementById('bio-rvi');
-  if(rviEl) rviEl.textContent = rvi ? rvi.toFixed(3) : '—';
+  if(rviEl) rviEl.textContent = rvi ? Math.min(1.0, rvi).toFixed(3) : '—';
   var smapEl = document.getElementById('bio-smap');
   if(smapEl) smapEl.textContent = smap ? smap.toFixed(3) + ' m³/m³' : '—';
 
