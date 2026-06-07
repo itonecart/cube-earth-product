@@ -523,7 +523,34 @@ function goSetup2(){
 function initSetupMap(){
   if(setupMap) return;
   setupMap=L.map('setup-map',{zoomControl:true}).setView([53.0,-8.0],8);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'© Esri'}).addTo(setupMap);
+  // OSM as default — more current than ESRI for Ireland
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(setupMap);
+  // Add ESRI satellite as optional layer
+  var esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'© Esri'});
+  var osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
+  // Layer toggle button
+  var showingSat = false;
+  var layerBtn = L.control({position:'topright'});
+  layerBtn.onAdd = function(){
+    var div = L.DomUtil.create('div');
+    div.innerHTML = '<button onclick="toggleBaseLayer()" style="padding:6px 10px;background:#fff;border:1px solid #ccc;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">🛰 Satellite</button>';
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+  };
+  layerBtn.addTo(setupMap);
+  window.toggleBaseLayer = function(){
+    if(showingSat){
+      setupMap.removeLayer(esriSat);
+      osmLayer.addTo(setupMap);
+      showingSat=false;
+      document.querySelector('[onclick="toggleBaseLayer()"]').textContent='🛰 Satellite';
+    } else {
+      setupMap.removeLayer(osmLayer);
+      esriSat.addTo(setupMap);
+      showingSat=true;
+      document.querySelector('[onclick="toggleBaseLayer()"]').textContent='🗺 Street Map';
+    }
+  };
   var countyCoords={'Kerry':[52.1,-9.5],'Cork':[51.9,-8.5],'Tipperary':[52.5,-8.0],'Galway':[53.3,-9.0],'Mayo':[53.9,-9.2],'Clare':[52.8,-9.0],'Limerick':[52.5,-8.6],'Waterford':[52.2,-7.6],'Wexford':[52.3,-6.5],'Wicklow':[52.9,-6.4],'Kildare':[53.2,-6.8],'Dublin':[53.3,-6.3],'Meath':[53.6,-6.7],'Louth':[53.9,-6.5],'Monaghan':[54.2,-6.9],'Cavan':[54.0,-7.4],'Donegal':[54.8,-8.1],'Sligo':[54.0,-8.5],'Leitrim':[54.1,-8.0],'Roscommon':[53.6,-8.2],'Longford':[53.7,-7.8],'Westmeath':[53.5,-7.5],'Offaly':[53.2,-7.7],'Laois':[52.9,-7.3],'Kilkenny':[52.6,-7.2],'Carlow':[52.7,-6.9]};
   if(farmData.county&&countyCoords[farmData.county]){
     setupMap.setView(countyCoords[farmData.county],12);
