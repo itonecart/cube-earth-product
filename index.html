@@ -2208,6 +2208,8 @@ function loadPlateMeterHistory(){
   var url = API + '/plate_meter_history?session_id=' + sid;
   if(currentField.supabase_id) url += '&field_id=' + currentField.supabase_id;
   console.log('Loading history from:', url);
+  var dbg2 = document.getElementById('session-debug');
+  if(dbg2) dbg2.textContent = 'URL: ' + url;
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(d){
