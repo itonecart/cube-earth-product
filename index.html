@@ -718,16 +718,17 @@ function renderFarmDashboard(){
   var totalCover=0, coverCount=0, totalGrowth=0, growthCount=0;
 
   myFields.forEach(function(f){
-    var cover = f.cover || 0;
+    // Get cover from grass_model if available, else from f.cover
+    var gm = f.profileData && f.profileData.grass_model;
+    var cover = (gm && gm.kg_dm_ha) || (f.cover && f.cover > 100 ? f.cover : 0);
+    var gr = gm && gm.growth_rate_kg_day;
+
     if(cover >= 2500) cntSurplus++;
     else if(cover >= 1600) cntGrazing++;
     else if(cover >= 1200) cntBuilding++;
-    else cntAction++;
+    else if(cover > 0) cntAction++;
 
     if(cover > 0){ totalCover += cover; coverCount++; }
-
-    // Get growth from profileData
-    var gr = f.profileData && f.profileData.grass_model && f.profileData.grass_model.growth_rate_kg_day;
     if(gr){ totalGrowth += gr; growthCount++; }
   });
 
