@@ -1686,11 +1686,39 @@ function closeInspection(){
 }
 
 function newSearch(){
-  selectedParcels=[];parcelLayers={};myFields=[];
+  // Clear all cache and localStorage
+  localStorage.removeItem('cube_session_id');
+  localStorage.removeItem('cube_farm_id');
+
+  // Reset all state
+  selectedParcels=[];
+  parcelLayers={};
+  myFields=[];
+  allFarms=[];
+  farmData={name:'',county:'',type:'',acres:'no'};
+  currentField=null;
+  window._plateMeterHistory=[];
+  window._lastZoneAnalysis=null;
+  window._lastHistorical=null;
+
+  // Generate fresh session ID
+  SESSION_ID='sess_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
+  localStorage.setItem('cube_session_id',SESSION_ID);
+
+  // Destroy maps
   if(setupMap){setupMap.remove();setupMap=null;}
   if(fieldMap){fieldMap.remove();fieldMap=null;}
+
+  // Reset form fields
+  var farmName=document.getElementById('farm-name');
+  var farmCounty=document.getElementById('farm-county');
+  var farmType=document.getElementById('farm-type');
+  if(farmName) farmName.value='';
+  if(farmCounty) farmCounty.value='';
+  if(farmType) farmType.value='';
+
   document.getElementById('bnav').classList.remove('show');
-  showPage('pg-setup1');
+  showPage('pg-login');
 }
 
 function openGrassPage(field) {
