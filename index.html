@@ -1702,8 +1702,9 @@ function openGrassPage(field) {
   document.getElementById('grass-content').style.display = 'none';
   showPage('pg-grass');
 
-  // Load plate meter history — after content shown
+  // Clear and reload plate meter history for this specific field
   window._plateMeterHistory = [];
+  renderPlateMeterHistory(); // show empty immediately
 
 
   // Use cached data if available
