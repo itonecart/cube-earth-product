@@ -479,6 +479,7 @@ let myFields = [];
 let setupMap = null;
 let fieldMap = null;
 let currentField = null;
+let allFarms = [];
 window._lastZoneAnalysis = null;
 window._lastHistorical = null;
 
@@ -2472,16 +2473,16 @@ function loadPlateMeterHistory(){
       <div style="margin-bottom:16px">
         <div style="font-size:11px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">What issue do you see?</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button onclick="selectIssue('compaction',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+          <button onclick="toggleIssue('compaction',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
             🚜<br>Compaction
           </button>
-          <button onclick="selectIssue('thin_sward',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+          <button onclick="toggleIssue('thin_sward',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
             🌱<br>Thin Sward
           </button>
-          <button onclick="selectIssue('weeds',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+          <button onclick="toggleIssue('weeds',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
             🌿<br>Weeds
           </button>
-          <button onclick="selectIssue('overgrazing',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
+          <button onclick="toggleIssue('overgrazing',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center">
             🐄<br>Overgrazing
           </button>
         </div>
