@@ -1687,11 +1687,10 @@ function openGrassPage(field) {
   document.getElementById('grass-content').style.display = 'none';
   showPage('pg-grass');
 
-  // Load plate meter history
+  // Load plate meter history — after content shown
   window._plateMeterHistory = [];
   var dbg = document.getElementById('session-debug');
   if(dbg) dbg.textContent = 'Session: ' + (localStorage.getItem('cube_session_id')||'none');
-  setTimeout(loadPlateMeterHistory, 1500);
 
   // Use cached data if available
   var d = f.profileData;
@@ -1723,6 +1722,8 @@ function openGrassPage(field) {
 function renderGrassPage(gm, wx) {
   document.getElementById('grass-loading').style.display = 'none';
   document.getElementById('grass-content').style.display = 'block';
+  // Load plate meter history now that content is visible
+  setTimeout(loadPlateMeterHistory, 500);
 
   // Cover value
   var cover = gm.kg_dm_ha || 0;
