@@ -2225,7 +2225,9 @@ function loadPlateMeterHistory(){
   if(!currentField) return;
   var sid = localStorage.getItem('cube_session_id') || SESSION_ID;
   var url = API + '/plate_meter_history?session_id=' + sid;
-  // Don't filter by field_id — load all readings for this session
+  if(currentField && currentField.supabase_id){
+    url += '&field_id=' + currentField.supabase_id;
+  }
   console.log('Loading history from:', url);
 
   fetch(url)
