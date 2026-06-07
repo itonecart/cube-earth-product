@@ -2040,7 +2040,7 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   var effScore = Math.max(0, 10 - Math.round(coverDiff / 200));
   effScore = Math.min(10, Math.max(0, effScore));
   var effColor = effScore >= 8 ? '#16a34a' : effScore >= 6 ? '#d97706' : '#dc2626';
-  var effLabel = effScore >= 8 ? 'On target' : effScore >= 7 ? 'Near target' : effScore >= 5 ? 'Off target' : 'Below target';
+  var effLabel = effScore >= 9 ? 'On target' : effScore >= 8 ? 'Near target' : effScore >= 6 ? 'Off target' : 'Below target';
   var effEl = document.getElementById('eff-score-val');
   var effLEl = document.getElementById('eff-score-label');
   if (effEl) { effEl.textContent = effScore; effEl.style.color = effColor; }
