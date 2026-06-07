@@ -501,27 +501,54 @@ function loadSavedFarm() {
   fetch(API + '/load_farm?session_id=' + savedSession)
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      if (d.success && d.fields && d.fields.length > 0) {
-        // Restore farm
+      if (!d.success) return;
+
+      myFields = [];
+
+      // Handle multi-farm response
+      if (d.farms && d.farms.length > 0) {
+        d.farms.forEach(function(fd) {
+          fd.fields.forEach(function(f) {
+            myFields.push({
+              id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
+              lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
+              geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
+              status: f.status || 'amber', action: f.action || 'Monitor',
+              profileData: f.profile_data, supabase_id: f.id,
+              farm_name: fd.farm.farm_name
+            });
+          });
+        });
+        farmData = {
+          name: d.farms[0].farm.farm_name || 'My Farm',
+          county: d.farms[0].farm.county || '',
+          type: d.farms[0].farm.enterprise_type || '',
+          acres: d.farms[0].farm.acres_scheme || 'no'
+        };
+      } else if (d.fields && d.fields.length > 0) {
+        // Fallback single farm
+        d.fields.forEach(function(f) {
+          myFields.push({
+            id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
+            lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
+            geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
+            status: f.status || 'amber', action: f.action || 'Monitor',
+            profileData: f.profile_data, supabase_id: f.id
+          });
+        });
         farmData = {
           name: d.farm.farm_name || 'My Farm',
           county: d.farm.county || '',
           type: d.farm.enterprise_type || '',
           acres: d.farm.acres_scheme || 'no'
         };
-        myFields = d.fields.map(function(f) {
-          return {
-            id: f.par_lab, crop: f.crop, area: f.area, olr: f.olr,
-            lat: f.lat, lng: f.lng, eco: f.eco, biss: f.biss,
-            geometry: f.geometry, ndvi: f.ndvi, cover: f.cover,
-            status: f.status || 'amber', action: f.action || 'Monitor',
-            profileData: f.profile_data, supabase_id: f.id
-          };
-        });
+      }
+
+      if (myFields.length > 0) {
         renderFarmDashboard();
         showPage('pg-farm');
         document.getElementById('bnav').classList.add('show');
-        console.log('Farm restored from database');
+        console.log('Restored:', myFields.length, 'fields');
       }
     })
     .catch(function(e) { console.log('Load farm error:', e); });
