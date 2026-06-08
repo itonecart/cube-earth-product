@@ -2257,6 +2257,16 @@ function renderSlurry(s, d) {
     return '<div style="padding:8px 10px;margin-bottom:6px;border-radius:8px;font-size:12px;background:'+r.bg+';color:'+r.color+';font-weight:600">'+r.text+'</div>';
   }).join('') || '<div style="font-size:12px;color:var(--muted)">No specific conditions noted</div>';
 
+  // Closed season info
+  var seasonInfo = document.getElementById('slurry-season-text');
+  if(seasonInfo) {
+    if(currentSlurryType === 'cattle') {
+      seasonInfo.textContent = '🐄 Cattle slurry closed season: 15 Oct – 12 Jan · Season opens in ' + (s.days_to_close || '—') + ' days';
+    } else {
+      seasonInfo.textContent = '🐷 Pig/Poultry closed season: 15 Oct – 31 Jan · Season opens in ' + (s.days_to_close || '—') + ' days';
+    }
+  }
+
   // Next window
   if (s.next_good_window && s.status !== 'green') {
     document.getElementById('slurry-next').style.display = 'block';
@@ -2383,6 +2393,16 @@ function renderNPlan(n, d) {
   document.getElementById('nplan-reasons').innerHTML = reasons.map(function(r){
     return '<div style="padding:8px 10px;margin-bottom:6px;border-radius:8px;font-size:12px;background:'+r.bg+';color:'+r.color+';font-weight:600">'+r.text+'</div>';
   }).join('') || '<div style="font-size:12px;color:var(--muted)">No specific reasons available</div>';
+
+  // Closed season info
+  var seasonInfo = document.getElementById('slurry-season-text');
+  if(seasonInfo) {
+    if(currentSlurryType === 'cattle') {
+      seasonInfo.textContent = '🐄 Cattle slurry closed season: 15 Oct – 12 Jan · Season opens in ' + (s.days_to_close || '—') + ' days';
+    } else {
+      seasonInfo.textContent = '🐷 Pig/Poultry closed season: 15 Oct – 31 Jan · Season opens in ' + (s.days_to_close || '—') + ' days';
+    }
+  }
 
   // Next window
   if (n.next_good_window && n.status !== 'green') {
@@ -2770,6 +2790,11 @@ function loadPlateMeterHistory(){
             <div id="slurry-compliance" style="font-size:12px;line-height:2;background:#f5f7fa;border-radius:8px;padding:10px;font-family:var(--mono)"></div>
             <button onclick="saveSlurryRecord()" style="width:100%;margin-top:10px;padding:10px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">💾 Save Record to Farm File</button>
           </div>
+        </div>
+
+        <!-- Closed season info -->
+        <div id="slurry-season-info" style="background:#eff6ff;border:1px solid #dbeafe;border-radius:10px;padding:10px 14px;margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:#1a4a8c" id="slurry-season-text">—</div>
         </div>
 
         <!-- Legal note -->
