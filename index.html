@@ -2167,17 +2167,17 @@ function renderNPlan(n, d) {
 
   // Conditions
   var st = n.soil_temp_6cm || 0;
-  var stColor = st >= 8 ? '#16a34a' : st >= 6 ? '#d97706' : '#dc2626';
+  var stColor = st >= 7 ? '#16a34a' : st >= 6 ? '#d97706' : '#dc2626';
   document.getElementById('nplan-soiltemp').textContent = st + '°C';
   document.getElementById('nplan-soiltemp').style.color = stColor;
-  document.getElementById('nplan-soiltemp-status').textContent = st >= 8 ? '✓ Optimal' : st >= 6 ? '⚠ Borderline' : '✗ Too cold';
+  document.getElementById('nplan-soiltemp-status').textContent = st >= 10 ? '✓ Excellent' : st >= 7 ? '✓ Good' : st >= 6 ? '⚠ Borderline' : '✗ Too cold';
   document.getElementById('nplan-soiltemp-status').style.color = stColor;
 
   var rain = n.rain_48h_mm || 0;
-  var rainColor = rain < 5 ? '#16a34a' : rain < 15 ? '#d97706' : '#dc2626';
+  var rainColor = rain < 10 ? '#16a34a' : rain < 15 ? '#d97706' : '#dc2626';
   document.getElementById('nplan-rain').textContent = rain + 'mm';
   document.getElementById('nplan-rain').style.color = rainColor;
-  document.getElementById('nplan-rain-status').textContent = rain < 5 ? '✓ Low risk' : rain < 15 ? '⚠ Moderate' : '✗ High risk';
+  document.getElementById('nplan-rain-status').textContent = rain < 10 ? '✓ Low risk' : rain < 15 ? '⚠ Moderate' : '✗ High risk';
   document.getElementById('nplan-rain-status').style.color = rainColor;
 
   var sm = n.soil_moisture || 0;
