@@ -834,25 +834,8 @@ function toggleFieldRow(hd, fi){
 }
 
 async function loadFieldDataBackground(fi){
-  var f=myFields[fi];
-  if(!f.lat||!f.lng) return;
-  try{
-    var r=await fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:f.lat,lng:f.lng,year:2026,parcel_override:{crop:f.crop,claim_area:f.area,grassland:f.crop.toLowerCase().includes('pasture'),eco:f.eco,biss:f.biss,olr:f.olr}})});
-    var d=await r.json();
-    if(d.success){
-      f.profileData=d;
-      var ndvi=d.vegetation&&d.vegetation.ndvi;
-      f.ndvi=ndvi;
-      if(ndvi){
-        var h=Math.max(0,(ndvi-0.15)*18);
-        f.cover=Math.round(Math.min(3500,Math.max(0,(h-4)*250)));
-        var isG=f.crop.toLowerCase().includes('pasture')||f.crop.toLowerCase().includes('grass');
-        if(isG){f.status=f.cover>1800?'green':f.cover>1200?'amber':'red';f.action=f.cover>1800?'Graze Now':f.cover>1200?'Monitor':'Check Field';}
-        else{f.status=ndvi>0.5?'green':ndvi>0.3?'amber':'red';f.action=ndvi>0.5?'Good':'Monitor';}
-      }
-      renderFarmDashboard();
-    }
-  }catch(e){}
+  // Disabled — openField() handles profile loading
+  // Prevents duplicate API calls and memory spikes
 }
 
 function openFieldAndInspect(fi){
