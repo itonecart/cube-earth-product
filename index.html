@@ -2153,24 +2153,33 @@ function loadSlurryData() {
     return;
   }
   // Only fetch if no cached data
-  fetch(API + '/field_profile', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      lat: f.lat, lng: f.lng, year: 2026,
-      parcel_override: {crop: f.crop, claim_area: f.area, grassland: true}
+  // Wait 2s for openField cache before fetching
+  setTimeout(function(){
+    var d2 = f.profileData;
+    if (d2 && d2.slurry && d2.slurry.available) {
+      renderSlurry(d2.slurry, d2);
+      return;
+    }
+    fetch(API + '/field_profile', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        lat: f.lat, lng: f.lng, year: 2026,
+        parcel_override: {crop: f.crop, claim_area: f.area, grassland: true}
+      })
     })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    if(!f.profileData) f.profileData = {};
-    f.profileData.slurry = data.slurry;
-    f.profileData.nitrogen = data.nitrogen;
-    f.profileData.weather = data.weather;
-    renderSlurry(data.slurry, data);
-  })
-  .catch(function(e){
-    document.getElementById('slurry-loading').innerHTML = '<div style="color:var(--muted)">⚠ Could not load data</div>';
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(!f.profileData) f.profileData = {};
+      f.profileData.slurry = data.slurry;
+      f.profileData.nitrogen = data.nitrogen;
+      f.profileData.weather = data.weather;
+      renderSlurry(data.slurry, data);
+    })
+    .catch(function(e){
+      document.getElementById('slurry-loading').innerHTML = '<div style="color:var(--muted)">⚠ Could not load data</div>';
+    });
+  }, 2000);
   });
 }
 
