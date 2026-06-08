@@ -2121,20 +2121,35 @@ var currentSlurryData = null;
 
 function selectSlurryType(type, btn) {
   currentSlurryType = type;
-  ['cattle','pig','soiled'].forEach(function(t) {
+  ['cattle','pig'].forEach(function(t) {
     var b = document.getElementById('stype-' + t);
     if(b) { b.style.borderColor='var(--border)'; b.style.background='#fff'; b.style.color='var(--text)'; }
   });
   btn.style.borderColor = '#1a4a8c';
   btn.style.background = '#eff6ff';
   btn.style.color = '#1a4a8c';
-  loadSlurryData();
+  // Recalculate with cached weather — no new API call
+  if(currentSlurryData) {
+    var f = currentField || (myFields && myFields[0]);
+    var d = f && f.profileData;
+    recalcSlurry(d);
+  } else {
+    loadSlurryData();
+  }
 }
 
 function openSlurry() {
   var f = currentField || (myFields && myFields[0]);
   if (!f) { alert('Please open a field first'); return; }
   showPage('pg-slurry');
+  // Reset type to cattle
+  currentSlurryType = 'cattle';
+  ['cattle','pig'].forEach(function(t) {
+    var b = document.getElementById('stype-' + t);
+    if(b) { b.style.borderColor='var(--border)'; b.style.background='#fff'; b.style.color='var(--text)'; }
+  });
+  var cb = document.getElementById('stype-cattle');
+  if(cb) { cb.style.borderColor='#1a4a8c'; cb.style.background='#eff6ff'; cb.style.color='#1a4a8c'; }
   loadSlurryData();
 }
 
@@ -2144,30 +2159,39 @@ function loadSlurryData() {
   document.getElementById('slurry-loading').style.display = 'block';
   document.getElementById('slurry-content').style.display = 'none';
 
+  // Use cached profileData if available — no new API call
   var d = f.profileData;
   if (d && d.slurry && d.slurry.available) {
     renderSlurry(d.slurry, d);
-  } else {
-    fetch(API + '/field_profile', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        lat: f.lat, lng: f.lng, year: 2026,
-        parcel_override: {crop: f.crop, claim_area: f.area, grassland: true}
-      })
-    })
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(f.profileData) {
-        f.profileData.slurry = data.slurry;
-        f.profileData.nitrogen = data.nitrogen;
-      }
-      renderSlurry(data.slurry, data);
-    })
-    .catch(function(e){
-      document.getElementById('slurry-loading').innerHTML = '<div style="color:var(--muted)">⚠ Could not load data</div>';
-    });
+    return;
   }
+  // Only fetch if no cached data
+  fetch(API + '/field_profile', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      lat: f.lat, lng: f.lng, year: 2026,
+      parcel_override: {crop: f.crop, claim_area: f.area, grassland: true}
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!f.profileData) f.profileData = {};
+    f.profileData.slurry = data.slurry;
+    f.profileData.nitrogen = data.nitrogen;
+    f.profileData.weather = data.weather;
+    renderSlurry(data.slurry, data);
+  })
+  .catch(function(e){
+    document.getElementById('slurry-loading').innerHTML = '<div style="color:var(--muted)">⚠ Could not load data</div>';
+  });
+}
+
+function recalcSlurry(d) {
+  // Recalculate slurry for different type using same weather data
+  // Just re-render with updated compliance record
+  if (!currentSlurryData) return;
+  renderSlurry(currentSlurryData, d);
 }
 
 function renderSlurry(s, d) {
@@ -2672,8 +2696,7 @@ function loadPlateMeterHistory(){
         <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">Slurry Type</div>
         <div style="display:flex;gap:8px">
           <button onclick="selectSlurryType('cattle',this)" id="stype-cattle" style="flex:1;padding:10px;border:2px solid #1a4a8c;border-radius:10px;background:#eff6ff;color:#1a4a8c;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">🐄 Cattle</button>
-          <button onclick="selectSlurryType('pig',this)" id="stype-pig" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">🐷 Pig</button>
-          <button onclick="selectSlurryType('soiled',this)" id="stype-soiled" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">💧 Soiled</button>
+          <button onclick="selectSlurryType('pig',this)" id="stype-pig" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">🐷 Pig / Poultry</button>
         </div>
       </div>
 
