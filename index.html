@@ -2246,20 +2246,13 @@ function renderSlurry(s, d) {
   var fieldName = f2 ? (f2.crop + ' · ' + f2.area + ' ha') : 'Field';
   var farmName = farmData && farmData.name || 'Farm';
   document.getElementById('slurry-compliance').innerHTML =
-    'Date: ' + s.compliance_date + '
-' +
-    'Farm: ' + farmName + '
-' +
-    'Field: ' + fieldName + '
-' +
-    'Slurry type: ' + currentSlurryType.charAt(0).toUpperCase() + currentSlurryType.slice(1) + '
-' +
-    'Soil moisture: ' + sm.toFixed(3) + ' m³/m³
-' +
-    'Rain 48hr forecast: ' + r48 + 'mm
-' +
-    'Decision: ' + s.label + '
-' +
+    'Date: ' + s.compliance_date + '<br>' +
+    'Farm: ' + farmName + '<br>' +
+    'Field: ' + fieldName + '<br>' +
+    'Slurry type: ' + currentSlurryType.charAt(0).toUpperCase() + currentSlurryType.slice(1) + '<br>' +
+    'Soil moisture: ' + sm.toFixed(3) + ' m³/m³<br>' +
+    'Rain 48hr forecast: ' + r48 + 'mm<br>' +
+    'Decision: ' + s.label + '<br>' +
     'Status: ' + (s.status === 'green' ? 'Compliant' : s.status === 'yellow' ? 'Caution' : 'Non-compliant');
 }
 
