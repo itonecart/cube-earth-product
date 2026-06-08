@@ -865,7 +865,7 @@ function openField(idx){
   else{
     renderIntelLoading();
     fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:currentField.lat,lng:currentField.lng,year:2026,parcel_override:{crop:currentField.crop,claim_area:currentField.area,grassland:currentField.crop.toLowerCase().includes('pasture'),eco:currentField.eco,biss:currentField.biss,olr:currentField.olr}})})
-      .then(function(r){return r.json();}).then(function(d){if(d.success){currentField.profileData=d;renderIntel(d,currentField);}}).catch(function(e){console.log('fetch error',e);});
+      .then(function(r){return r.json();}).then(function(d){if(d.success){currentField.profileData=d;currentField.profileData.grass_model=d.grass_model;currentField.profileData.slurry=d.slurry;currentField.profileData.nitrogen=d.nitrogen;renderIntel(d,currentField);}}).catch(function(e){console.log('fetch error',e);});
   }
   setTimeout(function(){
     if(fieldMap){fieldMap.remove();fieldMap=null;}
