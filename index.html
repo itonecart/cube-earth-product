@@ -1751,7 +1751,11 @@ function openGrassPage(field) {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.grass_model && data.grass_model.available) {
-        if (f.profileData) f.profileData.grass_model = data.grass_model;
+        if (f.profileData) {
+          f.profileData.grass_model = data.grass_model;
+          f.profileData.slurry = data.slurry;
+          f.profileData.nitrogen = data.nitrogen;
+        }
         renderGrassPage(data.grass_model, data.weather);
       } else {
         document.getElementById('grass-loading').innerHTML = '<div style="color:var(--muted);font-size:13px">⚠ Grass model unavailable for this field</div>';
