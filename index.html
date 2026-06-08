@@ -2116,6 +2116,162 @@ function renderGrassInsights(gm, wx, cover, fieldArea) {
   if (nSub2) nSub2.textContent = nSub;
 }
 
+var currentSlurryType = 'cattle';
+var currentSlurryData = null;
+
+function selectSlurryType(type, btn) {
+  currentSlurryType = type;
+  ['cattle','pig','soiled'].forEach(function(t) {
+    var b = document.getElementById('stype-' + t);
+    if(b) { b.style.borderColor='var(--border)'; b.style.background='#fff'; b.style.color='var(--text)'; }
+  });
+  btn.style.borderColor = '#1a4a8c';
+  btn.style.background = '#eff6ff';
+  btn.style.color = '#1a4a8c';
+  loadSlurryData();
+}
+
+function openSlurry() {
+  var f = currentField || (myFields && myFields[0]);
+  if (!f) { alert('Please open a field first'); return; }
+  showPage('pg-slurry');
+  loadSlurryData();
+}
+
+function loadSlurryData() {
+  var f = currentField || (myFields && myFields[0]);
+  if (!f) return;
+  document.getElementById('slurry-loading').style.display = 'block';
+  document.getElementById('slurry-content').style.display = 'none';
+
+  var d = f.profileData;
+  if (d && d.slurry && d.slurry.available) {
+    renderSlurry(d.slurry, d);
+  } else {
+    fetch(API + '/field_profile', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        lat: f.lat, lng: f.lng, year: 2026,
+        parcel_override: {crop: f.crop, claim_area: f.area, grassland: true}
+      })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(f.profileData) {
+        f.profileData.slurry = data.slurry;
+        f.profileData.nitrogen = data.nitrogen;
+      }
+      renderSlurry(data.slurry, data);
+    })
+    .catch(function(e){
+      document.getElementById('slurry-loading').innerHTML = '<div style="color:var(--muted)">⚠ Could not load data</div>';
+    });
+  }
+}
+
+function renderSlurry(s, d) {
+  document.getElementById('slurry-loading').style.display = 'none';
+  document.getElementById('slurry-content').style.display = 'block';
+  currentSlurryData = s;
+
+  if (!s || !s.available) return;
+
+  // Status card
+  var card = document.getElementById('slurry-status-card');
+  var bgColor = s.status === 'green' ? 'linear-gradient(135deg,#0a1525,#1a4a8c)' :
+                s.status === 'yellow' ? 'linear-gradient(135deg,#451a03,#d97706)' :
+                'linear-gradient(135deg,#450a0a,#dc2626)';
+  card.style.background = bgColor;
+  document.getElementById('slurry-label').textContent = s.label || '—';
+  document.getElementById('slurry-sub').textContent = s.sub || '—';
+
+  // Legal warning
+  var legalEl = document.getElementById('slurry-legal-warning');
+  if (s.closed_season && s.reasons_legal && s.reasons_legal.length > 0) {
+    legalEl.style.display = 'block';
+    document.getElementById('slurry-legal-text').textContent = s.reasons_legal[0];
+  } else {
+    legalEl.style.display = 'none';
+  }
+
+  // Conditions
+  var r24 = s.rain_24h_mm || 0;
+  var r24Color = r24 < 5 ? '#16a34a' : r24 < 10 ? '#d97706' : '#dc2626';
+  document.getElementById('slurry-rain24').textContent = r24 + 'mm';
+  document.getElementById('slurry-rain24').style.color = r24Color;
+  document.getElementById('slurry-rain24-status').textContent = r24 < 5 ? '✓ Safe' : r24 < 10 ? '⚠ Caution' : '✗ Too wet';
+  document.getElementById('slurry-rain24-status').style.color = r24Color;
+
+  var r48 = s.rain_48h_mm || 0;
+  var r48Color = r48 < 10 ? '#16a34a' : r48 < 20 ? '#d97706' : '#dc2626';
+  document.getElementById('slurry-rain48').textContent = r48 + 'mm';
+  document.getElementById('slurry-rain48').style.color = r48Color;
+  document.getElementById('slurry-rain48-status').textContent = r48 < 10 ? '✓ Low risk' : r48 < 20 ? '⚠ Moderate' : '✗ High risk';
+  document.getElementById('slurry-rain48-status').style.color = r48Color;
+
+  var sm = s.soil_moisture || 0;
+  var smColor = sm < 0.28 ? '#16a34a' : sm < 0.33 ? '#d97706' : '#dc2626';
+  document.getElementById('slurry-moisture').textContent = sm.toFixed(2);
+  document.getElementById('slurry-moisture').style.color = smColor;
+  document.getElementById('slurry-moisture-status').textContent = sm < 0.28 ? '✓ Good' : sm < 0.33 ? '⚠ Wet' : '✗ Saturated';
+  document.getElementById('slurry-moisture-status').style.color = smColor;
+
+  var st = s.soil_temp_6cm || 0;
+  var stColor = st > 5 ? '#16a34a' : st > 3 ? '#d97706' : '#dc2626';
+  document.getElementById('slurry-soiltemp').textContent = st + '°C';
+  document.getElementById('slurry-soiltemp').style.color = stColor;
+  document.getElementById('slurry-soiltemp-status').textContent = st > 5 ? '✓ Active' : st > 3 ? '⚠ Slow' : '✗ Frozen risk';
+  document.getElementById('slurry-soiltemp-status').style.color = stColor;
+
+  // Reasons
+  var reasons = [];
+  (s.reasons_good || []).forEach(function(r){ reasons.push({text:r, color:'#16a34a', bg:'#f0fdf4'}); });
+  (s.reasons_caution || []).forEach(function(r){ reasons.push({text:r, color:'#d97706', bg:'#fffbeb'}); });
+  (s.reasons_bad || []).forEach(function(r){ reasons.push({text:r, color:'#dc2626', bg:'#fff5f5'}); });
+  document.getElementById('slurry-reasons').innerHTML = reasons.map(function(r){
+    return '<div style="padding:8px 10px;margin-bottom:6px;border-radius:8px;font-size:12px;background:'+r.bg+';color:'+r.color+';font-weight:600">'+r.text+'</div>';
+  }).join('') || '<div style="font-size:12px;color:var(--muted)">No specific conditions noted</div>';
+
+  // Next window
+  if (s.next_good_window && s.status !== 'green') {
+    document.getElementById('slurry-next').style.display = 'block';
+    document.getElementById('slurry-next-text').textContent = s.next_good_window + ' — conditions expected to improve';
+  } else {
+    document.getElementById('slurry-next').style.display = 'none';
+  }
+
+  // Compliance record
+  var f2 = currentField || (myFields && myFields[0]);
+  var fieldName = f2 ? (f2.crop + ' · ' + f2.area + ' ha') : 'Field';
+  var farmName = farmData && farmData.name || 'Farm';
+  document.getElementById('slurry-compliance').innerHTML =
+    'Date: ' + s.compliance_date + '
+' +
+    'Farm: ' + farmName + '
+' +
+    'Field: ' + fieldName + '
+' +
+    'Slurry type: ' + currentSlurryType.charAt(0).toUpperCase() + currentSlurryType.slice(1) + '
+' +
+    'Soil moisture: ' + sm.toFixed(3) + ' m³/m³
+' +
+    'Rain 48hr forecast: ' + r48 + 'mm
+' +
+    'Decision: ' + s.label + '
+' +
+    'Status: ' + (s.status === 'green' ? 'Compliant' : s.status === 'yellow' ? 'Caution' : 'Non-compliant');
+}
+
+function saveSlurryRecord() {
+  if (!currentSlurryData) return;
+  var toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a4a8c;color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;text-align:center';
+  toast.innerHTML = '✓ Record saved to farm file<br><span style="font-size:11px;opacity:0.8">Available for inspection audit</span>';
+  document.body.appendChild(toast);
+  setTimeout(function(){ toast.remove(); }, 3000);
+}
+
 function openNPlan() {
   var f = currentField || (myFields && myFields[0]);
   if (!f) { alert('Please open a field first'); return; }
@@ -2509,6 +2665,112 @@ function loadPlateMeterHistory(){
 }
 
 </script>
+<!-- SLURRY MANAGEMENT PAGE -->
+<div class="page" id="pg-slurry">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-farm')">←</button>
+    <div class="tb-title">🪣 Slurry Management</div>
+  </div>
+  <div class="scroll">
+    <div style="padding:14px">
+
+      <!-- Slurry type selector -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">Slurry Type</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="selectSlurryType('cattle',this)" id="stype-cattle" style="flex:1;padding:10px;border:2px solid #1a4a8c;border-radius:10px;background:#eff6ff;color:#1a4a8c;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">🐄 Cattle</button>
+          <button onclick="selectSlurryType('pig',this)" id="stype-pig" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">🐷 Pig</button>
+          <button onclick="selectSlurryType('soiled',this)" id="stype-soiled" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">💧 Soiled</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="slurry-loading" style="padding:40px;text-align:center;color:var(--muted)">
+        <div class="spinner" style="margin:0 auto 12px"></div>
+        <div style="font-size:13px">Checking conditions...</div>
+      </div>
+
+      <div id="slurry-content" style="display:none">
+
+        <!-- Traffic light card -->
+        <div id="slurry-status-card" style="border-radius:16px;padding:20px;color:#fff;margin-bottom:12px">
+          <div style="font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Spreading Decision</div>
+          <div style="font-size:26px;font-weight:800;margin-bottom:6px" id="slurry-label">—</div>
+          <div style="font-size:13px;opacity:0.85" id="slurry-sub">—</div>
+        </div>
+
+        <!-- Legal warning if closed season -->
+        <div id="slurry-legal-warning" style="display:none;background:#fff5f5;border:2px solid #dc2626;border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:6px">⚖️ Legal Restriction</div>
+          <div style="font-size:12px;color:#7f1d1d;line-height:1.6" id="slurry-legal-text">—</div>
+          <div style="font-size:11px;color:#dc2626;margin-top:8px;font-weight:600">Spreading during closed season risks loss of farm payments and fines up to €5,000</div>
+        </div>
+
+        <!-- Conditions -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">🌧 Rain 24hrs</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--mono)" id="slurry-rain24">—</div>
+            <div style="font-size:10px;color:var(--muted)">mm forecast</div>
+            <div style="font-size:11px;font-weight:600;margin-top:4px" id="slurry-rain24-status">—</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">🌧 Rain 48hrs</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--mono)" id="slurry-rain48">—</div>
+            <div style="font-size:10px;color:var(--muted)">mm forecast</div>
+            <div style="font-size:11px;font-weight:600;margin-top:4px" id="slurry-rain48-status">—</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">💧 Soil Moisture</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--mono)" id="slurry-moisture">—</div>
+            <div style="font-size:10px;color:var(--muted)">m³/m³</div>
+            <div style="font-size:11px;font-weight:600;margin-top:4px" id="slurry-moisture-status">—</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">🌡 Soil Temp</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--mono)" id="slurry-soiltemp">—</div>
+            <div style="font-size:10px;color:var(--muted)">°C at 6cm</div>
+            <div style="font-size:11px;font-weight:600;margin-top:4px" id="slurry-soiltemp-status">—</div>
+          </div>
+        </div>
+
+        <!-- Analysis -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Conditions Analysis</div>
+          <div id="slurry-reasons" style="padding:12px 16px"></div>
+        </div>
+
+        <!-- Next window -->
+        <div id="slurry-next" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:#92400e">⏳ Next Suitable Window</div>
+          <div style="font-size:13px;color:#78350f;margin-top:4px" id="slurry-next-text">—</div>
+        </div>
+
+        <!-- Compliance record -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px">
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">📋 Compliance Record</div>
+          <div style="padding:14px 16px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Auto-generated spreading record for your farm file</div>
+            <div id="slurry-compliance" style="font-size:12px;line-height:2;background:#f5f7fa;border-radius:8px;padding:10px;font-family:var(--mono)"></div>
+            <button onclick="saveSlurryRecord()" style="width:100%;margin-top:10px;padding:10px;background:var(--g3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">💾 Save Record to Farm File</button>
+          </div>
+        </div>
+
+        <!-- Legal note -->
+        <div style="background:#f5f7fa;border-radius:10px;padding:10px 14px;margin-bottom:16px">
+          <div style="font-size:10px;color:var(--muted);line-height:1.7">
+            <strong>Legal basis:</strong> SI 378/2022 Irish Nitrates Action Programme<br>
+            <strong>Closed season:</strong> Cattle slurry Oct 15 – Jan 12<br>
+            <strong>Watercourse:</strong> No spreading within 2m of any watercourse<br>
+            <strong>Always verify</strong> conditions on ground before spreading
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- NITROGEN PLANNER PAGE -->
 <div class="page" id="pg-nplan">
   <div class="topbar">
