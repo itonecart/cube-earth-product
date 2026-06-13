@@ -2869,14 +2869,13 @@ function renderFieldAI(d){
   document.getElementById('fai-decision').textContent=dec;
   document.getElementById('fai-decision-reason').textContent=reason;
 
-  // CARD 2 — Crop Status (partial — CGM fills the rest)
-  document.getElementById('fai-crop-name').textContent=currentField.crop;
-  document.getElementById('fai-crop-stage').textContent=isGrass?'Permanent Pasture':'Arable crop';
+  // CARD 2 — Crop Status
+  document.getElementById('fai-crop-name').textContent=isGrass?'Grassland':currentField.crop;
+  document.getElementById('fai-crop-stage').textContent=isGrass?'Permanent Pasture — Growing':'Arable crop';
+  document.getElementById('fai-health-score').textContent=isGrass?10:5;
+  document.getElementById('fai-crop-source').textContent='Source: '+(isGrass?'DAFM parcel data':'SAR classifier');
   document.getElementById('fai-ndvi').textContent=ndvi?ndvi.toFixed(3):'—';
-  // Point SAR RVI — note polygon SAR may differ
   document.getElementById('fai-rvi').textContent=rvi?rvi.toFixed(3):'—';
-
-  // LAI and Biomass — set immediately from available data
   var laiLbl=document.getElementById('fai-lai-label');
   var bioLbl=document.getElementById('fai-biomass-label');
   if(isGrass){
