@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cube Earth — Satellite Farm Intelligence</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#0a0f1a; color:#fff; }
+
+  /* NAV */
+  nav { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; position:fixed; top:0; left:0; right:0; background:rgba(10,15,26,0.95); backdrop-filter:blur(10px); z-index:100; border-bottom:1px solid #1e293b; }
+  .nav-logo { font-size:18px; font-weight:800; letter-spacing:-0.5px; }
+  .nav-logo span { color:#4a8fd4; }
+  .nav-btn { background:#4a8fd4; color:#fff; border:none; padding:8px 18px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; }
+
+  /* HERO */
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:100px 24px 60px; background:radial-gradient(ellipse at 50% 0%, #0d2137 0%, #0a0f1a 70%); }
+  .hero-badge { background:#1e293b; border:1px solid #4a8fd4; color:#4a8fd4; font-size:11px; font-weight:600; letter-spacing:0.1em; padding:6px 14px; border-radius:20px; margin-bottom:24px; display:inline-block; }
+  .hero h1 { font-size:42px; font-weight:900; letter-spacing:-1.5px; line-height:1.1; margin-bottom:20px; max-width:600px; }
+  .hero h1 span { color:#4a8fd4; }
+  .hero p { font-size:17px; color:#94a3b8; line-height:1.6; max-width:480px; margin-bottom:36px; }
+  .hero-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .btn-primary { background:#4a8fd4; color:#fff; padding:14px 28px; border-radius:10px; font-size:15px; font-weight:700; text-decoration:none; border:none; cursor:pointer; }
+  .btn-secondary { background:transparent; color:#fff; padding:14px 28px; border-radius:10px; font-size:15px; font-weight:600; text-decoration:none; border:1px solid #334155; }
+  .hero-stats { display:flex; gap:32px; margin-top:56px; flex-wrap:wrap; justify-content:center; }
+  .stat { text-align:center; }
+  .stat-num { font-size:28px; font-weight:900; color:#4a8fd4; }
+  .stat-label { font-size:12px; color:#64748b; margin-top:4px; }
+
+  /* HOW IT WORKS */
+  .section { padding:80px 24px; max-width:900px; margin:0 auto; }
+  .section-label { font-size:11px; font-weight:700; letter-spacing:0.15em; color:#4a8fd4; text-transform:uppercase; margin-bottom:12px; }
+  .section h2 { font-size:32px; font-weight:800; letter-spacing:-0.5px; margin-bottom:16px; }
+  .section p { color:#94a3b8; font-size:16px; line-height:1.7; max-width:560px; }
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; margin-top:40px; }
+  .step { background:#111827; border:1px solid #1e293b; border-radius:16px; padding:28px; }
+  .step-num { width:36px; height:36px; background:#4a8fd4; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; margin-bottom:16px; }
+  .step h3 { font-size:16px; font-weight:700; margin-bottom:8px; }
+  .step p { font-size:14px; color:#64748b; line-height:1.6; }
+
+  /* SERVICES */
+  .services-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:40px; }
+  .service-card { background:#111827; border:1px solid #1e293b; border-radius:16px; padding:24px; transition:border-color 0.2s; }
+  .service-card:hover { border-color:#4a8fd4; }
+  .service-icon { font-size:28px; margin-bottom:14px; }
+  .service-card h3 { font-size:16px; font-weight:700; margin-bottom:8px; }
+  .service-card p { font-size:13px; color:#64748b; line-height:1.6; }
+  .service-tag { display:inline-block; background:#0d2137; color:#4a8fd4; font-size:10px; font-weight:600; padding:3px 8px; border-radius:4px; margin-top:10px; }
+
+  /* SENSORS */
+  .sensors { background:#111827; border:1px solid #1e293b; border-radius:20px; padding:32px; margin-top:40px; }
+  .sensors h3 { font-size:18px; font-weight:700; margin-bottom:20px; }
+  .sensor-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+  .sensor-item { display:flex; align-items:center; gap:10px; }
+  .sensor-dot { width:8px; height:8px; background:#4a8fd4; border-radius:50%; flex-shrink:0; }
+  .sensor-text { font-size:13px; color:#94a3b8; }
+
+  /* CTA */
+  .cta { background:linear-gradient(135deg,#0d2137,#1a3a5c); border:1px solid #4a8fd4; border-radius:24px; padding:56px 32px; text-align:center; margin:40px 0; }
+  .cta h2 { font-size:30px; font-weight:800; margin-bottom:12px; }
+  .cta p { color:#94a3b8; font-size:16px; margin-bottom:28px; }
+
+  /* FOOTER */
+  footer { text-align:center; padding:32px 24px; color:#334155; font-size:13px; border-top:1px solid #1e293b; }
+
+  @media(max-width:600px) {
+    .hero h1 { font-size:30px; }
+    .section h2 { font-size:24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🌍 Cube <span>Earth</span></div>
+  <a href="index.html" class="nav-btn">Open App →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🛰 Powered by Sentinel-1 · Sentinel-2 · ECOSTRESS</div>
+  <h1>Know Your Fields<br><span>Without Walking Them</span></h1>
+  <p>Satellite intelligence for Irish and Indian farmers. Real-time crop monitoring, grass management and environmental compliance — automatically.</p>
+  <div class="hero-btns">
+    <a href="index.html" class="btn-primary">▶ Try Demo Free</a>
+    <a href="#how-it-works" class="btn-secondary">How It Works ↓</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">10m</div>
+      <div class="stat-label">Satellite Resolution</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6-day</div>
+      <div class="stat-label">SAR Revisit</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-label">Sensor Sources</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Automatic</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section" id="how-it-works">
+  <div class="section-label">How It Works</div>
+  <h2>Three Steps to Field Intelligence</h2>
+  <p>No sensors to install. No farm walks required. Cube Earth works silently in the background while you get on with farming.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Add Your Farm</h3>
+      <p>Select your fields from the map. We automatically pull your DAFM parcel boundaries and crop data.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Satellites Do The Work</h3>
+      <p>Sentinel-1 SAR, Sentinel-2 and ECOSTRESS satellites monitor your fields every 6 days — through cloud and rain.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Get Clear Decisions</h3>
+      <p>Plain English recommendations. Graze now. Spread slurry. Apply nitrogen. No data science required.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<div class="section" id="services">
+  <div class="section-label">Our Services</div>
+  <h2>Everything Your Farm Needs</h2>
+  <p>Five intelligence modules working together to give you a complete picture of every field.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">🌱</div>
+      <h3>Crop Intelligence</h3>
+      <p>Automatic crop type detection, growth stage monitoring and yield estimation using SAR and optical satellite data.</p>
+      <span class="service-tag">SAR + NDVI + ECOSTRESS</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🌾</div>
+      <h3>Grass Management</h3>
+      <p>Daily grass cover estimates, growth rate forecasting and grazing decisions for dairy and beef farms.</p>
+      <span class="service-tag">MoSt GG Model · Teagasc</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">💧</div>
+      <h3>Soil Moisture</h3>
+      <p>Root zone moisture from SMAP satellite and SAR correction. Trafficability and irrigation signals updated daily.</p>
+      <span class="service-tag">SMAP + FAO-56 + SAR</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🌿</div>
+      <h3>Environmental Compliance</h3>
+      <p>ACRES and SFI scheme monitoring. Slurry spreading windows, nitrates compliance and habitat evidence.</p>
+      <span class="service-tag">DAFM · Nitrates Action Plan</span>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔥</div>
+      <h3>Thermal Stress</h3>
+      <p>Crop water stress detection from ECOSTRESS and MODIS land surface temperature. Irrigation recommendations.</p>
+      <span class="service-tag">ECOSTRESS · MODIS LST</span>
+    </div>
+  </div>
+
+  <!-- SENSOR STACK -->
+  <div class="sensors">
+    <h3>🛰 Our Satellite Sensor Stack</h3>
+    <div class="sensor-list">
+      <div class="sensor-item">
+        <div class="sensor-dot"></div>
+        <div class="sensor-text">Sentinel-1 SAR — canopy structure · 10m · 6-day</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-dot"></div>
+        <div class="sensor-text">Sentinel-2 NDVI/NDRE — greenness · nitrogen · 10m</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-dot"></div>
+        <div class="sensor-text">ECOSTRESS LST — thermal stress · ET · 70m</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-dot"></div>
+        <div class="sensor-text">SMAP — soil moisture · root zone · daily</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-dot"></div>
+        <div class="sensor-text">Open-Meteo UKMO — weather · GDD · forecast</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-dot"></div>
+        <div class="sensor-text">DAFM Parcels — field boundaries · crop type</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="section">
+  <div class="cta">
+    <h2>Ready to See Your Fields Differently?</h2>
+    <p>No hardware. No installation. Just add your farm and let the satellites do the work.</p>
+    <a href="index.html" class="btn-primary">▶ Try Demo Free — No Sign Up Required</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:8px">🌍 Cube Earth · Satellite Farm Intelligence</div>
+  <div>Ireland · India · Built on ESA Copernicus · NASA ECOSTRESS · Open-Meteo</div>
+</footer>
+
+</body>
+</html>
