@@ -930,6 +930,7 @@ function openField(idx){
                       dafmCrop.toLowerCase().includes('grass') ||
                       fieldCropType.toLowerCase().includes('pasture') ||
                       fieldCropType.toLowerCase().includes('grass');
+        console.log('CGM debug:', JSON.stringify({dafmCrop:dafmCrop,fieldCropType:fieldCropType,isGrass:isGrass,gmSystem:gm.system,rviCurrent:gm.rvi_current,rviMean:gm.rvi_seasonal_mean,grazing_cover:gm.grazing_cover}));
         // Override wrong model output for grassland
         if(isGrass){
           fa.crop_type = 'Grassland';
