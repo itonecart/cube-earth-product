@@ -858,7 +858,7 @@ function renderFarmDashboard(){
     else if(displayCover > 0){ displayAction='Check Field'; displayColor='r'; dotClass='fd-r'; }
     else { displayAction=f.action||'Monitor'; displayColor='a'; dotClass='fd-a'; }
     var coverHtml=displayCover?'<div class="fr-cover">'+displayCover.toLocaleString()+' kg DM/ha</div>':'';
-    return '<div class="field-row" onclick="openField('+fi+')">'
+    return '<div class="field-row" onclick="openFieldAI('+fi+')">'
       +'<div class="fd '+dotClass+'"></div>'
       +'<div class="fr-info"><div class="fr-name">Field '+(fi+1)+' \u00b7 '+f.crop+'</div><div class="fr-meta">'+f.area+' ha \u00b7 '+(f.olr||'Owned')+'</div></div>'
       +'<div class="fr-right"><div class="fr-action '+displayColor+'">'+displayAction+'</div>'+coverHtml+'</div>'
