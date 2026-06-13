@@ -946,7 +946,7 @@ function openField(idx){
           '<div style="font-size:11px;font-weight:600;color:#4a8fd4;letter-spacing:0.05em;margin-bottom:6px">🌱 CROP INTELLIGENCE</div>'+
           '<div style="font-size:14px;font-weight:600;color:#fff">'+(fa.crop_type||'Unknown')+'</div>'+
           '<div style="font-size:12px;color:#888;margin-top:2px">'+(fa.current_stage||'')+'</div>'+
-          (gm.system==='grassland'?'<div style="font-size:12px;color:#888;margin-top:4px">RVI: '+(gm.rvi_current||'—')+' · Cover: '+(gm.grazing_cover||'—')+'</div>':'')+
+          (gm.system==='grassland'?'<div style="font-size:12px;color:#888;margin-top:4px">RVI: '+(gm.rvi_current?gm.rvi_current.toFixed(4):gm.rvi_seasonal_mean?gm.rvi_seasonal_mean.toFixed(4):'—')+' · Cover: '+(gm.grazing_cover||'—')+'</div>':'')+
           (!isGrass&&fa.yield_estimate_tha?'<div style="font-size:12px;color:#888;margin-top:4px">Yield estimate: '+fa.yield_estimate_tha+' t/ha</div>':'')+
           (!isGrass&&alerts.length>0?'<div style="margin-top:8px">'+alerts.map(function(a){return '<div style="font-size:11px;color:#f59e0b;margin-top:3px">⚠ '+a+'</div>';}).join('')+'</div>':'')+
           (isGrass&&alerts.length>0?'<div style="margin-top:8px">'+alerts.map(function(a){return '<div style="font-size:11px;color:#52b788;margin-top:3px">✓ '+a+'</div>';}).join('')+'</div>':'')+
