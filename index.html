@@ -2967,10 +2967,25 @@ function renderFieldAICrop(cgm){
   var gm2=cgm.crop_intelligence.growth_model||{};
   var phy=cgm.physiological||{};
 
+  // Apply grassland override
+  var dafmCrop=(cgm.parcel&&cgm.parcel.crop_dafm)||'';
+  var fieldCrop=(currentField&&currentField.crop)||'';
+  var isGrassField=dafmCrop.toLowerCase().includes('pasture')||
+                   dafmCrop.toLowerCase().includes('grass')||
+                   fieldCrop.toLowerCase().includes('pasture')||
+                   fieldCrop.toLowerCase().includes('grass');
+  if(isGrassField){
+    fa.crop_type='Grassland';
+    fa.current_stage='Permanent Pasture — '+(gm2.trend||'Growing');
+    fa.crop_source=dafmCrop?'DAFM parcel data':'Field type';
+    fa.classification_confidence=100;
+  }
+
   // Update crop status card
   var stage=fa.current_stage||'—';
   var conf=fa.classification_confidence||0;
-  var health=Math.round(conf/10);
+  var health=Math.min(10,Math.round(conf/10));
+  document.getElementById('fai-crop-name').textContent=fa.crop_type||currentField.crop;
   document.getElementById('fai-crop-stage').textContent=stage;
   document.getElementById('fai-health-score').textContent=health;
   document.getElementById('fai-lai').textContent=phy.lai_refined?phy.lai_refined.toFixed(1):'—';
