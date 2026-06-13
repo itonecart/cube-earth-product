@@ -610,11 +610,46 @@ async function loadParcelsOnMap(lat,lng){
       var skip=['building','road','water','farmyard','forestry ineligible','habitat'];
       return !skip.some(function(s){return c.includes(s);})&&c!==''&&area>0.2;
     });
+    // Crop type colour map
+    var CROP_COLOURS={
+      'Permanent Pasture':'#2d6a4f',
+      'Temporary Grassland':'#40916c',
+      'Grass Year 1':'#52b788',
+      'Grass Year 2':'#40916c',
+      'Grass Year 3':'#2d6a4f',
+      'Grass Year 4':'#1b4332',
+      'Grass Year 5':'#1b4332',
+      'Barley - Spring':'#f4a261',
+      'Barley - Winter':'#e76f51',
+      'Wheat - Winter':'#e9c46a',
+      'Wheat - Spring':'#ffd166',
+      'Oats - Spring':'#a7c957',
+      'Oats - Winter':'#6a994e',
+      'Oilseed Rape - Winter':'#f6bd60',
+      'Maize':'#386641',
+      'Potatoes - Maincrop':'#bc6c25',
+      'Beans - Spring':'#606c38',
+      'Woodland':'#1b4332',
+      'Forestry Eligible':'#1b4332',
+      'Fallow':'#d4a373',
+      'Extensively Grazed Pasture':'#74c69d',
+      'Low Input Grassland':'#95d5b2',
+      'Red Clover':'#e63946',
+      'Unknown':'#4a8fd4'
+    };
+
     features.forEach(function(f){
       var id=f.properties&&f.properties.PAR_LAB||Math.random().toString();
       if(parcelLayers[id]) return;
       var selected=selectedParcels.find(function(p){return p.id===id;});
-      var layer=L.geoJSON(f,{style:{color:selected?'#4a8fd4':'rgba(255,255,255,0.6)',weight:selected?3:1.5,fillColor:selected?'#4a8fd4':'transparent',fillOpacity:selected?0.2:0}}).addTo(setupMap);
+      var crop=f.properties&&f.properties.CROP||'Unknown';
+      var cropColor=CROP_COLOURS[crop]||'#4a8fd4';
+      var layer=L.geoJSON(f,{style:{
+        color:selected?'#fff':cropColor,
+        weight:selected?3:1.5,
+        fillColor:selected?'#4a8fd4':cropColor,
+        fillOpacity:selected?0.5:0.35
+      }}).addTo(setupMap);
       layer.on('click',function(){toggleParcel(id,f,layer);});
 
       // Add label inside parcel
@@ -644,7 +679,9 @@ function toggleParcel(id,feature,layer){
   var idx=selectedParcels.findIndex(function(p){return p.id===id;});
   if(idx>=0){
     selectedParcels.splice(idx,1);
-    layer.setStyle({color:'rgba(255,255,255,0.6)',weight:1.5,fillColor:'transparent',fillOpacity:0});
+    var cr=feature.properties&&feature.properties.CROP||'Unknown';
+    var cc=CROP_COLOURS[cr]||'#4a8fd4';
+    layer.setStyle({color:cc,weight:1.5,fillColor:cc,fillOpacity:0.35});
   } else {
     var p=feature.properties||{};
     var coords=feature.geometry&&feature.geometry.coordinates&&feature.geometry.coordinates[0]||[];
