@@ -938,12 +938,11 @@ function openField(idx){
           if(gm.system !== 'grassland'){
             fa.current_stage = 'Permanent Pasture — ' + (gm.trend||'Growing');
             fa.yield_estimate_tha = null;
-            var rviVal = cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.rvi_current;
-            var rviMean = cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.rvi_seasonal_mean;
-            var rviDisplay = rviVal||rviMean;
-            var coverText = cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.grazing_cover||'';
+            var _gm2 = cgm.crop_intelligence&&cgm.crop_intelligence.growth_model||{};
+            var _rvi = _gm2.rvi_current||_gm2.rvi_seasonal_mean||0;
+            var _cover = _gm2.grazing_cover||(_rvi>0.55?'Good':'Moderate');
             alerts = [
-              'RVI: '+(rviDisplay?rviDisplay.toFixed(4):'—')+' — '+(coverText?coverText+' grazing cover':rviDisplay>0.55?'Good grazing cover':'Monitor grass cover')
+              'RVI: '+(_rvi?_rvi.toFixed(4):'—')+' — '+_cover+' grazing cover'
             ];
           }
         }
