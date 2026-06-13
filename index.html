@@ -938,7 +938,7 @@ function openField(idx){
             fa.current_stage = 'Permanent Pasture — ' + (gm.trend||'Growing');
             fa.yield_estimate_tha = null;
             alerts = [
-              'RVI: '+(gm.rvi_current||'—')+' — '+(gm.grazing_cover==='Good'?'Good grazing cover':'Monitor grass cover')
+              'RVI: '+(gm.rvi_current?gm.rvi_current.toFixed(4):'—')+' — '+((gm.rvi_current||0)>0.55?'Good grazing cover':'Monitor grass cover')
             ];
           }
         }
