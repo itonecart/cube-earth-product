@@ -474,6 +474,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   <button class="ni" onclick="openBio()" id="ni-bio"><span class="ni-icon">🌿</span><span class="ni-label">Habitat</span></button>
   <button class="ni" onclick="openNPlan()" id="ni-nplan"><span class="ni-icon">🌱</span><span class="ni-label">N Plan</span></button>
   <button class="ni" onclick="openWedge()" id="ni-wedge"><span class="ni-icon">📊</span><span class="ni-label">Wedge</span></button>
+  <button class="ni" onclick="openFieldAIFromNav()" id="ni-fieldai"><span class="ni-icon">🤖</span><span class="ni-label">Field AI</span></button>
   <button class="ni" onclick="newSearch()" id="ni-search"><span class="ni-icon">🔍</span><span class="ni-label">New Search</span></button>
 </div>
 
@@ -858,7 +859,7 @@ function renderFarmDashboard(){
     else if(displayCover > 0){ displayAction='Check Field'; displayColor='r'; dotClass='fd-r'; }
     else { displayAction=f.action||'Monitor'; displayColor='a'; dotClass='fd-a'; }
     var coverHtml=displayCover?'<div class="fr-cover">'+displayCover.toLocaleString()+' kg DM/ha</div>':'';
-    return '<div class="field-row" onclick="openFieldAI('+fi+')">'
+    return '<div class="field-row" onclick="openField('+fi+')">'
       +'<div class="fd '+dotClass+'"></div>'
       +'<div class="fr-info"><div class="fr-name">Field '+(fi+1)+' \u00b7 '+f.crop+'</div><div class="fr-meta">'+f.area+' ha \u00b7 '+(f.olr||'Owned')+'</div></div>'
       +'<div class="fr-right"><div class="fr-action '+displayColor+'">'+displayAction+'</div>'+coverHtml+'</div>'
@@ -2797,6 +2798,14 @@ function loadPlateMeterHistory(){
 function toggleFaiCard(id){
   var el=document.getElementById(id);
   if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function openFieldAIFromNav(){
+  // Open Field AI for current field or first field
+  var idx = currentField ? myFields.indexOf(currentField) : 0;
+  if(idx < 0) idx = 0;
+  if(myFields.length === 0){ alert('Please open a field first'); return; }
+  openFieldAI(idx);
 }
 
 function openFieldAI(idx){
