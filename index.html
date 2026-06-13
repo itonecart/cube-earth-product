@@ -2873,6 +2873,7 @@ function renderFieldAI(d){
   document.getElementById('fai-crop-name').textContent=currentField.crop;
   document.getElementById('fai-crop-stage').textContent=isGrass?'Permanent Pasture':'Arable crop';
   document.getElementById('fai-ndvi').textContent=ndvi?ndvi.toFixed(3):'—';
+  // Point SAR RVI — note polygon SAR may differ
   document.getElementById('fai-rvi').textContent=rvi?rvi.toFixed(3):'—';
 
   // CARD 3 — Grass & Cover
@@ -2991,9 +2992,12 @@ function renderFieldAICrop(cgm){
   if(isGrassField){
     // For grassland show cover and growth instead of LAI/Biomass
     var gmData=currentField&&currentField.profileData&&currentField.profileData.grass_model||{};
-    var estLAI2=gmData.kg_dm_ha?(gmData.kg_dm_ha/1000*2.5).toFixed(1):'—';
-    document.getElementById('fai-lai').textContent=estLAI2;
-    document.getElementById('fai-biomass').textContent=gmData.kg_dm_ha?(gmData.kg_dm_ha/1000).toFixed(2)+'':'—';
+    // LAI estimated from NDVI (0-7 scale)
+    var estLAI2 = ndvi ? (ndvi * 7.0).toFixed(1) : '—';
+    // Biomass = standing cover in t DM/ha
+    var estBio2 = gmData.kg_dm_ha ? (gmData.kg_dm_ha/1000).toFixed(2)+' t DM/ha' : '—';
+    document.getElementById('fai-lai').textContent = estLAI2;
+    document.getElementById('fai-biomass').textContent = estBio2;
     // Update labels
     var laiLabel=document.querySelector('#fai-crop-detail .mc-unit:nth-child(3)');
     var bioLabel=document.querySelector('#fai-crop-detail .mc-unit:nth-child(4)');
@@ -3008,8 +3012,8 @@ function renderFieldAICrop(cgm){
   var laiLbl=document.getElementById('fai-lai-label');
   var bioLbl=document.getElementById('fai-biomass-label');
   if(isGrassField){
-    if(laiLbl) laiLbl.textContent='LAI · estimated';
-    if(bioLbl) bioLbl.textContent='t DM/ha · standing';
+    if(laiLbl) laiLbl.textContent='LAI · from NDVI';
+    if(bioLbl) bioLbl.textContent='Biomass standing';
   } else {
     if(laiLbl) laiLbl.textContent='LAI · Leaf Area';
     if(bioLbl) bioLbl.textContent='Biomass t/ha';
