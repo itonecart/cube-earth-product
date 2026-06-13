@@ -2793,6 +2793,217 @@ function loadPlateMeterHistory(){
     .catch(function(e){ console.log('History load error:', e); });
 }
 
+
+function toggleFaiCard(id){
+  var el=document.getElementById(id);
+  if(el) el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function openFieldAI(idx){
+  currentField=myFields[idx];
+  document.getElementById('fai-field-name').textContent='Field '+(idx+1);
+  showPage('pg-fieldai');
+
+  // Use cached data first
+  var d=currentField.profileData;
+  if(d) renderFieldAI(d);
+  else {
+    fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({lat:currentField.lat,lng:currentField.lng,year:2026,
+        parcel_override:{crop:currentField.crop,claim_area:currentField.area,
+          grassland:currentField.crop.toLowerCase().includes('pasture'),
+          eco:currentField.eco,biss:currentField.biss,olr:currentField.olr}})})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      currentField.profileData=data;
+      renderFieldAI(data);
+    });
+  }
+
+  // Fetch crop intelligence
+  fetch('https://crop-trajectory.onrender.com/parcel_intelligence',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({lat:currentField.lat,lng:currentField.lng}),
+    signal:AbortSignal.timeout(300000)
+  }).then(function(r){return r.json();})
+  .then(function(cgm){renderFieldAICrop(cgm);})
+  .catch(function(){});
+}
+
+function renderFieldAI(d){
+  var v=d.vegetation||{};
+  var sm=d.soil_moisture||{};
+  var s=d.sar||{};
+  var gm=d.grass_model||{};
+  var sl=d.slurry||{};
+  var ndvi=v.ndvi||0;
+  var rvi=s.rvi||0;
+  var smap=sm.smap&&sm.smap.sm_surface_m3||0;
+  var isGrass=currentField.crop.toLowerCase().includes('pasture')||
+              currentField.crop.toLowerCase().includes('grass');
+
+  // CARD 1 — Today's Decision
+  var dec,reason,bg;
+  if(isGrass){
+    var cover=gm.kg_dm_ha||0;
+    if(cover>=1600){dec='✅ Graze Now';reason='Cover at '+cover+' kg DM/ha — grazing target reached';bg='linear-gradient(135deg,#052e16,#16a34a)';}
+    else if(cover>=1200){dec='⏳ Monitor — Building';reason='Cover building to grazing target. Check in 3-5 days';bg='linear-gradient(135deg,#451a03,#d97706)';}
+    else{dec='🔄 Rest Field';reason='Cover too low — rest and allow recovery';bg='linear-gradient(135deg,#450a0a,#dc2626)';}
+    if(smap>0.35){dec='⚠ Too Wet — No Entry';reason='Soil saturated — avoid all machinery and grazing';bg='linear-gradient(135deg,#1e1b4b,#4338ca)';}
+  } else {
+    if(ndvi>0.6){dec='✅ Crop Healthy';reason='NDVI '+ndvi.toFixed(2)+' — good canopy development';}
+    else if(ndvi>0.4){dec='👁 Monitor Crop';reason='NDVI '+ndvi.toFixed(2)+' — check for stress or disease';}
+    else{dec='⚠ Crop Stress';reason='Low vegetation signal — inspect field';}
+    bg='linear-gradient(135deg,#0a1525,#1a4a8c)';
+  }
+  document.getElementById('fai-card1').style.background=bg;
+  document.getElementById('fai-decision').textContent=dec;
+  document.getElementById('fai-decision-reason').textContent=reason;
+
+  // CARD 2 — Crop Status (partial — CGM fills the rest)
+  document.getElementById('fai-crop-name').textContent=currentField.crop;
+  document.getElementById('fai-crop-stage').textContent=isGrass?'Permanent Pasture':'Arable crop';
+  document.getElementById('fai-ndvi').textContent=ndvi?ndvi.toFixed(3):'—';
+  document.getElementById('fai-rvi').textContent=rvi?rvi.toFixed(3):'—';
+
+  // CARD 3 — Grass & Cover
+  if(isGrass&&gm.available){
+    var cover=gm.kg_dm_ha||0;
+    var gr=gm.growth_rate_kg_day||0;
+    var action=cover>=1600?'Graze Now':cover>=1200?'Building — monitor':'Rest — too low';
+    var sub=cover+' kg DM/ha · Growth '+gr+' kg/day';
+    document.getElementById('fai-cover-action').textContent=action;
+    document.getElementById('fai-cover-sub').textContent=sub;
+    document.getElementById('fai-cover-val').textContent=cover.toLocaleString();
+    document.getElementById('fai-growth').textContent=gr;
+    document.getElementById('fai-forecast').textContent=gm.forecast_cover_7d?gm.forecast_cover_7d.toLocaleString():'—';
+    document.getElementById('fai-height').textContent=gm.height_cm_est||'—';
+  } else {
+    document.getElementById('fai-cover-action').textContent=isGrass?'Loading...':'Not applicable';
+    document.getElementById('fai-cover-sub').textContent=isGrass?'Grass model loading':'Arable field';
+    document.getElementById('fai-cover-val').textContent='—';
+  }
+
+  // CARD 4 — Soil & Water
+  var trafLabel,trafIcon,slurryText,slurryBg;
+  if(smap>0.38){trafLabel='Poor — avoid entry';trafIcon='🔴';slurryBg='background:#fff5f5;color:#dc2626';}
+  else if(smap>0.32){trafLabel='Caution — light only';trafIcon='🟡';slurryBg='background:#fffbeb;color:#92400e';}
+  else{trafLabel='Excellent — all machinery';trafIcon='🟢';slurryBg='background:#f0fdf4;color:#166534';}
+  
+  document.getElementById('fai-soil-action').textContent=trafLabel;
+  document.getElementById('fai-soil-sub').textContent='Soil moisture '+smap.toFixed(2)+' m³/m³';
+  document.getElementById('fai-soil-icon').textContent=trafIcon;
+  document.getElementById('fai-moisture').textContent=smap?smap.toFixed(3):'—';
+  document.getElementById('fai-trafficability').textContent=smap>0.38?'Poor':smap>0.32?'Caution':'Good';
+
+  if(sl&&sl.available){
+    var slText=sl.label||'Check conditions';
+    document.getElementById('fai-slurry-status').textContent='🪣 Slurry: '+slText;
+    document.getElementById('fai-slurry-status').setAttribute('style','background:'+(sl.status==='green'?'#f0fdf4;color:#166534':sl.status==='yellow'?'#fffbeb;color:#92400e':'#fff5f5;color:#dc2626')+';border-radius:8px;padding:10px;font-size:12px;font-weight:600;margin-bottom:8px');
+  }
+
+  // CARD 5 — Disease Risk (basic from weather)
+  var rain=d.weather&&d.weather.rain_48h_mm||0;
+  var temp=d.weather&&d.weather.soil_temp_6cm||12;
+  var diseaseRisk,diseaseIcon,diseaseSub;
+  if(isGrass){
+    diseaseRisk='Low'; diseaseIcon='🟢'; diseaseSub='No significant disease pressure';
+    document.getElementById('fai-disease-list').innerHTML=
+      '<div style="padding:10px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#166534">✅ Grassland — low disease risk. Monitor for clover rot in wet conditions.</div>';
+  } else {
+    if(rain>20&&temp>12){diseaseRisk='High';diseaseIcon='🔴';diseaseSub='Wet warm conditions favour disease';}
+    else if(rain>10||temp>15){diseaseRisk='Moderate';diseaseIcon='🟡';diseaseSub='Monitor closely this week';}
+    else{diseaseRisk='Low';diseaseIcon='🟢';diseaseSub='Conditions unfavourable for disease';}
+    document.getElementById('fai-disease-list').innerHTML=
+      '<div style="padding:10px;background:#f9fafb;border-radius:8px;font-size:12px;color:var(--muted)">Full disease risk available from crop intelligence below</div>';
+  }
+  document.getElementById('fai-disease-level').textContent=diseaseRisk+' Risk';
+  document.getElementById('fai-disease-icon').textContent=diseaseIcon;
+  document.getElementById('fai-disease-sub').textContent=diseaseSub;
+
+  // CARD 6 — This Week's Actions
+  var actions=[];
+  if(isGrass){
+    var cover2=gm.kg_dm_ha||0;
+    if(cover2>=1600) actions.push({n:1,icon:'🟢',text:'Rotate stock into this field — grazing target reached'});
+    else if(cover2>=1200) actions.push({n:1,icon:'🟡',text:'Monitor cover daily — '+(Math.ceil((1600-cover2)/(gm.growth_rate_kg_day||40)))+' days to grazing target'});
+    else actions.push({n:1,icon:'🔴',text:'Rest field — allow recovery before next grazing'});
+    if(sl&&sl.status==='green') actions.push({n:2,icon:'🟢',text:'Slurry spreading conditions good — window open'});
+    else if(sl&&sl.status==='yellow') actions.push({n:2,icon:'🟡',text:'Check slurry conditions before spreading'});
+    else actions.push({n:2,icon:'⚠️',text:'Do not spread slurry — conditions not suitable'});
+    if(smap<0.15) actions.push({n:3,icon:'⚠️',text:'Soil very dry — monitor grass growth'});
+    actions.push({n:actions.length+1,icon:'ℹ️',text:'Check satellite update in 5-6 days — next Sentinel pass'});
+  } else {
+    if(ndvi>0.5) actions.push({n:1,icon:'🟢',text:'Crop in good condition — continue monitoring'});
+    else actions.push({n:1,icon:'🟡',text:'Check crop for stress — NDVI below optimal'});
+    actions.push({n:2,icon:'ℹ️',text:'Full crop AI analysis loading — check back in 2-3 minutes'});
+  }
+
+  document.getElementById('fai-actions-summary').textContent=
+    actions.filter(function(a){return a.icon==='🔴'||a.icon==='⚠️';}).length+' urgent · '+
+    actions.filter(function(a){return a.icon==='🟡';}).length+' monitor · '+
+    actions.filter(function(a){return a.icon==='🟢';}).length+' good';
+
+  document.getElementById('fai-actions-list').innerHTML=actions.map(function(a){
+    return '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px;background:#f9fafb;border-radius:10px">'
+      +'<div style="font-size:20px;flex-shrink:0">'+a.icon+'</div>'
+      +'<div><div style="font-size:13px;font-weight:600;color:#0a1525">'+a.text+'</div></div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderFieldAICrop(cgm){
+  if(!cgm||!cgm.crop_intelligence) return;
+  var fa=cgm.crop_intelligence.field_analysis||{};
+  var gm2=cgm.crop_intelligence.growth_model||{};
+  var phy=cgm.physiological||{};
+
+  // Update crop status card
+  var stage=fa.current_stage||'—';
+  var conf=fa.classification_confidence||0;
+  var health=Math.round(conf/10);
+  document.getElementById('fai-crop-stage').textContent=stage;
+  document.getElementById('fai-health-score').textContent=health;
+  document.getElementById('fai-lai').textContent=phy.lai_refined?phy.lai_refined.toFixed(1):'—';
+  document.getElementById('fai-biomass').textContent=phy.biomass_t_ha?phy.biomass_t_ha.toFixed(1):'—';
+  document.getElementById('fai-crop-source').textContent='Source: '+(fa.crop_source||'SAR classifier');
+
+  // Update disease card from CGM
+  var dr=cgm.disease_risk||{};
+  if(dr.disease_risks&&dr.disease_risks.length>0){
+    var highest=dr.highest_risk||'Low';
+    var icon=highest==='High'?'🔴':highest==='Moderate'?'🟡':'🟢';
+    document.getElementById('fai-disease-level').textContent=highest+' Risk';
+    document.getElementById('fai-disease-icon').textContent=icon;
+    document.getElementById('fai-disease-sub').textContent=dr.priority_action||'Monitor conditions';
+    document.getElementById('fai-disease-list').innerHTML=dr.disease_risks.map(function(d){
+      var di=d.risk_level==='High'?'🔴':d.risk_level==='Moderate'?'🟡':'🟢';
+      return '<div style="padding:10px;background:#f9fafb;border-radius:8px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center">'
+        +'<div style="font-size:13px;font-weight:700">'+di+' '+d.disease+'</div>'
+        +'<div style="font-size:11px;color:var(--muted)">'+d.risk_level+'</div>'
+        +'</div>'
+        +(d.recommended_action?'<div style="font-size:11px;color:var(--muted);margin-top:4px">→ '+d.recommended_action+'</div>':'')
+        +'</div>';
+    }).join('');
+  }
+
+  // Update actions from CGM weekly actions
+  var wa=cgm.this_weeks_actions||{};
+  if(wa.actions&&wa.actions.length>0){
+    document.getElementById('fai-actions-summary').textContent=
+      'Priority: '+(wa.priority||'Low')+' · '+(wa.overall_assessment||'');
+    document.getElementById('fai-actions-list').innerHTML=wa.actions.map(function(a,i){
+      var icon=a.priority==='Urgent'?'🔴':a.priority==='Action'?'🟠':a.priority==='Monitor'?'🟡':'ℹ️';
+      return '<div style="display:flex;align-items:flex-start;gap:12px;padding:10px;background:#f9fafb;border-radius:10px">'
+        +'<div style="font-size:10px;font-weight:800;color:#fff;background:#1a4a8c;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(i+1)+'</div>'
+        +'<div><div style="font-size:13px;font-weight:600;color:#0a1525">'+icon+' '+a.action+'</div>'
+        +'<div style="font-size:11px;color:var(--muted);margin-top:2px">'+a.reason+'</div></div>'
+        +'</div>';
+    }).join('');
+  }
+}
+
 </script>
 <!-- SLURRY MANAGEMENT PAGE -->
 <div class="page" id="pg-slurry">
@@ -3619,3 +3830,148 @@ function loadPlateMeterHistory(){
 
 </body>
 </html>
+
+<!-- FIELD AI PAGE -->
+<div class="page" id="pg-fieldai">
+  <div class="topbar">
+    <button class="back-btn" onclick="showPage('pg-farm')">←</button>
+    <div class="tb-title">🤖 Field AI</div>
+    <div id="fai-field-name" style="font-size:11px;color:var(--muted)"></div>
+  </div>
+  <div class="scroll" style="padding:12px;display:flex;flex-direction:column;gap:10px">
+
+    <!-- CARD 1: TODAY'S DECISION -->
+    <div id="fai-card1" style="background:linear-gradient(135deg,#0a1525,#1a4a8c);border-radius:16px;padding:20px;color:#fff">
+      <div style="font-size:10px;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px">📋 Today's Decision</div>
+      <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px" id="fai-decision">Loading...</div>
+      <div style="font-size:13px;opacity:0.8" id="fai-decision-reason">Fetching satellite data</div>
+    </div>
+
+    <!-- CARD 2: CROP STATUS -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div style="padding:16px;display:flex;align-items:center;justify-content:space-between" onclick="toggleFaiCard('fai-crop-detail')">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">🌱 Crop Status</div>
+          <div style="font-size:18px;font-weight:800" id="fai-crop-name">—</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:3px" id="fai-crop-stage">—</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:28px;font-weight:800;font-family:var(--mono)" id="fai-health-score">—</div>
+          <div style="font-size:10px;color:var(--muted)">/10 health</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">▼ details</div>
+        </div>
+      </div>
+      <div id="fai-crop-detail" style="display:none;border-top:1px solid var(--border);padding:14px 16px;background:#f9fafb">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-ndvi">—</div>
+            <div style="font-size:10px;color:var(--muted)">NDVI · Greenness</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-rvi">—</div>
+            <div style="font-size:10px;color:var(--muted)">SAR RVI · Structure</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-lai">—</div>
+            <div style="font-size:10px;color:var(--muted)">LAI · Leaf Area</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:18px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-biomass">—</div>
+            <div style="font-size:10px;color:var(--muted)">Biomass t/ha</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--muted)" id="fai-crop-source">Source: —</div>
+      </div>
+    </div>
+
+    <!-- CARD 3: GRASS & COVER -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div style="padding:16px;display:flex;align-items:center;justify-content:space-between" onclick="toggleFaiCard('fai-grass-detail')">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">🌾 Grass & Cover</div>
+          <div style="font-size:18px;font-weight:800" id="fai-cover-action">—</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:3px" id="fai-cover-sub">—</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:28px;font-weight:800;font-family:var(--mono);color:#16a34a" id="fai-cover-val">—</div>
+          <div style="font-size:10px;color:var(--muted)">kg DM/ha</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">▼ details</div>
+        </div>
+      </div>
+      <div id="fai-grass-detail" style="display:none;border-top:1px solid var(--border);padding:14px 16px;background:#f9fafb">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800;color:#16a34a;font-family:var(--mono)" id="fai-growth">—</div>
+            <div style="font-size:10px;color:var(--muted)">kg/day growth</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-forecast">—</div>
+            <div style="font-size:10px;color:var(--muted)">7-day forecast</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800;color:#d97706;font-family:var(--mono)" id="fai-height">—</div>
+            <div style="font-size:10px;color:var(--muted)">cm height</div>
+          </div>
+        </div>
+        <button onclick="openGrassPage(currentField)" style="width:100%;padding:10px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">🌾 Full Grass Model →</button>
+      </div>
+    </div>
+
+    <!-- CARD 4: SOIL & WATER -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div style="padding:16px;display:flex;align-items:center;justify-content:space-between" onclick="toggleFaiCard('fai-soil-detail')">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">💧 Soil & Water</div>
+          <div style="font-size:18px;font-weight:800" id="fai-soil-action">—</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:3px" id="fai-soil-sub">—</div>
+        </div>
+        <div style="text-align:right">
+          <div id="fai-soil-icon" style="font-size:28px">—</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">▼ details</div>
+        </div>
+      </div>
+      <div id="fai-soil-detail" style="display:none;border-top:1px solid var(--border);padding:14px 16px;background:#f9fafb">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-moisture">—</div>
+            <div style="font-size:10px;color:var(--muted)">m³/m³ moisture</div>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800;font-family:var(--mono)" id="fai-trafficability">—</div>
+            <div style="font-size:10px;color:var(--muted)">trafficability</div>
+          </div>
+        </div>
+        <div id="fai-slurry-status" style="background:#f0fdf4;border-radius:8px;padding:10px;font-size:12px;color:#166534;font-weight:600;margin-bottom:8px">—</div>
+        <button onclick="openSlurry()" style="width:100%;padding:10px;background:var(--g3);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">🪣 Slurry Spreading Check →</button>
+      </div>
+    </div>
+
+    <!-- CARD 5: DISEASE RISK -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div style="padding:16px;display:flex;align-items:center;justify-content:space-between" onclick="toggleFaiCard('fai-disease-detail')">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">🦠 Disease Risk</div>
+          <div style="font-size:18px;font-weight:800" id="fai-disease-level">—</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:3px" id="fai-disease-sub">—</div>
+        </div>
+        <div style="text-align:right">
+          <div id="fai-disease-icon" style="font-size:36px">—</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px">▼ details</div>
+        </div>
+      </div>
+      <div id="fai-disease-detail" style="display:none;border-top:1px solid var(--border);padding:14px 16px;background:#f9fafb">
+        <div id="fai-disease-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
+    <!-- CARD 6: THIS WEEK'S ACTIONS -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px">
+      <div style="padding:16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">📋 This Week's Actions</div>
+        <div style="font-size:13px;color:var(--muted)" id="fai-actions-summary">Loading...</div>
+      </div>
+      <div id="fai-actions-list" style="padding:14px 16px;display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+  </div>
+</div>
