@@ -936,7 +936,9 @@ function openField(idx){
         if(isGrass){
           fa.crop_type = 'Grassland';
           fa.crop_source = dafmCrop ? 'DAFM parcel data' : 'Field type';
-          if(gm.system !== 'grassland'){
+          // Force grassland model
+          gm = {system:'grassland',crop:'Permanent Pasture',trend:gm.trend||'Growing',rvi_current:cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.rvi_current,rvi_seasonal_mean:cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.rvi_seasonal_mean,grazing_cover:cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.grazing_cover};
+          if(false){
             fa.current_stage = 'Permanent Pasture — ' + (gm.trend||'Growing');
             fa.yield_estimate_tha = null;
             var _gm2 = cgm.crop_intelligence&&cgm.crop_intelligence.growth_model||{};
