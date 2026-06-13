@@ -2988,11 +2988,31 @@ function renderFieldAICrop(cgm){
   document.getElementById('fai-crop-name').textContent=fa.crop_type||currentField.crop;
   document.getElementById('fai-crop-stage').textContent=stage;
   document.getElementById('fai-health-score').textContent=health;
-  document.getElementById('fai-lai').textContent=phy.lai_refined?phy.lai_refined.toFixed(1):'—';
-  document.getElementById('fai-biomass').textContent=phy.biomass_t_ha?phy.biomass_t_ha.toFixed(1):'—';
+  if(isGrassField){
+    // For grassland show cover and growth instead of LAI/Biomass
+    var gmData=currentField&&currentField.profileData&&currentField.profileData.grass_model||{};
+    document.getElementById('fai-lai').textContent=gmData.kg_dm_ha?gmData.kg_dm_ha.toLocaleString():'—';
+    document.getElementById('fai-biomass').textContent=gmData.growth_rate_kg_day?gmData.growth_rate_kg_day:'—';
+    // Update labels
+    var laiLabel=document.querySelector('#fai-crop-detail .mc-unit:nth-child(3)');
+    var bioLabel=document.querySelector('#fai-crop-detail .mc-unit:nth-child(4)');
+  } else {
+    document.getElementById('fai-lai').textContent=phy.lai_refined?phy.lai_refined.toFixed(1):'—';
+    document.getElementById('fai-biomass').textContent=phy.biomass_t_ha?phy.biomass_t_ha.toFixed(1):'—';
+  }
   document.getElementById('fai-crop-source').textContent='Source: '+(fa.crop_source||'SAR classifier');
   var loadEl=document.getElementById('fai-crop-loading');
   if(loadEl) loadEl.style.display='none';
+  // Update metric labels
+  var laiLbl=document.getElementById('fai-lai-label');
+  var bioLbl=document.getElementById('fai-biomass-label');
+  if(isGrassField){
+    if(laiLbl) laiLbl.textContent='kg DM/ha · Cover';
+    if(bioLbl) bioLbl.textContent='kg/day · Growth';
+  } else {
+    if(laiLbl) laiLbl.textContent='LAI · Leaf Area';
+    if(bioLbl) bioLbl.textContent='Biomass t/ha';
+  }
 
   // Update disease card from CGM
   var dr=cgm.disease_risk||{};
