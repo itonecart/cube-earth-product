@@ -2991,8 +2991,9 @@ function renderFieldAICrop(cgm){
   if(isGrassField){
     // For grassland show cover and growth instead of LAI/Biomass
     var gmData=currentField&&currentField.profileData&&currentField.profileData.grass_model||{};
-    document.getElementById('fai-lai').textContent=gmData.kg_dm_ha?gmData.kg_dm_ha.toLocaleString():'—';
-    document.getElementById('fai-biomass').textContent=gmData.growth_rate_kg_day?gmData.growth_rate_kg_day:'—';
+    var estLAI2=gmData.kg_dm_ha?(gmData.kg_dm_ha/1000*2.5).toFixed(1):'—';
+    document.getElementById('fai-lai').textContent=estLAI2;
+    document.getElementById('fai-biomass').textContent=gmData.kg_dm_ha?(gmData.kg_dm_ha/1000).toFixed(2)+'':'—';
     // Update labels
     var laiLabel=document.querySelector('#fai-crop-detail .mc-unit:nth-child(3)');
     var bioLabel=document.querySelector('#fai-crop-detail .mc-unit:nth-child(4)');
@@ -3007,8 +3008,8 @@ function renderFieldAICrop(cgm){
   var laiLbl=document.getElementById('fai-lai-label');
   var bioLbl=document.getElementById('fai-biomass-label');
   if(isGrassField){
-    if(laiLbl) laiLbl.textContent='kg DM/ha · Cover';
-    if(bioLbl) bioLbl.textContent='kg/day · Growth';
+    if(laiLbl) laiLbl.textContent='LAI · estimated';
+    if(bioLbl) bioLbl.textContent='t DM/ha · standing';
   } else {
     if(laiLbl) laiLbl.textContent='LAI · Leaf Area';
     if(bioLbl) bioLbl.textContent='Biomass t/ha';
