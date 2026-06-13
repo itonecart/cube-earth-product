@@ -2876,6 +2876,19 @@ function renderFieldAI(d){
   // Point SAR RVI — note polygon SAR may differ
   document.getElementById('fai-rvi').textContent=rvi?rvi.toFixed(3):'—';
 
+  // LAI and Biomass — set immediately from available data
+  var laiLbl=document.getElementById('fai-lai-label');
+  var bioLbl=document.getElementById('fai-biomass-label');
+  if(isGrass){
+    var quickLAI=ndvi?(ndvi*7.0).toFixed(1):'—';
+    var gmCoverNow=gm&&gm.kg_dm_ha?gm.kg_dm_ha:0;
+    var quickBio=gmCoverNow?(gmCoverNow/1000).toFixed(2)+' t DM':'—';
+    document.getElementById('fai-lai').textContent=quickLAI;
+    document.getElementById('fai-biomass').textContent=quickBio;
+    if(laiLbl) laiLbl.textContent='LAI · from NDVI';
+    if(bioLbl) bioLbl.textContent='Biomass standing';
+  }
+
   // CARD 3 — Grass & Cover
   if(isGrass&&gm.available){
     var cover=gm.kg_dm_ha||0;
