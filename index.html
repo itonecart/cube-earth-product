@@ -936,8 +936,12 @@ function openField(idx){
         if(isGrass){
           fa.crop_type = 'Grassland';
           fa.crop_source = dafmCrop ? 'DAFM parcel data' : 'Field type';
-          // Force grassland model
-          gm = {system:'grassland',crop:'Permanent Pasture',trend:gm.trend||'Growing',rvi_current:cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.rvi_current,rvi_seasonal_mean:cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.rvi_seasonal_mean,grazing_cover:cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.grazing_cover};
+          fa.current_stage = 'Permanent Pasture — Growing';
+          fa.yield_estimate_tha = null;
+          var sarRvi = cgm.sar_data && cgm.sar_data.latest_rvi;
+          var grassRvi = sarRvi || (currentField && currentField.ndvi ? (currentField.ndvi * 0.85).toFixed(4) : null);
+          var coverLabel = grassRvi > 0.55 ? 'Good' : grassRvi > 0.40 ? 'Moderate' : 'Low';
+          alerts = ['RVI: '+(grassRvi?Number(grassRvi).toFixed(4):'—')+' — '+coverLabel+' grazing cover'];
           if(false){
             fa.current_stage = 'Permanent Pasture — ' + (gm.trend||'Growing');
             fa.yield_estimate_tha = null;
