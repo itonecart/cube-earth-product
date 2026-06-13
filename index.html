@@ -923,7 +923,25 @@ function openField(idx){
         var fa=cgm.crop_intelligence&&cgm.crop_intelligence.field_analysis||{};
         var gm=cgm.crop_intelligence&&cgm.crop_intelligence.growth_model||{};
         var alerts=fa.management_alerts||[];
-        var isGrass=fa.crop_type&&(fa.crop_type.toLowerCase().includes('grass')||fa.crop_type.toLowerCase().includes('pasture'));
+        // Force grassland from DAFM field crop type
+        var fieldCropType = currentField ? (currentField.crop||'') : '';
+        var dafmCrop = (cgm.parcel && cgm.parcel.crop_dafm) || '';
+        var isGrass = dafmCrop.toLowerCase().includes('pasture') ||
+                      dafmCrop.toLowerCase().includes('grass') ||
+                      fieldCropType.toLowerCase().includes('pasture') ||
+                      fieldCropType.toLowerCase().includes('grass');
+        // Override wrong model output for grassland
+        if(isGrass){
+          fa.crop_type = 'Grassland';
+          fa.crop_source = dafmCrop ? 'DAFM parcel data' : 'Field type';
+          if(gm.system !== 'grassland'){
+            fa.current_stage = 'Permanent Pasture — ' + (gm.trend||'Growing');
+            fa.yield_estimate_tha = null;
+            alerts = [
+              'RVI: '+(gm.rvi_current||'—')+' — '+(gm.grazing_cover==='Good'?'Good grazing cover':'Monitor grass cover')
+            ];
+          }
+        }
         el.innerHTML='<div style="border-top:2px solid #4a8fd4;margin-top:12px;padding-top:12px">'+
           '<div style="font-size:11px;font-weight:600;color:#4a8fd4;letter-spacing:0.05em;margin-bottom:6px">🌱 CROP INTELLIGENCE</div>'+
           '<div style="font-size:14px;font-weight:600;color:#fff">'+(fa.crop_type||'Unknown')+'</div>'+
