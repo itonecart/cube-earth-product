@@ -923,6 +923,7 @@ function openField(idx){
         var fa=cgm.crop_intelligence&&cgm.crop_intelligence.field_analysis||{};
         var gm=cgm.crop_intelligence&&cgm.crop_intelligence.growth_model||{};
         var alerts=fa.management_alerts||[];
+        var _debugRvi=cgm&&cgm.crop_intelligence&&cgm.crop_intelligence.growth_model&&cgm.crop_intelligence.growth_model.rvi_current;
         // Force grassland from DAFM field crop type
         var fieldCropType = currentField ? (currentField.crop||'') : '';
         var dafmCrop = (cgm.parcel && cgm.parcel.crop_dafm) || '';
@@ -939,10 +940,10 @@ function openField(idx){
             fa.current_stage = 'Permanent Pasture — ' + (gm.trend||'Growing');
             fa.yield_estimate_tha = null;
             var _gm2 = cgm.crop_intelligence&&cgm.crop_intelligence.growth_model||{};
-            var _rvi = _gm2.rvi_current||_gm2.rvi_seasonal_mean||0;
+            var _rvi = _debugRvi||_gm2.rvi_current||_gm2.rvi_seasonal_mean||0;
             var _cover = _gm2.grazing_cover||(_rvi>0.55?'Good':'Moderate');
             alerts = [
-              'RVI: '+(_rvi?_rvi.toFixed(4):'—')+' — '+_cover+' grazing cover'
+              'RVI: '+(_rvi?Number(_rvi).toFixed(4):'NO_RVI_'+JSON.stringify(_gm2).substring(0,50))+' — '+_cover+' grazing cover'
             ];
           }
         }
