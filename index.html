@@ -301,7 +301,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
     </div>
     <div class="metrics">
       <div class="mc">
-        <div class="mc-label">🌾 Pasture Cover</div>
+        <div class="mc-label" id="ndvi-label">🌾 Pasture Cover</div>
         <div class="mc-val" id="m-ndvi">—</div>
         <div class="mc-unit" id="ndvi-raw-val" style="font-size:9px;color:var(--muted)">NDVI —</div>
         <div class="mc-note note-g" id="m-ndvi-note">—</div>
@@ -904,6 +904,8 @@ function openField(idx){
   document.getElementById('intel-title').textContent='Field '+(idx+1);
   var isGrass=currentField.crop.toLowerCase().includes('pasture')||currentField.crop.toLowerCase().includes('grass');
   document.getElementById('intel-type').textContent=isGrass?'🌱 Grassland':'🌾 Tillage/Arable';
+  var grassBtn=document.getElementById('grass-model-btn');
+  if(grassBtn) grassBtn.style.display=isGrass?'flex':'none';
   var displayCrop=currentField.crop||'Unknown';
   if(displayCrop.toLowerCase().includes('extensive')) displayCrop='Permanent Pasture';
   if(displayCrop.toLowerCase().includes('rough grazing')) displayCrop='Rough Grazing / Hill Land';
@@ -2848,8 +2850,9 @@ function renderFieldAI(d){
   var ndvi=v.ndvi||0;
   var rvi=s.rvi||0;
   var smap=sm.smap&&sm.smap.sm_surface_m3||0;
-  var isGrass=currentField.crop.toLowerCase().includes('pasture')||
-              currentField.crop.toLowerCase().includes('grass');
+  var cropLower=currentField.crop.toLowerCase();
+  var isArable=['barley','wheat','oat','rape','maize','potato','bean'].some(function(k){return cropLower.includes(k);});
+  var isGrass=!isArable&&(cropLower.includes('pasture')||cropLower.includes('grass'));
 
   // CARD 1 — Today's Decision
   var dec,reason,bg;
