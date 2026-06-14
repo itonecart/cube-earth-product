@@ -2891,6 +2891,10 @@ function renderFieldAI(d){
   // SAR Intelligence
   renderSARIntelligence(ndvi,rvi,gm,d.vegetation_trend||{});
 
+  // SAR Intelligence
+  var vtData=d.vegetation_trend||{};
+  renderSARIntelligence(ndvi, rvi, gm, vtData);
+
   // CARD 3 — Grass & Cover
   if(isGrass&&gm.available){
     var cover=gm.kg_dm_ha||0;
@@ -3013,6 +3017,67 @@ function renderSARIntelligence(ndvi, rvi, gm, vt){
   var cEl=document.getElementById('fai-sar-conf');
   if(tEl) tEl.textContent=trend30;
   if(cEl) cEl.textContent=conf+'%';
+}
+
+function renderSARIntelligence(ndvi, rvi, gm, vt){
+  var checks = [];
+  var conf = 0;
+
+  // 1. Canopy density
+  if(rvi > 0.7){ checks.push({ok:true, text:'Dense canopy detected'}); conf+=20; }
+  else if(rvi > 0.5){ checks.push({ok:true, text:'Moderate canopy density'}); conf+=12; }
+  else { checks.push({ok:false, text:'Sparse canopy — low RVI'}); conf+=5; }
+
+  // 2. Optical + Radar agreement
+  var ndviNorm = ndvi;
+  var rviNorm = rvi;
+  var agree = Math.abs(ndviNorm - rviNorm) < 0.15;
+  if(agree){ checks.push({ok:true, text:'Optical and radar agree'}); conf+=25; }
+  else if(ndviNorm > 0.6 && rviNorm < 0.4){
+    checks.push({ok:false, text:'Drought stress — green but collapsed structure'});
+  } else {
+    checks.push({ok:false, text:'Optical and radar diverge — verify on ground'});
+    conf+=5;
+  }
+
+  // 3. Growth trend from vegetation trend
+  var trend30 = '—';
+  if(vt && vt.long_diff){
+    var diff = vt.long_diff;
+    if(diff > 0.05){ trend30 = '+'+Math.round(diff*100)+'% rising'; checks.push({ok:true, text:'Growth trend positive'}); conf+=20; }
+    else if(diff > 0){ trend30 = 'Stable'; checks.push({ok:true, text:'Growth trend stable'}); conf+=15; }
+    else if(diff > -0.05){ trend30 = 'Softening'; checks.push({ok:false, text:'Growth softening — monitor'}); conf+=8; }
+    else { trend30 = Math.round(diff*100)+'% falling'; checks.push({ok:false, text:'Declining trend — investigate'}); conf+=3; }
+  } else {
+    checks.push({ok:true, text:'No recent harvest or grazing detected'});
+    conf+=10;
+  }
+
+  // 4. Harvest/grazing detection
+  if(vt && vt.series && vt.series.length > 2){
+    var recent = vt.series.slice(-2);
+    var drop = recent[0].ndvi - recent[1].ndvi;
+    if(drop > 0.15){ checks.push({ok:false, text:'Possible recent grazing or cut detected'}); }
+    else { checks.push({ok:true, text:'No recent grazing event detected'}); conf+=10; }
+  }
+
+  // 5. Field structure consistency
+  if(rvi > 0.5){ checks.push({ok:true, text:'Structure consistent across field'}); conf+=10; }
+
+  conf = Math.min(98, conf);
+
+  // Render
+  var el = document.getElementById('fai-sar-checks');
+  if(el){
+    el.innerHTML = checks.map(function(c){
+      return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#52b788':'#f59e0b')+'">'
+        +(c.ok?'✓':'⚠')+' '+c.text+'</div>';
+    }).join('');
+  }
+  var trendEl = document.getElementById('fai-sar-trend');
+  var confEl = document.getElementById('fai-sar-conf');
+  if(trendEl) trendEl.textContent = trend30;
+  if(confEl) confEl.textContent = conf+'%';
 }
 
 function renderFieldAICrop(cgm){
