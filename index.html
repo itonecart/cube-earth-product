@@ -2803,26 +2803,6 @@ function toggleFaiCard(id){
 
 
 
-function openFieldAI(idx){
-  currentField=myFields[idx];
-  document.getElementById('fai-field-name').textContent='Field '+(idx+1);
-  showPage('pg-fieldai');
-
-  // Use cached data first
-  var d=currentField.profileData;
-  if(d) renderFieldAI(d);
-  else {
-    fetch(API+'/field_profile',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({lat:currentField.lat,lng:currentField.lng,year:2026,
-        parcel_override:{crop:currentField.crop,claim_area:currentField.area,
-          grassland:currentField.crop.toLowerCase().includes('pasture'),
-          eco:currentField.eco,biss:currentField.biss,olr:currentField.olr}})})
-    .then(function(r){return r.json();})
-    .then(function(data){
-      currentField.profileData=data;
-      renderFieldAI(data);
-    });
-  }
 
   // Fetch crop intelligence
   fetch('https://crop-trajectory.onrender.com/parcel_intelligence',{
