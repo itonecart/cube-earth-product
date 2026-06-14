@@ -2873,7 +2873,7 @@ function renderFieldAI(d){
   document.getElementById('fai-crop-name').textContent=isGrass?'Grassland':currentField.crop;
   document.getElementById('fai-crop-stage').textContent=isGrass?'Permanent Pasture — Growing':'Arable crop';
   document.getElementById('fai-health-score').textContent=isGrass?10:5;
-  document.getElementById('fai-crop-source').textContent='Source: '+(isGrass?'DAFM parcel data':'SAR classifier');
+  document.getElementById('fai-crop-source').textContent='Source: Cube Earth Intelligence · Sentinel-1 • Sentinel-2 • DAFM LPIS';
   document.getElementById('fai-ndvi').textContent=ndvi?ndvi.toFixed(3):'—';
   document.getElementById('fai-rvi').textContent=rvi?rvi.toFixed(3):'—';
   var laiLbl=document.getElementById('fai-lai-label');
