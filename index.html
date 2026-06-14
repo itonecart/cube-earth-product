@@ -930,10 +930,9 @@ function openField(idx){
         // Force grassland from DAFM field crop type
         var fieldCropType = currentField ? (currentField.crop||'') : '';
         var dafmCrop = (cgm.parcel && cgm.parcel.crop_dafm) || '';
-        var isGrass = dafmCrop.toLowerCase().includes('pasture') ||
-                      dafmCrop.toLowerCase().includes('grass') ||
-                      fieldCropType.toLowerCase().includes('pasture') ||
-                      fieldCropType.toLowerCase().includes('grass');
+        var arableKw=['barley','wheat','oat','rape','maize','potato','bean','fallow'];
+        var isArableFld=arableKw.some(function(k){return fieldCropType.toLowerCase().includes(k)||dafmCrop.toLowerCase().includes(k);});
+        var isGrass=!isArableFld&&(dafmCrop.toLowerCase().includes('pasture')||dafmCrop.toLowerCase().includes('grass')||fieldCropType.toLowerCase().includes('pasture')||fieldCropType.toLowerCase().includes('grass'));
 
         // Override wrong model output for grassland
         if(isGrass){
