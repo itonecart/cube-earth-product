@@ -2855,7 +2855,7 @@ function renderFieldAI(d){
   var dec,reason,bg;
   if(isGrass){
     var cover=gm.kg_dm_ha||0;
-    if(cover>=1600){dec='✅ Graze Now';reason='Cover at '+cover+' kg DM/ha — grazing target reached';bg='linear-gradient(135deg,#052e16,#16a34a)';}
+    if(cover>=1600){dec='✅ Graze Now';reason='Cover at '+cover+' kg DM/ha — grazing target reached';bg='linear-gradient(135deg,#0a1525,#1a4a8c)';}
     else if(cover>=1200){dec='⏳ Monitor — Building';reason='Cover building to grazing target. Check in 3-5 days';bg='linear-gradient(135deg,#451a03,#d97706)';}
     else{dec='🔄 Rest Field';reason='Cover too low — rest and allow recovery';bg='linear-gradient(135deg,#450a0a,#dc2626)';}
     if(smap>0.35){dec='⚠ Too Wet — No Entry';reason='Soil saturated — avoid all machinery and grazing';bg='linear-gradient(135deg,#1e1b4b,#4338ca)';}
@@ -3535,7 +3535,7 @@ function renderFieldAICrop(cgm){
       <!-- Issue type -->
       <div style="margin-bottom:20px">
         <div style="font-size:12px;font-weight:700;color:#1a4a8c;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">What do you see?</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <button onclick="toggleIssue('compaction',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🚜<br><span style="font-size:11px">Compaction</span></button>
           <button onclick="toggleIssue('thin_sward',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌱<br><span style="font-size:11px">Thin Sward</span></button>
           <button onclick="toggleIssue('weeds',this)" class="issue-btn" style="padding:14px 8px;border:2px solid #e2e8f0;border-radius:12px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:center;font-family:var(--sans)">🌿<br><span style="font-size:11px">Weeds</span></button>
@@ -4031,7 +4031,7 @@ function renderFieldAICrop(cgm){
         </div>
       </div>
       <div id="fai-crop-loading" style="padding:6px 16px;font-size:11px;color:#4a8fd4;background:#eff6ff">🛰 Loading crop intelligence...</div>
-      <div id="fai-crop-detail" style="display:none;border-top:1px solid var(--border);padding:14px 16px;background:#f9fafb">
+      <div id="fai-crop-detail" style="display:none;border-top:1px solid var(--border);padding:16px;background:#f9fafb">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div style="background:#fff;border-radius:10px;padding:10px;text-align:center">
             <div style="font-size:18px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-ndvi">—</div>
