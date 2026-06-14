@@ -3011,7 +3011,7 @@ function renderSARIntelligence(ndvi, rvi, gm, vt){
   conf=Math.min(98,conf);
   var el=document.getElementById('fai-sar-checks');
   if(el) el.innerHTML=checks.map(function(c){
-    return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#52b788':'#f59e0b')+'">'+(c.ok?'✓':'⚠')+' '+c.text+'</div>';
+    return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#4a8fd4':'#f59e0b')+'">'+(c.ok?'✓':'⚠')+' '+c.text+'</div>';
   }).join('');
   var tEl=document.getElementById('fai-sar-trend');
   var cEl=document.getElementById('fai-sar-conf');
@@ -3070,7 +3070,7 @@ function renderSARIntelligence(ndvi, rvi, gm, vt){
   var el = document.getElementById('fai-sar-checks');
   if(el){
     el.innerHTML = checks.map(function(c){
-      return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#52b788':'#f59e0b')+'">'
+      return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#4a8fd4':'#f59e0b')+'">'
         +(c.ok?'✓':'⚠')+' '+c.text+'</div>';
     }).join('');
   }
@@ -4007,7 +4007,7 @@ function renderFieldAICrop(cgm){
     <div class="tb-title">🤖 Field AI</div>
     <div id="fai-field-name" style="font-size:11px;color:var(--muted)"></div>
   </div>
-  <div class="scroll" style="padding:12px;display:flex;flex-direction:column;gap:10px">
+  <div class="scroll" style="padding:12px;padding-bottom:100px;display:flex;flex-direction:column;gap:10px">
 
     <!-- CARD 1: TODAY'S DECISION -->
     <div id="fai-card1" style="background:linear-gradient(135deg,#0a1525,#1a4a8c);border-radius:16px;padding:20px;color:#fff">
