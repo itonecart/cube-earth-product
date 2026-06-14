@@ -2805,13 +2805,6 @@ function toggleFaiCard(id){
 
 
   // Fetch crop intelligence
-  fetch('https://crop-trajectory.onrender.com/parcel_intelligence',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({lat:currentField.lat,lng:currentField.lng}),
-    signal:AbortSignal.timeout(300000)
-  }).then(function(r){return r.json();})
-  .then(function(cgm){renderFieldAICrop(cgm);})
-  .catch(function(){});
 }
 
 
