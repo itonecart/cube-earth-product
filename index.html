@@ -474,7 +474,7 @@ html,body{height:100%;overflow:hidden;font-family:var(--sans);background:var(--s
   <button class="ni" onclick="openBio()" id="ni-bio"><span class="ni-icon">🌿</span><span class="ni-label">Habitat</span></button>
   <button class="ni" onclick="openNPlan()" id="ni-nplan"><span class="ni-icon">🌱</span><span class="ni-label">N Plan</span></button>
   <button class="ni" onclick="openWedge()" id="ni-wedge"><span class="ni-icon">📊</span><span class="ni-label">Wedge</span></button>
-  <button class="ni" onclick="openFieldAIFromNav()" id="ni-fieldai"><span class="ni-icon">🤖</span><span class="ni-label">Field AI</span></button>
+
   <button class="ni" onclick="newSearch()" id="ni-search"><span class="ni-icon">🔍</span><span class="ni-label">New Search</span></button>
 </div>
 
@@ -2801,13 +2801,7 @@ function toggleFaiCard(id){
   if(el) el.style.display=el.style.display==='none'?'block':'none';
 }
 
-function openFieldAIFromNav(){
-  // Open Field AI for current field or first field
-  var idx = currentField ? myFields.indexOf(currentField) : 0;
-  if(idx < 0) idx = 0;
-  if(myFields.length === 0){ alert('Please open a field first'); return; }
-  openFieldAI(idx);
-}
+
 
 function openFieldAI(idx){
   currentField=myFields[idx];
