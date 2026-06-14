@@ -3011,7 +3011,7 @@ function renderSARIntelligence(ndvi, rvi, gm, vt){
   conf=Math.min(98,conf);
   var el=document.getElementById('fai-sar-checks');
   if(el) el.innerHTML=checks.map(function(c){
-    return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#4a8fd4':'#f59e0b')+'">'+(c.ok?'✓':'⚠')+' '+c.text+'</div>';
+    return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#1a4a8c':'#d97706')+'">'+(c.ok?'✓':'⚠')+' '+c.text+'</div>';
   }).join('');
   var tEl=document.getElementById('fai-sar-trend');
   var cEl=document.getElementById('fai-sar-conf');
@@ -3070,7 +3070,7 @@ function renderSARIntelligence(ndvi, rvi, gm, vt){
   var el = document.getElementById('fai-sar-checks');
   if(el){
     el.innerHTML = checks.map(function(c){
-      return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#4a8fd4':'#f59e0b')+'">'
+      return '<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:'+(c.ok?'#1a4a8c':'#d97706')+'">'
         +(c.ok?'✓':'⚠')+' '+c.text+'</div>';
     }).join('');
   }
@@ -4055,19 +4055,21 @@ function renderFieldAICrop(cgm){
     </div>
 
     <!-- SAR Intelligence Panel — always visible -->
-    <div style="background:#0a1525;border-radius:16px;padding:16px">
-      <div style="font-size:10px;font-weight:700;color:#4a8fd4;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">📡 Radar Intelligence</div>
-      <div id="fai-sar-checks" style="display:flex;flex-direction:column;gap:6px"></div>
-      <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px;text-align:center">
-          <div style="font-size:16px;font-weight:800;color:#4a8fd4;font-family:var(--mono)" id="fai-sar-trend">—</div>
-          <div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px">30-day trend</div>
-        </div>
-        <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:8px;text-align:center">
-          <div style="font-size:16px;font-weight:800;color:#4a8fd4;font-family:var(--mono)" id="fai-sar-conf">—</div>
-          <div style="font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px">radar confidence</div>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">📡 Radar Intelligence</div>
+        <div style="display:flex;gap:12px">
+          <div style="text-align:right">
+            <div style="font-size:14px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-sar-trend">—</div>
+            <div style="font-size:9px;color:var(--muted)">30-day trend</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:14px;font-weight:800;color:#1a4a8c;font-family:var(--mono)" id="fai-sar-conf">—</div>
+            <div style="font-size:9px;color:var(--muted)">confidence</div>
+          </div>
         </div>
       </div>
+      <div id="fai-sar-checks" style="padding:12px 16px;display:flex;flex-direction:column;gap:6px"></div>
     </div>
 
     <!-- CARD 3: GRASS & COVER -->
